@@ -1,0 +1,59 @@
+
+*************************************************************
+*  N-GenIC   -  A code for cosmological initial conditions  * 
+*        	                                            *
+*  written by:   Volker Springel, MPA, (c) 2003             *
+*        	                                            *
+*************************************************************
+
+This code can be used to create initial conditions for N-body
+simulations of cosmological structure formation, within the standard
+LCDM paradigm. Optionally the code can also create additional SPH
+particles for mixed dark matter/gas simulations.  The code is an MPI
+code and can be used to setup fairly large initial conditions if
+desired. The output format is that of the GADGET code, in its basic
+file format 1.
+
+To use the code, first adjust the Makefile as needed. Like GADGET, the
+code needs a correctly compiled FFTW-2 version with MPI support. You
+also need the Gnu Scientific library (GSL). In the Makefile, you can
+set/unset the following compile time options:
+
+PRODUCEGAS - use this if you want the code to automatically produce
+interleaved pairs of particles for dark matter and SPH particles. The
+relative masses of the gas and the dark will be inferred from the
+cosmological parameters you set in the code's parameterfile.
+
+NO64BITID - activate this if ordinary 32-bit integers are sufficient
+to store unique particle IDs. You only need to unset this and use
+64-bit long integer IDs if the total particle number exceeds 2^32 ~ 4
+billion.
+
+CORRECT_CIC - this determines whether or not the effect of CIC
+interpolation should be deconvolved when interpolating the
+displacement field from the FFT-grid to the actual particle
+positions. If you use a Cartesian grid of particles for the
+unperturbed particle load, then it's best to leave this off and use a
+Fourier grid size that exactly matches the particle grid
+dimension. Then there is no interpolation error at all. If you use a
+glass particle load instead, the power close to the Nyquist frequency
+will be more accurately represented if you set this option.
+
+Once you sucessfully compiled the code, you then create ICs by calling
+the code, for example,  with a command of the form:
+
+  mpiexec -np 8  ./N-GenIC  ics.param
+
+This would launch the code using 8 MPI tasks. The parameterfile
+"ics.param" has a similar structure to GADGET parameterfiles, and
+describes the ICs. 
+
+Please consult the enclosed example parameterfile "ics.param" for
+comments about the meaning of the different parameters in this file.
+
+Best regards,
+Volker Springel
+
+
+
+
