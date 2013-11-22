@@ -300,7 +300,7 @@ GSL_H = $(GSL_DIR)/err/gsl_errno.h $(GSL_DIR)/gsl_inline.h $(GSL_DIR)/rng/gsl_rn
 
 OPTIONS =  $(OPTIMIZE) $(OPT)
 
-EXEC   = Gadget2
+EXEC   = Gadget2p
 
 OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
 	 timestep.o  init.o restart.o  io.o    \

@@ -34,7 +34,7 @@
 # presented to the job on the compute nodes, they will vary
 # depending upon the application -  some applications will not require any - so delete or modify the
 # -env specification below.
-# @ arguments = -np 256 -exe /gpfs/home3/a/apetri/IG_Pipeline_0.1/N-GenIC/N-GenIC \ 
+# @ arguments = -np 256 -exe /gpfs/home3/a/apetri/IG_Pipeline_0.1/N-GenIC/N-GenICp \ 
 -cwd /gpfs/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_N-GenIC/Parameters \ 
 -mode DUAL \ 
 -args "ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1.param" 
