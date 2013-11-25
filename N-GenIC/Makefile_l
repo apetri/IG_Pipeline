@@ -1,0 +1,284 @@
+##################
+# Makefile for public version of N-GenIC by Volker Springel,
+# modified by Jan Michael Kratochvil for his modified version of N-GenIC as part of the Inspector Gadget lensing simulation pipeline.
+##################
+
+EXEC   = N-GenICl
+
+
+##################
+# Chose one of the two (comment out the other):
+MODE = "PREFAB_GROWTH"
+# MODE = 
+# Select empty string if want to compile N-GenIC together with Lam Hui's FORTRAN 77 growth factor code, otherwise it is assumed you will be feeding N-GenIC if parameter files which contain values for GrowthFactor and VelocityPrefactor explicitly.
+##################
+
+##################
+# Local extract from GNU Scientific Library (GSL) to be used directly in the code:
+# (Note that if you change GSL_DIR here, you will need to adjust it in the #include statements in the main code as well, but not in the GSL files, which are all locally referenced from this folder.)
+GSL_DIR = gsl_extract
+
+GSL_OBJS = $(GSL_DIR)/rng/rng.o $(GSL_DIR)/err/error.o $(GSL_DIR)/err/stream.o $(GSL_DIR)/rng/ranlxd.o $(GSL_DIR)/integration/qag.o $(GSL_DIR)/integration/qk.o $(GSL_DIR)/integration/qk15.o $(GSL_DIR)/integration/qk21.o $(GSL_DIR)/integration/qk31.o $(GSL_DIR)/integration/qk41.o $(GSL_DIR)/integration/qk51.o $(GSL_DIR)/integration/qk61.o $(GSL_DIR)/integration/workspace.o $(GSL_DIR)/sys/coerce.o $(GSL_DIR)/rng/mt.o
+
+GSL_H = $(GSL_DIR)/err/gsl_errno.h $(GSL_DIR)/gsl_inline.h $(GSL_DIR)/rng/gsl_rng.h $(GSL_DIR)/gsl_types.h $(GSL_DIR)/integration/gsl_integration.h $(GSL_DIR)/gsl_math.h $(GSL_DIR)/gsl_minmax.h $(GSL_DIR)/integration/initialise.c $(GSL_DIR)/integration/set_initial.c $(GSL_DIR)/integration/util.c $(GSL_DIR)/config.h
+##################
+
+##################
+ifeq ($(MODE), "PREFAB_GROWTH")
+OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o $(GSL_OBJS)
+
+INCL   = allvars.h proto.h $(GSL_H) Makefile
+FFILES =
+else
+OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o \
+         interface.o darkenergy.o darkenergy_support.o $(GSL_OBJS)
+
+INCL   = allvars.h proto.h darkenergy.h darkenergy_support.h \
+         $(GSL_H) parameters.inc Makefile
+
+FFILES = f77main.o angdiamQp.o dverk.o growthq.o universal.o
+endif
+##################
+
+
+#OPT	+=  -DPRODUCEGAS   # Set this to automatically produce gas particles 
+                         # for a single DM species in the input file by interleaved by a half a grid spacing
+
+OPT	+=  -DNO64BITID    # switch this on if you want normal 32-bit IDs
+#OPT	+=  -DCORRECT_CIC  # only switch this on if particles are homogenously distributed over mesh cells (say glass)
+
+
+OPTIONS =  $(OPT)
+
+SYSTYPE="Blue_Gene_L"
+#SYSTYPE="Blue_Gene_P"
+#SYSTYPE="Blue_Gene_Q"
+#SYSTYPE="LSST-Cluster"
+#SYSTYPE="Mac_OS_X"
+
+#SYSTYPE="OpenSuse"
+#SYSTYPE="Stella"
+#SYSTYPE="Regatta"
+#SYSTYPE="RZG_LinuxCluster"
+#SYSTYPE="RZG_LinuxCluster-gcc"
+#SYSTYPE="Solaris"
+
+# module load mvapich2-1.2-sdr-intel/11.0
+#SYSTYPE="OPA-Cluster64-Intel"
+
+# module load mvapich2-1.2-sdr-gnu/4.1.2
+#SYSTYPE="OPA-Cluster64-Gnu"
+
+
+
+#FFTW_INCL = -I/usr/common/pdsoft/include
+#FFTW_LIBS = -L/usr/common/pdsoft/lib
+
+
+CC       =   mpicc       # sets the C-compiler (default)
+OPTIMIZE =   -O3 -Wall    # optimization and warning flags (default)
+MPICHLIB =  -lmpich
+
+
+ifeq ($(SYSTYPE),"Blue_Gene_L")  # (for nonGSL version of N-GenIC): 
+CC       = mpixlc  #  mpicc  #  mpixlc
+OPTIMIZE =  -O3 -I.
+GSL_INCL =
+GSL_LIBS =
+FFTW_INCL= -I/bgl/apps/fftw-2.1.5/include
+FFTW_LIBS= -L/bgl/apps/fftw-2.1.5/lib
+MPICHLIB =
+# These below only needed if compiling with Lam Hui's growth factor code:
+FC       =  mpixlf77 # mpif77  # mpixlf77 #  f77
+FFLAGS   =  -O2
+FLIB     =  -lg2c
+endif
+
+
+ifeq ($(SYSTYPE),"Blue_Gene_P") # (for original GSL version of N-GenIC; may have to empty GSL_INCL and GSL_LIBS for this one). 
+CC       = mpixlc_r
+OPTIMIZE =  -O3 -I.
+GSL_INCL = # -I/gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12 -I/gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12/cblas
+GSL_LIBS = # -L/gpfs/home2/jank/lib_gsl -Wl,"-R /gpfs/home2/jank/lib_gsl"
+FFTW_INCL = -I/bgsys/apps/fftw-2.1.5/include # -I/gpfs/home1/slatest/fftw215-nybP/fftw-2.1.5/include
+FFTW_LIBS = -L/bgsys/apps/fftw-2.1.5/lib # -L/gpfs/home1/slatest/fftw215-nybP/fftw-2.1.5/lib
+MPICHLIB = 
+endif
+
+
+# The below is not operational yet:
+ifeq ($(SYSTYPE),"Blue_Gene_Q")  # (for nonGSL version of N-GenIC):
+CC       = /bgsys/drivers/ppcfloor/comm/gcc/bin/mpicc  
+OPTIMIZE =  -O3 -I.
+GSL_INCL =
+GSL_LIBS =
+FFTW_INCL= -I/bgsys/home1/slatest_a-g/fftw215dp-fenq-gnucompiler-final/include
+FFTW_LIBS= -L/bgsys/home1/slatest_a-g/fftw215dp-fenq-gnucompiler-final/lib
+MPICHLIB =
+# These below only needed if compiling with Lam Hui's growth factor code:
+#FC       =  /bgsys/drivers/ppcfloor/comm/xl/bin/mpixlf77_r # mpif77  # mpixlf77 #  f77
+#FFLAGS   =  -O2
+#FLIB     =  -lg2c # This requires gnu compiler, while the above is with IBM compiler - maybe this version actally doesn't need Fortran code for compilation, because Dplus derivative has been outsourced. 
+endif
+
+
+ifeq ($(SYSTYPE),"LSST-Cluster")
+CC       =  /direct/lsst+u/jank/MPI/MPICH2-1.0.4/bin/mpicc
+OPTIMIZE =  -O3 -Wall
+GSL_INCL =  -I/direct/lsst+u/jank/mylibs/mylocal-MPICH2/include
+GSL_LIBS =  -L/direct/lsst+u/jank/mylibs/mylocal-MPICH2/lib  -Wl,"-R /direct/lsst+u/jank/mylibs/mylocal-MPICH2/lib"
+FFTW_INCL=  -I/direct/lsst+u/jank/mylibs/mylocal-MPICH2/include
+FFTW_LIBS=  -L/direct/lsst+u/jank/mylibs/mylocal-MPICH2/lib
+MPICHLIB =  -L/direct/lsst+u/jank/MPI/MPICH2-1.0.4/lib
+endif
+
+
+ifeq ($(SYSTYPE),"Mac_OS_X")
+CC       =  gcc-4.8
+OPTIMIZE =  -O3 -Wall -I.
+GSL_INCL= -I/usr/local/include
+GSL_LIBS = -L/usr/local/lib
+FFTW_INCL = -I../../fftw-2.1.5/include
+FFTW_LIBS = -L../../fftw-2.1.5/lib
+MPICHLIB =  -L/usr/local/Cellar/open-mpi/1.7.3/lib -lmpi
+ifeq ($(MODE), "PREFAB_GROWTH")
+FC = 
+FFLAGS = 
+FLIB = 
+else
+FC = gfortran
+FFLAGS   =  -O2
+FLIB     =  -lg2c
+endif
+# With Fink and Mac OS 10.6:
+# GSL_INCL =  # -I/sw/include
+# GSL_LIBS =  -bind_at_load # -L/sw/lib -bind_at_load
+# FFTW_INCL=  -I/sw/include
+# FFTW_LIBS=  -L/sw/lib
+# MPICHLIB =
+# FC       =  f77
+# FFLAGS   =  -O2
+# FLIB     =  -lg2c
+endif
+
+
+
+ifeq ($(SYSTYPE),"OpenSuse")
+CC       =  mpicc
+OPTIMIZE =  -Wall
+GSL_INCL =  
+GSL_LIBS =  
+FFTW_INCL=  
+FFTW_LIBS=  
+MPICHLIB = -L/usr/lib/mpi/gcc/openmpi/lib -Xlinker -R -Xlinker /usr/lib/mpi/gcc/openmpi/lib -lmpi 
+endif
+
+ifeq ($(SYSTYPE),"Stella")
+CC       =  mpicc
+OPTIMIZE =  -O3 -Wall
+GSL_INCL =  -I/home/schaye/libs/include
+GSL_LIBS =  -L/home/schaye/libs/lib -static
+FFTW_INCL=  -I/home/schaye/libs/include
+FFTW_LIBS=  -L/home/schaye/libs/lib
+MPICHLIB =
+endif
+
+
+ifeq ($(SYSTYPE),"OPA-Cluster64-Intel")  # module load mvapich2-1.2-sdr-intel/11.0
+CC       =   mpicc
+ifeq (SOFTDOUBLEDOUBLE,$(findstring SOFTDOUBLEDOUBLE,$(OPT))) 
+CC       =   mpicxx
+endif
+OPTIMIZE =  -O3 -g -Wall -m64
+GSL_INCL =  -I/afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-intel-11.0/include
+GSL_LIBS =  -L/afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-intel-11.0/lib  -Xlinker -R -Xlinker /afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-intel-11.0/lib
+FFTW_INCL=  -I/afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-intel-11.0/include
+FFTW_LIBS=  -L/afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-intel-11.0/lib
+MPICHLIB =
+HDF5INCL =  
+HDF5LIB  =  
+OPT      +=  -DNOCALLSOFSYSTEM
+endif
+
+
+ifeq ($(SYSTYPE),"OPA-Cluster64-Gnu")  # module load mvapich2-1.2-sdr-gnu/4.1.2
+CC       =   mpicc
+ifeq (SOFTDOUBLEDOUBLE,$(findstring SOFTDOUBLEDOUBLE,$(OPT))) 
+CC       =   mpicxx
+endif
+OPTIMIZE =  -O3 -g -Wall -m64
+GSL_INCL =  -I/afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-gnu-4.1.2/include
+GSL_LIBS =  -L/afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-gnu-4.1.2/lib  -Xlinker -R -Xlinker /afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-gnu-4.1.2/lib
+FFTW_INCL=  -I/afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-gnu-4.1.2/include
+FFTW_LIBS=  -L/afs/rzg/home/v/vrs/Libs/opteron64/mvapich2-1.2-sdr-gnu-4.1.2/lib
+MPICHLIB =
+HDF5INCL =  
+HDF5LIB  =  
+OPT      +=  -DNOCALLSOFSYSTEM
+endif
+
+ifeq ($(SYSTYPE),"Regatta")
+CC       =   mpcc_r   
+OPTIMIZE =   -O5 -qstrict -qipa -q64
+GSL_INCL = -I/afs/ipp-garching.mpg.de/u/vrs/gsl_psi64/include
+GSL_LIBS = -L/afs/ipp-garching.mpg.de/u/vrs/gsl_psi64/lib                
+FFTW_INCL= -I/afs/ipp-garching.mpg.de/u/vrs/fftw_psi64/include
+FFTW_LIBS= -L/afs/ipp-garching.mpg.de/u/vrs/fftw_psi64/lib  -q64 -qipa
+MPICHLIB =
+endif
+
+ifeq ($(SYSTYPE),"RZG_LinuxCluster")
+CC       =   mpicci   
+OPTIMIZE =   -O3 
+GSL_INCL = -I/afs/ipp-garching.mpg.de/u/vrs/gsl_linux/include
+GSL_LIBS = -L/afs/ipp-garching.mpg.de/u/vrs/gsl_linux/lib                -static
+FFTW_INCL= -I/afs/ipp-garching.mpg.de/u/vrs/fftw_linux/include
+FFTW_LIBS= -L/afs/ipp-garching.mpg.de/u/vrs/fftw_linux/lib
+endif
+
+ifeq ($(SYSTYPE),"RZG_LinuxCluster-gcc")
+CC       =   /afs/ipp-garching.mpg.de/u/vrs/bin/mpiccf   
+OPTIMIZE =   -O3 
+GSL_INCL = -I/afs/ipp-garching.mpg.de/u/vrs/gsl_linux_gcc3.2/include
+GSL_LIBS = -L/afs/ipp-garching.mpg.de/u/vrs/gsl_linux_gcc3.2/lib
+FFTW_INCL= -I/afs/ipp-garching.mpg.de/u/vrs/fftw_linux_gcc3.2/include
+FFTW_LIBS= -L/afs/ipp-garching.mpg.de/u/vrs/fftw_linux_gcc3.2/lib  
+endif
+
+ifeq ($(SYSTYPE),"Solaris")
+CC       =   mpcc   # sets the C-compiler
+OPTIMIZE =   -i -fast -xvector -xarch=v9b -xchip=ultra3 -xcache=64/32/4:8192/512/1 -I/opt/local/include
+
+GSL_INCL = -I/opt/local/include/gsl
+GSL_LIBS = -L/opt/local/lib/sparcv9               
+FFTW_INCL= -I/opt/local/include
+FFTW_LIBS= -L/opt/local/lib/sparcv9
+endif
+
+
+
+FFTW_LIB =  $(FFTW_LIBS) -ldrfftw_mpi -ldfftw_mpi -ldrfftw -ldfftw
+
+# LIBS   =   -lm  $(MPICHLIB)  $(FFTW_LIB)  $(GSL_LIBS)  -lgsl -lgslcblas $(FLIB)
+LIBS   =  $(MPICHLIB)  $(FFTW_LIB)  $(GSL_LIBS) $(FLIB) -lm
+
+ifeq ($(SYSTYPE),"Solaris")
+LIBS   =   -R/opt/local/lib/sparcv9 -lm  -lmpi   $(GSL_LIBS) -lgsl -lgslcblas  $(FFTW_LIB)
+endif
+
+
+
+CFLAGS =   $(OPTIONS)  $(OPTIMIZE)  $(FFTW_INCL) $(GSL_INCL)
+
+$(EXEC): $(OBJS) $(FFILES)
+	$(CC) $(OPTIMIZE) $(FFILES) $(OBJS) $(LIBS)   -o  $(EXEC)  
+
+$(OBJS): $(INCL) 
+
+
+.PHONY : clean
+clean:
+	rm -f $(OBJS) $(EXEC)
+
+
+
