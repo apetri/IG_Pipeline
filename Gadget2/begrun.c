@@ -291,7 +291,7 @@ void read_parameter_file(char *fname)
 #define MAXTAGS 300
 
   FILE *fd, *fdout;
-  char buf[200], buf1[200], buf2[200], buf3[400];
+  char buf[1024], buf1[1024], buf2[1024], buf3[1024];
   int i, j, nt;
   int id[MAXTAGS];
   void *addr[MAXTAGS];
@@ -616,7 +616,7 @@ void read_parameter_file(char *fname)
 	      while(!feof(fd))
 		{
 		  *buf = 0;
-		  fgets(buf, 200, fd);
+		  fgets(buf,sizeof(buf), fd);
 		  if(sscanf(buf, "%s%s%s", buf1, buf2, buf3) < 2)
 		    continue;
 

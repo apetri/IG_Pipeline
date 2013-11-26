@@ -249,11 +249,15 @@ void read_glass(char *fname)
 int find_files(char *fname)
 {
   FILE *fd;
-  char buf[200], buf1[200];
+  char buf[1024], buf1[1024];
   int dummy;
 
   sprintf(buf, "%s.%d", fname, 0);
   sprintf(buf1, "%s", fname);
+
+  //<AP> debugging
+  fprintf(stdout,"Trying to open glass file %s or %s\n",buf,buf1);
+  //</AP>
 
   if((fd = fopen(buf, "r")))
     {
