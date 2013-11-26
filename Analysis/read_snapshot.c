@@ -52,13 +52,13 @@ double Time, Redshift;
  */
 int main(int argc, char **argv)
 {
-  char path[200], input_fname[200], basename[200];
+  char path[1024], input_fname[1024], basename[128];
   int type, snapshot_number, files;
 
 
-  sprintf(path, "/home/vspringe/LCDM");
+  sprintf(path, "/Users/andreapetri/Documents/Cosmology_software/IG_Pipeline_0.1/Storage/sims/snapshots/mQ2-series/m-32b15_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1");
   sprintf(basename, "snapshot");
-  snapshot_number = 6;		/* number of snapshot */
+  snapshot_number = 20;		/* number of snapshot */
   files = 1;			/* number of files per snapshot */
 
 
@@ -71,6 +71,8 @@ int main(int argc, char **argv)
   unit_conversion();		/* optional stuff */
 
   do_what_you_want();
+
+  return 0;
 }
 
 
@@ -79,9 +81,15 @@ int main(int argc, char **argv)
 
 /* here the particle data is at your disposal 
  */
-int do_what_you_want(void)
-{
+int do_what_you_want(void){
 
+  int i;
+
+  for(i=1;i<=NumPart;i++){
+    printf("%e %e %e %e\n",P[i].Pos[0],P[i].Pos[1],P[i].Pos[2],P[i].Mass);
+  }
+
+  return 0;
 }
 
 
@@ -171,12 +179,11 @@ int load_snapshot(char *fname, int files)
 
       if(!(fd = fopen(buf, "r")))
 	{
-	  printf("can't open file `%s`\n", buf);
+	  fprintf(stderr,"can't open file `%s`\n", buf);
 	  exit(0);
 	}
 
-      printf("reading `%s' ...\n", buf);
-      fflush(stdout);
+      fprintf(stderr,"reading `%s' ...\n", buf);
 
       fread(&dummy, sizeof(dummy), 1, fd);
       fread(&header1, sizeof(header1), 1, fd);
@@ -310,7 +317,7 @@ int load_snapshot(char *fname, int files)
  */
 int allocate_memory(void)
 {
-  printf("allocating memory...\n");
+  fprintf(stderr,"allocating memory...\n");
 
   if(!(P = malloc(NumPart * sizeof(struct particle_data))))
     {
@@ -329,7 +336,7 @@ int allocate_memory(void)
 
   Id--;				/* start with offset 1 */
 
-  printf("allocating memory...done\n");
+  fprintf(stderr,"allocating memory...done\n");
 }
 
 
@@ -349,7 +356,7 @@ int reordering(void)
   struct particle_data psave, psource;
 
 
-  printf("reordering....\n");
+  fprintf(stderr,"reordering....\n");
 
   for(i = 1; i <= NumPart; i++)
     {
@@ -379,10 +386,10 @@ int reordering(void)
 	}
     }
 
-  printf("done.\n");
+  fprintf(stderr,"done.\n");
 
   Id++;
   free(Id);
 
-  printf("space for particle ID freed\n");
+  fprintf(stderr,"space for particle ID freed\n");
 }
