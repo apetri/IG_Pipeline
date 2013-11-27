@@ -56,9 +56,9 @@ int main(int argc, char **argv)
   int type, snapshot_number, files;
 
 
-  sprintf(path, "/Users/andreapetri/Documents/Cosmology_software/IG_Pipeline_0.1/Storage/sims/snapshots/mQ2-series/m-32b15_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1");
-  sprintf(basename, "snapshot");
-  snapshot_number = 20;		/* number of snapshot */
+  sprintf(path, argv[1]);
+  sprintf(basename, argv[2]);
+  snapshot_number = atoi(argv[3]);		/* number of snapshot */
   files = 1;			/* number of files per snapshot */
 
 
@@ -83,11 +83,15 @@ int main(int argc, char **argv)
  */
 int do_what_you_want(void){
 
+#ifdef PPOS
+  
   int i;
 
   for(i=1;i<=NumPart;i++){
-    printf("%e %e %e %e\n",P[i].Pos[0],P[i].Pos[1],P[i].Pos[2],P[i].Mass);
+    printf("%e %e %e\n",P[i].Pos[0],P[i].Pos[1],P[i].Pos[2]);
   }
+
+#endif
 
   return 0;
 }
