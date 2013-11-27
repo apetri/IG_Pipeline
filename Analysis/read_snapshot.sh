@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./read_snapshot $1 $2 $3 > $4
+echo $1$'\n'$2$'\n'$3 | ./read_snapshot  > $4
