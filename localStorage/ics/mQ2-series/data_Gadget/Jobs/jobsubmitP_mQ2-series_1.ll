@@ -37,7 +37,7 @@
 # @ arguments = -np 2048 -exe /gpfs/home3/a/apetri/IG_Pipeline_0.1/Gadget2/Gadget2p \ 
 -cwd /gpfs/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_Gadget/Parameters \ 
 -mode VN \ 
--args "8 256 m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1.param m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic2.param m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic3.param m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic4.param m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic5.param m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic6.param m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic7.param m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic8.param" 
+-args "1 256 m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1.param" 
 #
 # The next statement marks the end of the job step. This example is a one-job-step batch job,
 # so this is equivalent to saying that the next statement marks the end of the batch job.
