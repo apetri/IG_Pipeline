@@ -52,7 +52,7 @@ double Time, Redshift;
  */
 int main(int argc, char **argv)
 {
-  char path[1024], input_fname[1024], basename[128], number[16];
+  char path[1024], input_fname[1024], basename[128], number[16], nfiles[8];
   int type, snapshot_number, files;
 
   //Read path,basename and snapshot number from stdin
@@ -78,8 +78,15 @@ int main(int argc, char **argv)
     exit(1);
   }
 
+  if(fgets(nfiles,sizeof(nfiles),stdin)){
+    *(strrchr(nfiles,'\n')) = 0;
+  } else{
+    perror("couldn't read from stdin");
+    exit(1);
+  }
+
   snapshot_number = atoi(number);		/* number of snapshot */
-  files = 1;			/* number of files per snapshot */
+  files = atoi(nfiles);			/* number of files per snapshot */
 
 
   sprintf(input_fname, "%s/%s_%03d", path, basename, snapshot_number);

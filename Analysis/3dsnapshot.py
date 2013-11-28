@@ -7,8 +7,10 @@ from mpl_toolkits.mplot3d import Axes3D
 
 snapshotPathDefault = '/Users/andreapetri/Documents/Cosmology_software/IG_Pipeline_0.1/Storage/sims/snapshots/mQ2-series/m-32b15_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1'
 snapshotBaseDefault = 'snapshot'
+filesPerSnapshot = 1
 frameDirectory = sys.argv[1]
 frameBase = sys.argv[2]
+queryFromServer = False
 
 #Execution
 snapshotPath = raw_input('Enter full path to the directory with the snapshots (default: %s) -->'%snapshotPathDefault)
@@ -19,7 +21,10 @@ snapshotBase = raw_input('Enter base name for snapshot files (defalut: %s) -->'%
 if(snapshotBase == ''):
 	snapshotBase = snapshotBaseDefault
 
-snapshots = glob.glob('%s/%s_*'%(snapshotPath,snapshotBase))
+if(filesPerSnapshot==1):
+	snapshots = glob.glob('%s/%s_*'%(snapshotPath,snapshotBase))
+else:
+	snapshots = glob.glob('%s/%s_*.0'%(snapshotPath,snapshotBase)) 
 
 try:
 	os.mkdir(frameDirectory)
@@ -33,12 +38,16 @@ for snapshot in snapshots:
 	os.mkfifo(pipeName)
 	pid = os.fork()
 
-	snapshotID = snapshot.rsplit('_',1)[1]
-	snapshotNumber = str(int(snapshotID))
+	if(filesPerSnapshot==1):
+		snapshotID = snapshot.rsplit('_',1)[1]
+		snapshotNumber = str(int(snapshotID))
+	else:
+		snapshotID = snapshot.rsplit('_',1)[1].split('.')[0]
+		snapshotNumber = str(int(snapshotID))
 	
 	if(pid==0):
 	
-		os.execl('./read_snapshot.sh','read_snapshot.sh',snapshotPath,snapshotBase,snapshotNumber,pipeName)
+		os.execl('./read_snapshot.sh','read_snapshot.sh',snapshotPath,snapshotBase,snapshotNumber,str(filesPerSnapshot),pipeName)
 
 	else:
 	
