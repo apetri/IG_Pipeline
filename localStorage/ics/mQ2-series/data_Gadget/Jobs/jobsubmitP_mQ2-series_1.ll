@@ -22,7 +22,7 @@
 # @ error = $(jobid).err
 #
 # Maximum wall clock time for job will be 48 hours.
-# @ wall_clock_limit = 48:00:00
+# @ wall_clock_limit = 24:00:00
 #
 # Send email to me when job has completed.
 # @ notification = complete
