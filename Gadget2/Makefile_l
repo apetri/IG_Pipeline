@@ -305,15 +305,15 @@ EXEC   = Gadget2l
 OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
 	 timestep.o  init.o restart.o  io.o    \
 	 accel.o   read_ic.o  ngb.o  \
-	 system.o  allocate_OMP.o  density.o  \
-	 gravtree_OMP.o hydra.o  driftfac.o  \
-	 domain.o  allvars_OMP.o potential.o  \
-         forcetree_OMP.o   peano.o gravtree_forcetest.o \
-	 pm_periodic_OMP.o pm_nonperiodic.o longrange.o \
+	 system.o  allocate.o  density.o  \
+	 gravtree.o hydra.o  driftfac.o  \
+	 domain.o  allvars.o potential.o  \
+         forcetree.o   peano.o gravtree_forcetest.o \
+	 pm_periodic.o pm_nonperiodic.o longrange.o \
 	 darkenergy.o darkenergy_support.o comoving_distance.o comoving_distance_support.o $(GSL_OBJS)
 
 
-INCL   = allvars.h  proto.h  tags.h  darkenergy.h darkenergy_support.h comoving_distance.h comoving_distance_support.h $(GSL_H) Makefile_OMP
+INCL   = allvars.h  proto.h  tags.h  darkenergy.h darkenergy_support.h comoving_distance.h comoving_distance_support.h $(GSL_H) Makefile_l
 
 
 # CFLAGS = $(OPTIONS) $(GSL_INCL) $(FFTW_INCL) $(HDF5INCL)
