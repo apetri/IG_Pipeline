@@ -1,5 +1,5 @@
 # @ job_type = bluegene
-# @ class = long
+# @ class = normaldyn
 #
 # Classes above are currently: short (1024, 2048, 3072, or 4096 nodes, 12h) , normaldyn: (512 nodes, 24h), long (32 or 128 nodes, 72h).
 #
@@ -17,7 +17,7 @@
 # Then you can optionally use -np to run on fewer processors if this is necessary 
 # for your run -- but you will charged for the entire partition that you allocated.
 #
-# @ bg_size = 128
+# @ bg_size = 512
 #
 # initialdir (see the next active line) will be used as the working directory for this batch job. 
 # @ initialdir = /gpfs/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_Gadget/Logs 
@@ -29,7 +29,7 @@
 # @ error = $(jobid).err
 #
 # Maximum wall clock time for job will be 72 hours.
-# @ wall_clock_limit = 72:00:00
+# @ wall_clock_limit = 48:00:00
 #
 # Send email to johndoe@bnl.gov when job has completed.
 # @ notification = complete
