@@ -28,35 +28,44 @@ int main(int argc, char **argv)
       exit(0);
     }
 
-  read_parameterfile(argv[1]);
+  int i;
 
-  set_units();
+  for(i=1;i<argc;i++){
 
-  initialize_powerspectrum();
+      if(ThisTask == 0){
+          printf("\nGenerating IC %d\n\n",i);
+      }
 
-  initialize_ffts();
+      read_parameterfile(argv[i]);
 
-  read_glass(GlassFile);
+      set_units();
 
-  displacement_fields();
+      initialize_powerspectrum();
 
-  write_particle_data();
+      initialize_ffts();
 
-  if(NumPart)
-    free(P);
+      read_glass(GlassFile);
 
-  free_ffts();
+      displacement_fields();
+
+      write_particle_data();
+
+      if(NumPart)
+        free(P);
+
+      free_ffts();
 
 
-  if(ThisTask == 0)
-    {
-      printf("\nIC's generated.\n\n");
-      printf("Initial scale factor = %g\n", InitTime);
-      printf("\n");
-    }
+      if(ThisTask == 0)
+        {
+          printf("\nIC's generated.\n\n");
+          printf("Initial scale factor = %g\n", InitTime);
+          printf("\n");
+        }
 
-  MPI_Barrier(MPI_COMM_WORLD);
-  print_spec();
+      MPI_Barrier(MPI_COMM_WORLD);
+      print_spec();
+  }
 
   MPI_Finalize();		/* clean up & finalize MPI */
   exit(0);
