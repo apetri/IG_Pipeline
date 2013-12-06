@@ -1,6 +1,11 @@
 #!/bin/sh
 
-BLOCKID=
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <BLOCKID>" >&2
+    exit 1
+fi
+
+BLOCKID=$1
 
 EXECUTABLE=/bgsys/home3/a/apetri/IG_Pipeline_0.1/N-GenIC/N-GenICq
 
