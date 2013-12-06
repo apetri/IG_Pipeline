@@ -14,7 +14,7 @@ NUM_MPI_TASKS=256
 
 LOGSDIR=/bgsys/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_N-GenIC/Logs
 
-IC_ROOT=/bgsys/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_N-GenIC/Parameters/
+IC_ROOT=/bgsys/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_N-GenIC/Parameters
 IC_FILE_1=$IC_ROOT/ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1.param
 IC_FILE_2=$IC_ROOT/ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic2.param
 IC_FILE_3=$IC_ROOT/ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic3.param

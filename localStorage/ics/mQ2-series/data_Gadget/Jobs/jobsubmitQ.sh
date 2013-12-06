@@ -17,7 +17,7 @@ NUM_MPI_TASKS=1024
 
 LOGSDIR=/bgsys/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_Gadget/Logs
 
-G_ROOT=/bgsys/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_Gadget/Parameters/
+G_ROOT=/bgsys/home3/a/apetri/IG_Pipeline_0.1/localStorage/ics/mQ2-series/data_Gadget/Parameters
 G_FILE_1=$G_ROOT/m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1.param
 G_FILE_2=$G_ROOT/m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic2.param
 G_FILE_3=$G_ROOT/m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic3.param
