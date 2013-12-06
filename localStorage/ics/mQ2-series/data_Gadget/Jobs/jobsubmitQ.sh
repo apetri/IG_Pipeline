@@ -27,4 +27,4 @@ ARGS="$NUM_SIMS $TASKS_PER_SIM $G_FILE1 $G_FILE_2 $G_FILE_3 $G_FILE_4"
 
 #execution
 
-runjob --block $BLOCKID --exe $EXECUTABLE -p $CORES_PER_NORE -np $NUM_MPI_TASKS --args $ARGS --cwd $LOGSDIR > ic.out 2> ic.err
+runjob --block $BLOCKID --exe $EXECUTABLE -p $CORES_PER_NORE -np $NUM_MPI_TASKS --args $ARGS --cwd $LOGSDIR > gadget.out 2> gadget.err
