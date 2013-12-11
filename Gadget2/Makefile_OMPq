@@ -21,7 +21,7 @@ OPT   +=  -DWALLCLOCK
 #--------------------------------------- TreePM Options
 #OPT   +=  -DPMGRID=4096
 #OPT   +=  -DPMGRID=3072
-OPT   +=  -DPMGRID=1800  # Optimal for Blue Gene/Q with OpenMP for a 1024^3-particle simulation (?)
+#OPT   +=  -DPMGRID=1800  # Optimal for Blue Gene/Q with OpenMP for a 1024^3-particle simulation (?)
 #OPT   +=  -DPMGRID=2048
 #OPT   +=  -DPMGRID=1700
 #OPT   +=  -DPMGRID=1600
@@ -30,7 +30,7 @@ OPT   +=  -DPMGRID=1800  # Optimal for Blue Gene/Q with OpenMP for a 1024^3-part
 #OPT   +=  -DPMGRID=1024
 #OPT   +=  -DPMGRID=896
 #OPT   +=  -DPMGRID=830
-#OPT   +=  -DPMGRID=800  # Standard for Blue Gene/P and /L (?)
+OPT   +=  -DPMGRID=800  # Standard for Blue Gene/P and /L (?) and Q
 #OPT   +=  -DPMGRID=700
 #OPT   +=  -DPMGRID=512
 #OPT   +=  -DPMGRID=300
