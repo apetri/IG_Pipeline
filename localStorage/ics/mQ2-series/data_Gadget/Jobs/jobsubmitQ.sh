@@ -42,14 +42,14 @@ ARGS="$NUM_SIMS $TASKS_PER_SIM $G_FILE_1 $G_FILE_2 $G_FILE_3 $G_FILE_4 $G_FILE_5
 
 echo "You will be executing this command:"
 echo ""
-echo "runjob --block $BLOCKID --exe $EXECUTABLE -p $RANKS_PER_NODE -np $NUM_MPI_TASKS --args $ARGS --cwd $G_ROOT > $LOGSDIR/gadget.out 2> $LOGSDIR/gadget.err"
+echo "runjob --block $BLOCKID --exe $EXECUTABLE -p $RANKS_PER_NODE --np $NUM_MPI_TASKS --args $ARGS --cwd $G_ROOT > $LOGSDIR/gadget.out 2> $LOGSDIR/gadget.err"
 echo ""
 echo "Do you wish to proceed? (y/n)"
 
 read ANSWER
 
 if [ $ANSWER == "y" ]; then
-	runjob --block $BLOCKID --exe $EXECUTABLE -p $RANKS_PER_NODE -np $NUM_MPI_TASKS --args $ARGS --cwd $G_ROOT > $LOGSDIR/gadget.out 2> $LOGSDIR/gadget.err &
+	runjob --block $BLOCKID --exe $EXECUTABLE -p $RANKS_PER_NODE --np $NUM_MPI_TASKS --args $ARGS --cwd $G_ROOT > $LOGSDIR/gadget.out 2> $LOGSDIR/gadget.err &
 else
 	echo "Aborting"
 fi

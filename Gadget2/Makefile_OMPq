@@ -30,7 +30,7 @@ OPT   +=  -DWALLCLOCK
 #OPT   +=  -DPMGRID=1024
 #OPT   +=  -DPMGRID=896
 #OPT   +=  -DPMGRID=830
-OPT   +=  -DPMGRID=800  # Standard for Blue Gene/P and /L (?) and Q
+OPT   +=  -DPMGRID=700  # Standard for Blue Gene/P and /L (?) and Q
 #OPT   +=  -DPMGRID=700
 #OPT   +=  -DPMGRID=512
 #OPT   +=  -DPMGRID=300
