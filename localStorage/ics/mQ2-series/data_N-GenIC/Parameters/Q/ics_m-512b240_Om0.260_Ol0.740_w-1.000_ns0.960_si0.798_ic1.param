@@ -17,7 +17,7 @@ Nsample          512        % sets the maximum k that the code uses,
 Box              240000.0  % Periodic box size of simulation
 
 FileBase         ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1                 % Base-filename of output files
-OutputDir        /bgsys/home3/a/apetri/Storage/sims/ics/mQ2-series/data_Gadget/IC_Files    % Directory for output
+OutputDir        /bgsys/scratch3/apetri/Storage/sims/ics/mQ2-series/data_Gadget/IC_Files    % Directory for output
 
 GlassFile        /bgsys/home3/a/apetri/IG_Pipeline_0.1/N-GenIC/dummy_glass_big_endian.dat  % File with unperturbed glass or
                                   % Cartesian grid

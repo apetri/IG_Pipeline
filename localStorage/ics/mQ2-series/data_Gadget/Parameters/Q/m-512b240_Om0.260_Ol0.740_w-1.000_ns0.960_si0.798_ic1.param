@@ -1,7 +1,7 @@
 %  Relevant files
 
-InitCondFile  	   /bgsys/home3/a/apetri/Storage/sims/ics/mQ2-series/data_Gadget/IC_Files/ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1 #
-OutputDir         /bgsys/home3/a/apetri/Storage/sims/snapshots/mQ2-series/m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1/ #
+InitCondFile  	   /bgsys/scratch3/apetri/Storage/sims/ics/mQ2-series/data_Gadget/IC_Files/ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1 #
+OutputDir         /bgsys/scratch3/apetri/Storage/sims/snapshots/mQ2-series/m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1/ #
 
 EnergyFile         energy.txt
 InfoFile           info.txt
