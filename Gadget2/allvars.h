@@ -24,7 +24,7 @@
 #include <mpi.h>
 #include "gsl_extract/rng/gsl_rng.h"
 
-#define  NR_OF_OMP_THREADS 4
+#define  NR_OF_OMP_THREADS 2
 //</JMK>
 
 #define  GADGETVERSION   "2.0"   /*!< code version string */
