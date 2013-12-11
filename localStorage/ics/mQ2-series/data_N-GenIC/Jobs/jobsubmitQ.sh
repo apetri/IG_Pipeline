@@ -32,22 +32,22 @@ IC_FILE_14=ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic14.param
 IC_FILE_15=ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic15.param
 IC_FILE_16=ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic16.param
 
-ARGS="$NUM_MPI_TASKS $IC_FILE_1 $IC_FILE_2 $IC_FILE_3 $IC_FILE_4 $IC_FILE_5 $IC_FILE_6 $IC_FILE_7 $IC_FILE_8 $IC_FILE_9 $IC_FILE_10 $IC_FILE_11 $IC_FILE_12 $IC_FILE_13 $IC_FILE_14 $IC_FILE_15 $IC_FILE_16"
+ARGS="$IC_FILE_1 $IC_FILE_2 $IC_FILE_3 $IC_FILE_4 $IC_FILE_5 $IC_FILE_6 $IC_FILE_7 $IC_FILE_8 $IC_FILE_9 $IC_FILE_10 $IC_FILE_11 $IC_FILE_12 $IC_FILE_13 $IC_FILE_14 $IC_FILE_15 $IC_FILE_16"
 
 #execution
 
-COMMAND="runjob --block $BLOCKID --exe $EXECUTABLE -p $CORES_PER_NODE -np $NUM_MPI_TASKS --args $ARGS --cwd $IC_ROOT > $LOGSDIR/ic.out 2> $LOGSDIR/ic.err"
-
 echo "You will be executing this command:"
 echo ""
-echo "$COMMAND"
+echo "runjob --block $BLOCKID --exe $EXECUTABLE -p $CORES_PER_NODE --np $NUM_MPI_TASKS --args $ARGS --cwd $IC_ROOT > $LOGSDIR/ic.out 2> $LOGSDIR/ic.err"
 echo ""
 echo "Do you wish to proceed? (y/n)"
 
 read ANSWER
 
 if [ $ANSWER == "y" ]; then
-	$COMMAND
+
+        runjob --block $BLOCKID --exe $EXECUTABLE -p $CORES_PER_NODE --np $NUM_MPI_TASKS --args $ARGS --cwd $IC_ROOT > $LOGSDIR/ic.out 2> $LOGSDIR/ic.err &
+
 else
 	echo "Aborting"
 fi
