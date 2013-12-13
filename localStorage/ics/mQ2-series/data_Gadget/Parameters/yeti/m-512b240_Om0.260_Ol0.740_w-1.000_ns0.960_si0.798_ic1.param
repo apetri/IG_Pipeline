@@ -1,7 +1,7 @@
 %  Relevant files
 
-InitCondFile  	   /hpc/astro/apetri/Storage/sims/ics/mQ2-series/data_Gadget/IC_Files/ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1 #
-OutputDir         /hpc/astro/apetri/Storage/sims/snapshots/mQ2-series/m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1/ #
+InitCondFile  	   /vega/astro/users/ap3020/Storage/sims/ics/mQ2-series/data_Gadget/IC_Files/ics_m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1 #
+OutputDir         /vega/astro/users/ap3020/Storage/sims/snapshots/mQ2-series/m-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1/ #
 
 EnergyFile         energy.txt
 InfoFile           info.txt
