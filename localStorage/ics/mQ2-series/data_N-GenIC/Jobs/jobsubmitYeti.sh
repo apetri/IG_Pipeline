@@ -5,7 +5,7 @@
 #PBS -N N-GenIC
 #PBS -W group_list=yetiastro
 #PBS -l nodes=2:ppn=16,walltime=12:00:00,mem=131072mb
-#PBS -M ap3020@columbia.edu
+#PBS -M apetri@phys.columbia.edu
 #PBS -m abe
 #PBS -V
 
