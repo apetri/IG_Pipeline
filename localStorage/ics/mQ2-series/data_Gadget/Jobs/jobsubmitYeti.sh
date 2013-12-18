@@ -4,7 +4,7 @@
 
 #PBS -N Gadget
 #PBS -W group_list=yetiastro
-#PBS -l nodes=2:ppn=16,walltime=60:00:00,mem=131072mb
+#PBS -l nodes=2:ppn=16,walltime=60:00:00,mem=262144mb
 #PBS -M ap3020@columbia.edu
 #PBS -m abe
 #PBS -V
