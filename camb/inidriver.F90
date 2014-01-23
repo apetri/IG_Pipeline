@@ -52,7 +52,7 @@
 		call MPI_Finalize(ierror)
 
 		if (rank==0) then
-			stop 'You need to specify one parameter file per task!'
+			stop 'Usage: mpiexec -n N ./camb param1.ini param2.ini ... paramN.ini'
 		else
 			stop
 		end if
