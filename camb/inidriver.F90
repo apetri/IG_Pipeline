@@ -3,6 +3,8 @@
     !     See readme.html for documentation. This is a sample driver routine that reads
     !     in one set of parameters and produdes the corresponding output.
 
+	! Modified by Andrea Petri: added one layer of MPI parallelization for generating multiple spectra for multiple parameter files
+
     program driver
     use IniFile
     use CAMB
@@ -16,7 +18,12 @@
 #ifdef NAGF95
     use F90_UNIX
 #endif
+
+	use mpi
+
     implicit none
+
+	integer rank,size,ierror
 
     Type(CAMBparams) P
 
@@ -34,9 +41,29 @@
 
     logical bad
 
+	!<Andrea Petri>
+
+	call MPI_Init(ierror)
+	call MPI_Comm_size(MPI_COMM_WORLD,size,ierror)
+	call MPI_Comm_rank(MPI_COMM_WORLD,rank,ierror)
+
+	if (size /= GetParamCount()) then
+
+		call MPI_Finalize(ierror)
+
+		if (rank==0) then
+			stop 'You need to specify one parameter file per task!'
+		else
+			stop
+		end if
+
+	end if
+
     InputFile = ''
-    if (GetParamCount() /= 0)  InputFile = GetParam(1)
+    if (GetParamCount() /= 0)  InputFile = GetParam(rank + 1)
     if (InputFile == '') stop 'No parameter input file'
+
+	!</Andrea Petri>
 
     call Ini_Open(InputFile, 1, bad, .false.)
     if (bad) stop 'Error opening parameter file'
@@ -338,6 +365,13 @@
     end if
 
     call CAMB_cleanup
+
+	!<Andrea Petri>
+
+	call MPI_Finalize(ierror)
+
+	!</Andrea Petri>
+
     stop
 
 100 stop 'Must give num_massive number of integer physical neutrinos for each eigenstate'
