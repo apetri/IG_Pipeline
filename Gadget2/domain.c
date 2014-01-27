@@ -1039,12 +1039,12 @@ void domain_topsplit_local(int node, peanokey startkey)
       for(i = 0; i < 8; i++)
 	{
 	  sub = TopNodes[node].Daughter + i;
-	   if(TopNodes[sub].Count > All.TotNumPart / (TOPNODEFACTOR * NTask * NTask))
-	     domain_topsplit_local(sub, TopNodes[sub].StartKey);
+	  //if(TopNodes[sub].Count > All.TotNumPart / (TOPNODEFACTOR * NTask * NTask))
+	  // domain_topsplit_local(sub, TopNodes[sub].StartKey);
 	  //<JMK>: Volker recommends to change the above denominator to (TOPNODEFACTOR * 8 * NTask) and experiment with the number 8 a bit for 1250^3 particle runs on 1024 processors, to conserve memory in badly scaling domain decomposition. Cameron McBride changed TOPNODEFACTOR from 20.0 to 2.0 instead, to achieve similar effects. JMK tested: Use 8 for 1024^3 particle runs with 512 MPI processes and 16 for 256 MPI processes (regardless of number of OpenMP threads).
 
-          //if(TopNodes[sub].Count > All.TotNumPart / (TOPNODEFACTOR * 8 * NTask))
-	    // domain_topsplit_local(sub, TopNodes[sub].StartKey);
+          if(TopNodes[sub].Count > All.TotNumPart / (TOPNODEFACTOR * 16 * NTask))
+	     domain_topsplit_local(sub, TopNodes[sub].StartKey);
 
 	  // </JMK>
 	}
