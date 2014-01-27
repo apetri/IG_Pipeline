@@ -12,6 +12,12 @@ This step is broken down in three smaller sub-steps: running the CAMB code to ge
 
 _1.1) Running CAMB_
 
+In the camb directory, run make to compile the code; to run it, assuming you have openmpi installed, you can type:
+
+_mpiexec -N <numTasks> ./camb params1.ini ... paramsN.ini_
+
+to generate, in parallel, N power spectra, one for each parameter file. If you don't specify a parameter file for each task, camb quits and throws an error message. 
+
 _1.2) Generate the initial conditions_
 
 _1.3) Run Gadget for gravitational evolution_
