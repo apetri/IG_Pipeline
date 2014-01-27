@@ -22,7 +22,7 @@ FISHER=
 #if pre v4.3 add -D__GFORTRAN__
 #With v4.6+ try -Ofast -march=native -fopenmp
 #On my machine v4.5 is about 20% slower than ifort
-F90C     = mpif90
+F90C     = /bgsys/drivers/ppcfloor/comm/gcc/bin/mpif90
 FFLAGS =  -O3 -ffast-math -funroll-loops
 #-march=native -fopenmp
 
