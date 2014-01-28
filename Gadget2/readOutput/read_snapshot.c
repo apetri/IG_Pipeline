@@ -337,7 +337,7 @@ int load_snapshot(char *fname, int files)
 
 
   Time = header1.time;
-  Redshift = header1.time;
+  Redshift = header1.redshift;
 }
 
 
