@@ -10,9 +10,10 @@ FRAMEDIR = frames
 FRAMEBASE = frame
 FRAMESPERSECOND = 6
 
-read_snapshot: read_snapshot.o
+read_snapshot: read_snapshot_utils.o
+	$(CC) $(LDFLAGS) read_snapshot_utils.o -o read_snapshot
 
-read_snapshot.o: read_snapshot.c
+read_snapshot_utils.o: read_snapshot_utils.c
 
 .PHONY: clean
 clean:
