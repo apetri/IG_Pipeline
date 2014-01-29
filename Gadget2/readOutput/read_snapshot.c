@@ -30,12 +30,16 @@ int main(int argc, char **argv)
 
   //Read path,basename and snapshot number from stdin
 
+  printf("Type the path of the directory with the snapshots:\n");
+
   if(fgets(path,sizeof(path),stdin)){
     *(strrchr(path,'\n')) = 0;
   } else{
     perror("couldn't read from stdin");
     exit(1);
   }
+
+  printf("Type the basename of you snapshots (e.g. 'snapshot' if your snapshots are named snapshot_xxx):\n");
 
   if(fgets(basename,sizeof(path),stdin)){
     *(strrchr(basename,'\n')) = 0;
@@ -44,12 +48,16 @@ int main(int argc, char **argv)
     exit(1);
   }
 
+  printf("Type the number of the snapshot you want to read:\n");
+
   if(fgets(number,sizeof(number),stdin)){
     *(strrchr(number,'\n')) = 0;
   } else{
     perror("couldn't read from stdin");
     exit(1);
   }
+
+  printf("Type the number of files per snapshot (usually it's 1 if you ran Gadget on your local computer):\n");
 
   if(fgets(nfiles,sizeof(nfiles),stdin)){
     *(strrchr(nfiles,'\n')) = 0;
