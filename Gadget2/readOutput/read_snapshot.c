@@ -5,13 +5,19 @@
 
 #include "read_snapshot_utils.h"
 
-/* Here we load a snapshot file. It can be distributed
- * onto several files (for files>1).
- * The particles are brought back into the order
- * implied by their ID's.
- * A unit conversion routine is called to do unit
- * conversion, and to evaluate the gas temperature.
- */
+ /* here the particle data is at your disposal: this is the only function you have to customize!
+  */
+int do_what_you_want(int NumPart,struct particle_data *P){
+  
+  int i;
+  P--;
+
+  for(i=1;i<=NumPart;i++){
+    printf("%e %e %e\n",P[i].Pos[0],P[i].Pos[1],P[i].Pos[2]);
+  }
+
+  return 0;
+}
 
 int main(int argc, char **argv)
 {

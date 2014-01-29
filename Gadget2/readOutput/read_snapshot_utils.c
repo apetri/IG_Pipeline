@@ -5,25 +5,6 @@
 
 #include "read_snapshot_utils.h"
 
-
-/* here the particle data is at your disposal: this is the only function you have to customize!
- */
-int do_what_you_want(int NumPart,struct particle_data *P){
-
-#ifdef PPOS
-  
-  int i;
-  P--;
-
-  for(i=1;i<=NumPart;i++){
-    printf("%e %e %e\n",P[i].Pos[0],P[i].Pos[1],P[i].Pos[2]);
-  }
-
-#endif
-
-  return 0;
-}
-
 /*Do not touch anything below here!*/
 
 
@@ -37,7 +18,7 @@ int do_what_you_want(int NumPart,struct particle_data *P){
 int read_snapshot(char *path, char *basename,char *number, char *nfiles, struct io_header_1 *header1,int *NumPart,int *Ngas, struct particle_data **P,int **Id,double *Time,double *Redshift)
 {
   char input_fname[1024];
-  int type, snapshot_number, files;
+  int snapshot_number, files;
 
   snapshot_number = atoi(number);		/* number of snapshot */
   files = atoi(nfiles);			/* number of files per snapshot */
@@ -128,8 +109,8 @@ int load_snapshot(char *fname, int files, int *NumPart, int *Ngas, struct io_hea
 {
   FILE *fd;
   char buf[200];
-  int i, j, k, dummy, ntot_withmasses;
-  int t, n, off, pc, pc_new, pc_sph;
+  int i, k, dummy, ntot_withmasses;
+  int n, pc, pc_new, pc_sph;
 
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
 
@@ -330,7 +311,7 @@ int allocate_memory(struct particle_data **P,int **Id,int NumPart)
  */
 int reordering(int NumPart,int **IdP,struct particle_data **Q)
 {
-  int i, j;
+  int i;
   int idsource, idsave, dest;
   struct particle_data psave, psource;
 

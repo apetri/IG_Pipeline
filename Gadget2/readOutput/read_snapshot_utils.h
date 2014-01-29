@@ -32,9 +32,6 @@ struct particle_data
 /*Main interface!!!!!*/
 int read_snapshot(char *path, char *basename,char *number, char *nfiles, struct io_header_1 *header1,int *NumPart,int *Ngas, struct particle_data **P,int **Id,double *Time,double *Redshift);
 
-/*Customize this function to do what you want*/
-int do_what_you_want(int NumPart,struct particle_data *P);
-
 /*You can treat these as a black box!*/
 int unit_conversion(int NumPart, struct particle_data **Q);
 int load_snapshot(char *fname, int files, int *NumPart, int *Ngas, struct io_header_1 *header1, int **IdP, struct particle_data **Q,double *Time, double *Redshift);

@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -g -DPPOS
+CFLAGS = -g -Wall
 LDFLAGS = -g
 
 PYTHON = python
