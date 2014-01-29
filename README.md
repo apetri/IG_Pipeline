@@ -16,6 +16,8 @@ _1.1) Running CAMB_
 
 In the camb directory, run make to compile the code; to run it, assuming you have openmpi installed, you can type:
 
+_make_
+
 _mpiexec -N <numTasks> ./camb params1.ini ... paramsN.ini_
 
 to generate, in parallel, N power spectra, one for each parameter file. If you don't specify a parameter file for each task, camb quits and throws an error message. 
