@@ -83,6 +83,7 @@ double *boxsize; // Array containing box sizes for simulations (more than one si
 int process_number, jobs, Pjobs, octo_counter; // counts through number of processes (not used much).
 char command[200], job_description_filename[1000], jobstammL[200], jobstammP[200], BG_type[200], directory_script_filename[1000], IG_directory_script_filename[1000], simple_list_filename[1000]; // string containing Condor job description filename and NYBlue job description filenames.
 FILE *CAMB_condor_file, *directory_script_file, *IG_directory_script_file, *simple_list_file; // pointer to Condor job description file.
+char home_path[1000], repository_path[1000], mass_storage_path[1000];
 
 // Set these parameters to span full suite of N-body simulations. Every combination will be evaluated.
 
@@ -121,6 +122,7 @@ mode=atoi(argv[1]); // First (and only) argument of Precambrian is mode; select 
 printf("Running Precambrian in Mode=%d\n", mode);
 
 // Safety for NYBlue:
+/*
 if (mode==1)
 {
   printf("Mode 1 is not available on NYBlue, because CAMB not set up to run here.\n");
@@ -128,8 +130,8 @@ if (mode==1)
   printf("But Modes 2 (convert power spectrum) and Mode 3 (set up parameter files for N-GenIC and Gadget-2), are also available.\n");
   exit(1);
 }
-
-sleep(5);
+*/
+sleep(1);
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
@@ -137,13 +139,20 @@ sleep(5);
 /////////////////////////////////////////////////////////////////////
 
 // Submission style (NYBlue job submission files are generated only for desired jobs and numbered sequentially for easy submission later);
-submission_style=3; // select 1, 2 (recommended default), 3, 4, 5, or 6 here. Affects only mode=4 (submission script generation) and mode=6 (simple simulation codename list output).
+submission_style=2; // select 1, 2 (recommended default), 3, 4, 5, or 6 here. Affects only mode=4 (submission script generation) and mode=6 (simple simulation codename list output).
 // 1: all, 2: cross jobs only, 3: fiducial model only (many random seeds), 4: anti-cross (complement of 2), 5: cross-anti-fiducial (like 2 but without 3), 6: anti-fiducial (complement of 3).
 // Standard submissions are: NYBlue/L: single, nonGSL, long jobs on 128 nodes in VN mode (all CPUs), 256 CPUs, wall time 72 hours.
 //                           NYBlue/P: Octopus, GSL, normal jobs on 512 nodes in VN mode (all CPUs), 8 simulations in parallel, 256 CPUs each, wall time 48 hours.
 
+///////////////////////////////                                                
+// Home, Repository, and Mass Storage Paths (set here depending on Blue Gene type):
+// sprintf(home_path, "/gpfs/home2/jank"); // for Blue Gene/L and /P
+sprintf(home_path, "/bgsys/home2/jank"); // for Blue Gene/Q
+sprintf(repository_path, "%s/Documents/GIT/IG_Pipeline_0.1", home_path); // path of Inspector Gadget pipeline repository in home directory.
+sprintf(mass_storage_path, "/bgusr/data01/jank"); // path on mass storage disk (for storage of bulky stuff like simulations).  
+
 // N-body simulation specs:
-sprintf(series, "mQ2"); // simulation series name (typically one lower case letter).
+sprintf(series, "mQ3"); // simulation series name (typically one lower case letter).
 part=512; // Number of particles in one dimension, N-body simulation has part^3 particles.
 // List of Box sizes (in Mpc/h) for N-body simulation:
 Nboxsize=1; // number of different boxsizes to be evaluated (more can be added later easily).
@@ -201,11 +210,13 @@ wa[0]=0.0;
 /////////////////////////////////
 
 // Scalar spectral index n_s:
-Nns=3; // make sure number equals number of different parameter values below.
+Nns=1; // make sure number equals number of different parameter values below.
 ns=(double *)malloc(Nns*sizeof(double));
 ns[0]=0.96;
+/*
 ns[1]=0.92;
 ns[2]=1.00;
+*/
 
 // Primordial amplitude of density perturbations A_s (Note: depends on pivot scale, set in CAMB parameter file):
 // (This parameter is reset by sigma_8 normalization in postprocessing.)
@@ -216,7 +227,7 @@ As[0]=2.41e-9;
 // sigma_8:
 Ns8=3; // make sure number equals number of different parameter values below.
 s8=(double *)malloc(Ns8*sizeof(double));
-s8[0]=0.798;  // 0.79841924
+s8[0]=0.80;  // m-series was: 0.798;     // 0.79841924
 s8[1]=0.75;
 s8[2]=0.85;
 
@@ -232,13 +243,14 @@ z=(double *)malloc(Nz*sizeof(double));
 z[0]=100.0;
 
 // Random number seed for N-GenIC:
-Nseed=50; // make sure number equals number of different parameter values below.
+Nseed=5; // make sure number equals number of different parameter values below.
 seed=(int *)malloc(Nseed*sizeof(int));
 seed[0]=168757;
 seed[1]=580133;
 seed[2]=311652;
 seed[3]=325145;
 seed[4]=222701;
+/*
 seed[5]=194340;
 seed[6]=705031;
 seed[7]=674951;
@@ -284,27 +296,27 @@ seed[46]=195591;
 seed[47]=482732;
 seed[48]=521713;
 seed[49]=855138;
-
+*/
 
 /////////////////////////////////////////////////////////////
 // Paths, folders, and names (for description of all the variables here, see their declaration above):
 // Application Paths:
-sprintf(CAMB_dir, "/direct/lsst+u/jank/Docs/CAMB");
-sprintf(NGenIC_dir_L, "/gpfs/home2/jank/IG_Pipeline/N-GenIC"); // path to version for Blue Gene/L
-sprintf(NGenIC_dir_P, "/gpfs/home2/jank/IG_Pipeline/N-GenIC"); // path to version for Blue Gene/P
-sprintf(Gadget_dir_L,"/gpfs/home2/jank/IG_Pipeline/Gadget2");
-sprintf(Gadget_dir_P,"/gpfs/home2/jank/Documents/Gadget2");
+sprintf(CAMB_dir, "%s/camb", repository_path);
+sprintf(NGenIC_dir_L, "%s/N-GenIC", repository_path); // path to version for Blue Gene/L
+sprintf(NGenIC_dir_P, "%s/N-GenIC", repository_path); // path to version for Blue Gene/P
+sprintf(Gadget_dir_L, "%s/Gadget2", repository_path);
+sprintf(Gadget_dir_P, "%s/Gadget2", repository_path);
 // Executables:
 sprintf(CAMB_exec, "camb");
 sprintf(NGenIC_exec, "N-GenIC");
 sprintf(Gadget_exec, "Gadget2");
 // Master directories for initial conditions:
-sprintf(ics_data_dir_simcomp, "/gpfs/scratch2/jank/Storage/sims/ics"); // public path for large data.
-sprintf(ics_dir_simcomp, "/gpfs/home2/jank/IG_Pipeline/localStorage/ics"); // private path for parameters (small data).
+sprintf(ics_data_dir_simcomp, "%s/Storage/sims/ics", mass_storage_path); // public path for large data.
+sprintf(ics_dir_simcomp, "%s/localStorage/ics", repository_path); // private path for parameters (small data).
 sprintf(ics_dir_speccomp, "%s", ics_dir_simcomp); // For LSST cluster: sprintf(ics_dir_speccomp, "/data/jank/Storage/ics");
-sprintf(Gadget_output_dir, "/gpfs/scratch2/jank/Storage/sims/snapshots");
+sprintf(Gadget_output_dir, "%s/Storage/sims/snapshots", mass_storage_path);
 
-sprintf(IG_output_dir, "/gpfs/scratch2/jank/Storage/wl/IG"); // output directory for Inspector Gadget (weak lensing map generation).
+sprintf(IG_output_dir, "%s/Storage/wl/IG", mass_storage_path); // output directory for Inspector Gadget (weak lensing map generation).
 // Folders:
 sprintf(series_folder, "%s-series", series);
 sprintf(CAMB_folder, "data_CAMB");
@@ -328,7 +340,7 @@ sprintf(IG_maps_folder, "Maps");
 sprintf(IG_products_nonoise_folder, "Products_nonoise");
 sprintf(IG_products_noise_folder, "Products_noise");
 // File name elements:
-sprintf(output_list_filename, "outputs_m-series.txt"); // filename containing scale factor (time) list when Gadget-2 snapshots outputs are to be made. 
+sprintf(output_list_filename, "outputs_%s-series.txt", series); // filename containing scale factor (time) list when Gadget-2 snapshots outputs are to be made. 
 sprintf(power_end, "CAMB-MPS.dat"); // Filename ending for CAMB total matter power spectrum file (will be prepended by filebase).
 sprintf(power_front, "MPS-N-GenIC"); // Filename beginning for converted matter power spectrum (input file for N-GenIC).
 sprintf(ics_front, "ics");
@@ -495,7 +507,7 @@ for (i_z=0; i_z<Nz; i_z++)
 				exit(2);
 			}
 		  
-            exit(1111);
+			// exit(1111);
             
 		}
 
@@ -506,7 +518,7 @@ for (i_z=0; i_z<Nz; i_z++)
 		for (i_boxsize=0; i_boxsize<Nboxsize; i_boxsize++)
 		{
 		  // Caluclate gravitational softening length based on boxsize and number of particles:
-		  soft=7.5*512.0*boxsize[i_boxsize]/(200.0*part); // This is scaled formula from standard simulation (similar softening to Millenium simulation, Bologna simulation, etc.).
+		  soft=7.5*512.0*boxsize[i_boxsize]/(200.0*part); // This is scaled formula from standard simulation (similar softening to Millennium simulation, Bologna simulation, etc.).
 		  
 			//printf("Seed: seed, iseed: %d %d\n", seed[i_seed], i_seed);
 			sprintf(simulation_codename, "%s-%db%d_%s_si%1.3f_ic%d", series, part, ((int) boxsize[i_boxsize]), filerawbase, s8[i_s8], i_seed+1);
@@ -939,7 +951,7 @@ void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char 
 	/////////////////////////////////
 	/////////////////////////////////
 	
-	fprintf(param_file, "%% Automatically generated parameter file for w(z)-enhanced version of N-GenIC. Do not modify cosmological parameters by hand with the exception of sigma_8!\n");
+	fprintf(param_file, "%% Automatically generated parameter file for w(z)-enhanced version of public N-GenIC. Do not modify cosmological parameters by hand with the exception of sigma_8!\n");
 	fprintf(param_file, "%% Use standard parameter file and regular version of N-GenIC if want to do hand-modifications. Limitation then: no w(z) dark energy models, only cosmological constant.\n");
 	
 	fprintf(param_file, "Nmesh            %d        %% This is the size of the FFT grid used to \n", 2*part); // 1024
@@ -964,9 +976,9 @@ void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char 
 	fprintf(param_file, "FileBase         %s                 %% Base-filename of output files\n", filebase2); // ics_i512w10_3
 	fprintf(param_file, "OutputDir        %s/%s/%s/%s                 %%/home/volker/ics/   %% Directory for output\n\n", ics_data_dir_simcomp, series_folder, Gadget_folder, Gadget_data_folder); // /gpfs/scratch3/jank/Storage/sims/ics/i-series/
 
-	fprintf(param_file, "GlassFile        %s/grid_big_endian.dat  %% Grid-File or Glass-File \n\n", NGenIC_dir_L); // select between "grid_little_endian.dat" and "grid_bid_endian.dat", depending on endianness of machine on which N-GenIC and Gadget-2 will be run. 
+	fprintf(param_file, "GlassFile        %s/dummy_glass_big_endian.dat  %% Grid-File or Glass-File \n\n", NGenIC_dir_L); // select between "grid_little_endian.dat" and "grid_bid_endian.dat", depending on endianness of machine on which N-GenIC and Gadget-2 will be run. 
 
-	fprintf(param_file, "GlassTileFac     %d                %% Number of times the glass file is\n", part/16); // above grid files consist of 16^3 particles, so they need to be repoduced (number of particles in one dim / 16)-times. If want number of particles not divisible by 16, must create new grid files.
+	fprintf(param_file, "TileFac     %d                %% Number of times the glass file is\n", part/16); // above grid files consist of 16^3 particles, so they need to be repoduced (number of particles in one dim / 16)-times. If want number of particles not divisible by 16, must create new grid files.
 	fprintf(param_file, "                                  %% tiled in each dimension (must be\n");
 	fprintf(param_file, "                                  %% an integer)\n\n");
 
@@ -980,7 +992,6 @@ void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char 
 	fprintf(param_file, "Omega            %f       %% Total matter density  (at z=0)\n", OM);
 	fprintf(param_file, "OmegaLambda      %f       %% Cosmological constant (at z=0)\n", OL);
 	fprintf(param_file, "OmegaBaryon      %f       %% Baryon density        (at z=0)\n", OBh2/(h*h));
-	fprintf(param_file, "OmegaDM_2ndSpecies  0      %% Omega for a second dark matter species (at z=0)\n");
 	fprintf(param_file, "HubbleParam      %f       %% Hubble paramater (may be used for power spec parameterization)\n\n", h);
 
 	fprintf(param_file, "Redshift         %f        %% Starting redshift\n", z);
@@ -1009,7 +1020,7 @@ void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char 
 
 
 
-	fprintf(param_file, "FileWithInputSpectrum   %s/%s/%s/%s/%s  %% filename of tabulated input\n", ics_dir_simcomp, series_folder, NGenIC_folder, NGenIC_data_folder, converted_power_spectrum_filename);
+	fprintf(param_file, "FileWithInputSpectrum   %s/%s/%s/%s/%s\n                            %% filename of tabulated input\n", ics_dir_simcomp, series_folder, NGenIC_folder, NGenIC_data_folder, converted_power_spectrum_filename);
 	fprintf(param_file, "						                           %% spectrum (if used)\n");
 	fprintf(param_file, "InputSpectrum_UnitLength_in_cm  3.085678e24 %% defines length unit of tabulated\n");
 	fprintf(param_file, "                                            %% input spectrum in cm/h. \n");
@@ -1043,21 +1054,6 @@ void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char 
 	fprintf(param_file, "UnitMass_in_g             1.989e43      %% defines mass unit of output (in g/cm)\n");
 	fprintf(param_file, "UnitVelocity_in_cm_per_s  1e5           %% defines velocity unit of output (in cm/sec)\n\n\n\n");
 
-
-
-	fprintf(param_file, "WDM_On               0      %% Putting a '1' here will enable a WDM small-scale\n");
-	fprintf(param_file, "                            %% smoothing of the power spectrum\n\n");
-
-	fprintf(param_file, "WDM_Vtherm_On        0      %% If set to '1', the (warm) dark matter particles will\n");
-	fprintf(param_file, "                            %% receive an additional random thermal velocity\n");
-	fprintf(param_file, "                            %% corresponding to their particle mass\n\n");
-
-	fprintf(param_file, "WDM_PartMass_in_kev  10.0   %% This is the particle mass in keV of the WDM particle\n\n\n");
-
-
-	fprintf(param_file, "NU_On                0      %% Enables neutrino component if set to 1\n");
-	fprintf(param_file, "NU_Vtherm_On         1\n");
-	fprintf(param_file, "NU_PartMass_in_ev    1.38\n");
 
 	fclose(param_file);
 
