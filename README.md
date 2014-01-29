@@ -6,6 +6,8 @@ This is a pipeline for Weak Gravitational Lensing simulations: given a set of co
  - Projection of the 3D simulation boxes on 2D lensing planes
  - Ray tracing and production of 2D convergence and shear maps
 
+**0) Precambrian**
+
 **1) 3D box generation**
 
 This step is broken down in three smaller sub-steps: running the CAMB code to generate the matter power spectra, running an initial condition generator, and evolve the initial conditions using Gadget. 
