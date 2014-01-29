@@ -3,116 +3,17 @@
 #include <string.h>
 #include <math.h>
 
+#include "read_snapshot_utils.h"
 
 
-struct io_header_1
-{
-  int npart[6];
-  double mass[6];
-  double time;
-  double redshift;
-  int flag_sfr;
-  int flag_feedback;
-  int npartTotal[6];
-  int flag_cooling;
-  int num_files;
-  double BoxSize;
-  double Omega0;
-  double OmegaLambda;
-  double HubbleParam;
-  char fill[256 - 6 * 4 - 6 * 8 - 2 * 8 - 2 * 4 - 6 * 4 - 2 * 4 - 4 * 8];	/* fills to 256 Bytes */
-} header1;
-
-
-
-int NumPart, Ngas;
-
-struct particle_data
-{
-  float Pos[3];
-  float Vel[3];
-  float Mass;
-  int Type;
-
-  float Rho, U, Temp, Ne;
-} *P;
-
-int *Id;
-
-double Time, Redshift;
-
-
-
-/* Here we load a snapshot file. It can be distributed
- * onto several files (for files>1).
- * The particles are brought back into the order
- * implied by their ID's.
- * A unit conversion routine is called to do unit
- * conversion, and to evaluate the gas temperature.
+/* here the particle data is at your disposal: this is the only function you have to customize!
  */
-int main(int argc, char **argv)
-{
-  char path[1024], input_fname[1024], basename[128], number[16], nfiles[8];
-  int type, snapshot_number, files;
-
-  //Read path,basename and snapshot number from stdin
-
-  if(fgets(path,sizeof(path),stdin)){
-    *(strrchr(path,'\n')) = 0;
-  } else{
-    perror("couldn't read from stdin");
-    exit(1);
-  }
-
-  if(fgets(basename,sizeof(path),stdin)){
-    *(strrchr(basename,'\n')) = 0;
-  } else{
-    perror("couldn't read from stdin");
-    exit(1);
-  }
-
-  if(fgets(number,sizeof(number),stdin)){
-    *(strrchr(number,'\n')) = 0;
-  } else{
-    perror("couldn't read from stdin");
-    exit(1);
-  }
-
-  if(fgets(nfiles,sizeof(nfiles),stdin)){
-    *(strrchr(nfiles,'\n')) = 0;
-  } else{
-    perror("couldn't read from stdin");
-    exit(1);
-  }
-
-  snapshot_number = atoi(number);		/* number of snapshot */
-  files = atoi(nfiles);			/* number of files per snapshot */
-
-
-  sprintf(input_fname, "%s/%s_%03d", path, basename, snapshot_number);
-  load_snapshot(input_fname, files);
-
-
-  reordering();			/* call this routine only if your ID's are set properly */
-
-  unit_conversion();		/* optional stuff */
-
-  do_what_you_want();
-
-  return 0;
-}
-
-
-
-
-
-/* here the particle data is at your disposal 
- */
-int do_what_you_want(void){
+int do_what_you_want(int NumPart,struct particle_data *P){
 
 #ifdef PPOS
   
   int i;
+  P--;
 
   for(i=1;i<=NumPart;i++){
     printf("%e %e %e\n",P[i].Pos[0],P[i].Pos[1],P[i].Pos[2]);
@@ -123,9 +24,35 @@ int do_what_you_want(void){
   return 0;
 }
 
+/*Do not touch anything below here!*/
 
 
+/* Here we load a snapshot file. It can be distributed
+ * onto several files (for files>1).
+ * The particles are brought back into the order
+ * implied by their ID's.
+ * A unit conversion routine is called to do unit
+ * conversion, and to evaluate the gas temperature.
+ */
+int read_snapshot(char *path, char *basename,char *number, char *nfiles, struct io_header_1 *header1,int *NumPart,int *Ngas, struct particle_data **P,int **Id,double *Time,double *Redshift)
+{
+  char input_fname[1024];
+  int type, snapshot_number, files;
 
+  snapshot_number = atoi(number);		/* number of snapshot */
+  files = atoi(nfiles);			/* number of files per snapshot */
+
+
+  sprintf(input_fname, "%s/%s_%03d", path, basename, snapshot_number);
+  load_snapshot(input_fname, files,NumPart,Ngas,header1,Id,P,Time,Redshift);
+
+
+  reordering(*NumPart,Id,P);			/* call this routine only if your ID's are set properly */
+
+  unit_conversion(*NumPart,P);		/* optional stuff */
+
+  return 0;
+}
 
 /* this template shows how one may convert from Gadget's units
  * to cgs units.
@@ -133,7 +60,7 @@ int do_what_you_want(void){
  * (assuming that the electron density in units of the hydrogen density
  * was computed by the code. This is done if cooling is enabled.)
  */
-int unit_conversion(void)
+int unit_conversion(int NumPart, struct particle_data **Q)
 {
   double GRAVITY, BOLTZMANN, PROTONMASS;
   double UnitLength_in_cm, UnitMass_in_g, UnitVelocity_in_cm_per_s;
@@ -142,6 +69,9 @@ int unit_conversion(void)
 
   int i;
   double MeanWeight, u, gamma;
+
+  struct particle_data *P = *Q;
+  P--;
 
   /* physical constants in cgs units */
   GRAVITY = 6.672e-8;
@@ -182,6 +112,8 @@ int unit_conversion(void)
 	  P[i].Temp = MeanWeight / BOLTZMANN * (gamma - 1) * u;
 	}
     }
+
+    return 0;
 }
 
 
@@ -192,7 +124,7 @@ int unit_conversion(void)
  * binary file format. (A snapshot may be distributed
  * into multiple files.
  */
-int load_snapshot(char *fname, int files)
+int load_snapshot(char *fname, int files, int *NumPart, int *Ngas, struct io_header_1 *header1, int **IdP, struct particle_data **Q,double *Time, double *Redshift)
 {
   FILE *fd;
   char buf[200];
@@ -217,46 +149,57 @@ int load_snapshot(char *fname, int files)
       fprintf(stderr,"reading `%s' ...\n", buf);
 
       fread(&dummy, sizeof(dummy), 1, fd);
-      fread(&header1, sizeof(header1), 1, fd);
+      fread(header1, sizeof(struct io_header_1), 1, fd);
       fread(&dummy, sizeof(dummy), 1, fd);
 
       if(files == 1)
 	{
-	  for(k = 0, NumPart = 0, ntot_withmasses = 0; k < 6; k++)
-	    NumPart += header1.npart[k];
-	  Ngas = header1.npart[0];
+	  for(k = 0, *NumPart = 0, ntot_withmasses = 0; k < 6; k++)
+	    *NumPart += header1->npart[k];
+	    *Ngas = header1->npart[0];
 	}
       else
 	{
-	  for(k = 0, NumPart = 0, ntot_withmasses = 0; k < 6; k++)
-	    NumPart += header1.npartTotal[k];
-	  Ngas = header1.npartTotal[0];
+	  for(k = 0, *NumPart = 0, ntot_withmasses = 0; k < 6; k++)
+	    *NumPart += header1->npartTotal[k];
+	    *Ngas = header1->npartTotal[0];
 	}
 
       for(k = 0, ntot_withmasses = 0; k < 6; k++)
 	{
-	  if(header1.mass[k] == 0)
-	    ntot_withmasses += header1.npart[k];
+	  if(header1->mass[k] == 0)
+	    ntot_withmasses += header1->npart[k];
 	}
 
       if(i == 0)
-	allocate_memory();
+	
+  allocate_memory(Q,IdP,*NumPart);
+  
+  struct particle_data *P = *Q;
+  int *Id = *IdP;
+
+  P--;
+  Id--;
+
 
       SKIP;
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
-	  for(n = 0; n < header1.npart[k]; n++)
-	    {
+	  for(n = 0; n < header1->npart[k]; n++)
+	    {	
 	      fread(&P[pc_new].Pos[0], sizeof(float), 3, fd);
 	      pc_new++;
+	      
 	    }
+
 	}
+
       SKIP;
 
       SKIP;
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
-	  for(n = 0; n < header1.npart[k]; n++)
+	  for(n = 0; n < header1->npart[k]; n++)
 	    {
 	      fread(&P[pc_new].Vel[0], sizeof(float), 3, fd);
 	      pc_new++;
@@ -268,7 +211,7 @@ int load_snapshot(char *fname, int files)
       SKIP;
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
-	  for(n = 0; n < header1.npart[k]; n++)
+	  for(n = 0; n < header1->npart[k]; n++)
 	    {
 	      fread(&Id[pc_new], sizeof(int), 1, fd);
 	      pc_new++;
@@ -281,14 +224,14 @@ int load_snapshot(char *fname, int files)
 	SKIP;
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
-	  for(n = 0; n < header1.npart[k]; n++)
+	  for(n = 0; n < header1->npart[k]; n++)
 	    {
 	      P[pc_new].Type = k;
 
-	      if(header1.mass[k] == 0)
+	      if(header1->mass[k] == 0)
 		fread(&P[pc_new].Mass, sizeof(float), 1, fd);
 	      else
-		P[pc_new].Mass = header1.mass[k];
+		P[pc_new].Mass = header1->mass[k];
 	      pc_new++;
 	    }
 	}
@@ -296,10 +239,10 @@ int load_snapshot(char *fname, int files)
 	SKIP;
 
 
-      if(header1.npart[0] > 0)
+      if(header1->npart[0] > 0)
 	{
 	  SKIP;
-	  for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
+	  for(n = 0, pc_sph = pc; n < header1->npart[0]; n++)
 	    {
 	      fread(&P[pc_sph].U, sizeof(float), 1, fd);
 	      pc_sph++;
@@ -307,17 +250,17 @@ int load_snapshot(char *fname, int files)
 	  SKIP;
 
 	  SKIP;
-	  for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
+	  for(n = 0, pc_sph = pc; n < header1->npart[0]; n++)
 	    {
 	      fread(&P[pc_sph].Rho, sizeof(float), 1, fd);
 	      pc_sph++;
 	    }
 	  SKIP;
 
-	  if(header1.flag_cooling)
+	  if(header1->flag_cooling)
 	    {
 	      SKIP;
-	      for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
+	      for(n = 0, pc_sph = pc; n < header1->npart[0]; n++)
 		{
 		  fread(&P[pc_sph].Ne, sizeof(float), 1, fd);
 		  pc_sph++;
@@ -325,7 +268,7 @@ int load_snapshot(char *fname, int files)
 	      SKIP;
 	    }
 	  else
-	    for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
+	    for(n = 0, pc_sph = pc; n < header1->npart[0]; n++)
 	      {
 		P[pc_sph].Ne = 1.0;
 		pc_sph++;
@@ -336,8 +279,11 @@ int load_snapshot(char *fname, int files)
     }
 
 
-  Time = header1.time;
-  Redshift = header1.redshift;
+  *Time = header1->time;
+  *Redshift = header1->redshift;
+
+  return 0;
+
 }
 
 
@@ -346,28 +292,30 @@ int load_snapshot(char *fname, int files)
 /* this routine allocates the memory for the 
  * particle data.
  */
-int allocate_memory(void)
+int allocate_memory(struct particle_data **P,int **Id,int NumPart)
 {
   fprintf(stderr,"allocating memory...\n");
 
-  if(!(P = malloc(NumPart * sizeof(struct particle_data))))
+  if(!(*P = malloc(NumPart * sizeof(struct particle_data))))
     {
       fprintf(stderr, "failed to allocate memory.\n");
       exit(0);
     }
 
-  P--;				/* start with offset 1 */
+  //P--;				/* start with offset 1 */
 
 
-  if(!(Id = malloc(NumPart * sizeof(int))))
+  if(!(*Id = malloc(NumPart * sizeof(int))))
     {
       fprintf(stderr, "failed to allocate memory.\n");
       exit(0);
     }
 
-  Id--;				/* start with offset 1 */
+  //Id--;				/* start with offset 1 */
 
   fprintf(stderr,"allocating memory...done\n");
+
+  return 0;
 }
 
 
@@ -380,11 +328,17 @@ int allocate_memory(void)
  * In other cases, one has to use more general
  * sorting routines.
  */
-int reordering(void)
+int reordering(int NumPart,int **IdP,struct particle_data **Q)
 {
   int i, j;
   int idsource, idsave, dest;
   struct particle_data psave, psource;
+
+  struct particle_data *P = *Q;
+  int *Id = *IdP;
+
+  P--;
+  Id--;
 
 
   fprintf(stderr,"reordering....\n");
@@ -423,4 +377,6 @@ int reordering(void)
   free(Id);
 
   fprintf(stderr,"space for particle ID freed\n");
+
+  return 0;
 }
