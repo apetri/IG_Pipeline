@@ -14,6 +14,7 @@ FFLAGS=-O2
 CC=gcc
 CFLAGS=-O2 -I.
 FLIB = -L/usr/lib -lg2c -lm
+PYTHON = python
 endif
 
 ifeq ($(SYSTYPE),"Mac_OS_X")
@@ -22,13 +23,14 @@ FFLAGS=-O2
 CC=gcc
 CFLAGS=-O2 -I.
 FLIB = # gfortran does not need libg2c anymore.
+PYTHON = python
 # With Fink, Mac OS 10.6, and f77 as the fortran compiler (which needs libg2c):
 # FC=f77
 # FLIB = -L/sw/lib -lg2c -lm
 endif
 
 INCLFILES = darkenergy.h darkenergy_support.h parameters.inc
-CFILES = main.o interface.o darkenergy.o darkenergy_support.o
+CFILES = main.o interface.o darkenergy.o darkenergy_support.o options.o ini.o
 FFILES = f77main.o angdiamQp.o dverk.o growthq.o universal.o
 EXEC = Precambrian
 
@@ -42,6 +44,13 @@ EXEC = Precambrian
 default: all
 
 all: $(EXEC)
+
+main.o: main.c options.c
+
+options.o: options.c
+
+options.c: build_options.py
+	$(PYTHON) build_options.py
 
 ifeq ($(SYSTYPE),"Blue_Gene_L")
 $(EXEC): $(FFILES) $(CFILES)
@@ -61,4 +70,4 @@ $(CFILES): $(INCLFILES)
 # -lI77 -lF77
 
 clean:
-	rm -f *~ *.o $(EXEC)
+	rm -f *~ *.o $(EXEC) options.c options.h default_options.ini

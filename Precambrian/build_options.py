@@ -14,30 +14,59 @@ C_OPTIONS_HEADER = "options.h"
 
 #Format is: (Category,Parameter_name,Parameter_type,Default_value)
 
-scalar_options_set_1=[
-("cosmo","Omega_m",float,0.26),
-("cosmo","Omega_l",float,0.74),
-("cosmo","w",float,-1.0),
-("cosmo","n_scalar",float,0.960),
-("cosmo","sigma8",float,0.798),
-("cosmo","z_source",float,1.0)
+submission=[
+("submission","sumbission_style",int,2),
+]
+
+paths=[
+("paths","home_path",str,"/bgsys/home2/jank"),
+("paths","repository_relative_path",str,"/Documents/GIT/IG_Pipeline_0.1"),
+("paths","mass_storage_path",str,"/bgusr/data01/jank")
+]
+
+series=[
+("series","series_name",str,"mQ3"),
+("series","num_particles_side",int,512),
+]
+
+settings=[
+("settings","power_spectrum_at_zini",int,0),
+("settings","flat_universe",int,1),
+("settings","remove_old",int,0)
 ]
 
 scalar_options=[
-("Cosmological parameters scalar",scalar_options_set_1)
+("Submission type",submission),
+("Path names (user specific)",paths),
+("Simulation series",series),
+("Various settings",settings)
 ]
 
 #Vector options (num_par = Size_of_the_vector; arr_name = Name_of_the_vector)
 
 #Format is (Category,Number_of_parameters_name,array_parameter_name,num_elements,Parameter_type,Default_values) (only int,float supported)
 
-vector_options_set_1=[
-("cosmovec","Nsi8","si8",3,float,[0.798,0.698,0.598]),
-("cosmovec","Nh","h",4,float,[0.5,0.6,0.7,0.8])
+boxes=[
+("box_number","Nboxsize","boxsize",1,float,[240.0])
+]
+
+cosmo_parameters=[
+("cosmo","Nobh2","OBh2",1,float,[0.0227]),
+("cosmo","Nom","OM",3,float,[0.23,0.26,0.29]),
+("cosmo","Nol","OL",1,float,[0.74]),
+("cosmo","Nw0","w0",3,float,[-1.0,-0.8,-1.2]),
+("cosmo","Nwa","wa",1,float,[0.0]),
+("cosmo","Nns","ns",1,float,[0.960]),
+("cosmo","Nas","as",1,float,[2.41e-9]),
+("cosmo","Ns8","s8",3,float,[0.80,0.75,0.85]),
+("cosmo","Nh","h",1,float,[0.72]),
+("cosmo","Nz","z",1,float,[100.0]),
+("cosmo","Nseed","seed",5,int,[168757,580133,311652,325145,222701])
 ]
 
 vector_options=[
-("Cosmological parameters vector",vector_options_set_1)
+("Number of box sizes to be evaluated",boxes),
+("Cosmological parameters",cosmo_parameters)
 ]
 
 ###############################################################
@@ -58,7 +87,7 @@ def declaration_string(ptype):
 	elif ptype==int:
 		return 'int'
 	elif ptype==float:
-		return 'float'
+		return 'double'
 	else:
 		raise ValueError("Unknown parameter type")
 
@@ -68,7 +97,7 @@ def print_format(ptype):
 	elif ptype==int:
 		return '%d'
 	elif ptype==float:
-		return '%f'
+		return '%lf'
 	else:
 		raise ValueError("Unknown parameter type")
 

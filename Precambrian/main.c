@@ -14,6 +14,9 @@
 #include "darkenergy.h"
 #include "interface.h"
 
+#include "options.h"
+#include "ini.h"
+
 
 
 double vel_prefac_lam; // global variable for velocity prefactor for particles, written into by interface function to Lam Hui's growth factor code (the code returns the growth factor as its return value).
@@ -47,7 +50,10 @@ int fgetline(FILE *stream, char s[], int lim);
 
 
 int main (int argc, const char * argv[]) {
-  
+
+//options parsed from ini_file
+sys_options options;
+
 char CAMB_param_filename[200], NGenIC_param_filename[200], Gadget_param_filename[200], power_end[200], power_front[200], ics_front[200], filerawbase[200], filebase[200], simulation_codename[200], filebase2[200], power_spectrum_filename[200], converted_power_spectrum_filename[200];	
 // Strings above contain filenames and file name fragments:
 // filerawbase: parameters necessary for power spectrum (missing number of particles, boxsize, sigma_8).
@@ -106,9 +112,9 @@ char home_path[1000], repository_path[1000], mass_storage_path[1000];
 // Execution modes are directly chosen by providing an argument to the executable. Additional parameters are selectable in this file below.
 
 
-if (argc < 2)
+if (argc < 3)
 {
-	printf("Usage: Precambrian <mode>\nwhere <mode> can equal:\n");
+	printf("Usage: Precambrian <ini_options_file> <mode>\nwhere <mode> can equal:\n");
 	printf("1: Generate parameter files for CAMB and Condor job description file for CAMB execution.\n");
 	printf("2: Convert CAMB matter power spectra to N-GenIC power spectra.\n");
 	printf("3: Generate N-GenIC and Gadget-2 parameter files (all combinations).\n");
@@ -117,8 +123,14 @@ if (argc < 2)
 	exit(1);
 }
 
+//Parse options
+if(ini_parse(argv[1],handler,&options)<0){
+	fprintf(stderr,"ini options file %s not found\n",argv[1]);
+	exit(1);
+}
+
 // Mode: 
-mode=atoi(argv[1]); // First (and only) argument of Precambrian is mode; select 1, 2, 3 or 4.
+mode=atoi(argv[2]); // First (and only) argument of Precambrian is mode; select 1, 2, 3 or 4.
 printf("Running Precambrian in Mode=%d\n", mode);
 
 // Safety for NYBlue:
@@ -503,7 +515,7 @@ for (i_z=0; i_z<Nz; i_z++)
 			printf("Growth factor and velocity prefactor from Lam Hui's growth factor code: Dplus=%f, vel_prefac_lam=%f\n", Dplus, vel_prefac_lam);
 			if (fabs(Dplus)<0.001 || fabs(vel_prefac_lam)<0.001)
 			{
-				printf("ERROR: Growth factor or velocity prefactor returned incorrectly from Lam Hui's growth factor code (%d %d). Check for compilation errors (this is C calling FORTRAN 77 for this part) and or warnings/limitations of parameter ranges in growth factor routine package.\n");
+				printf("ERROR: Growth factor or velocity prefactor returned incorrectly from Lam Hui's growth factor code. Check for compilation errors (this is C calling FORTRAN 77 for this part) and or warnings/limitations of parameter ranges in growth factor routine package.\n");
 				exit(2);
 			}
 		  
