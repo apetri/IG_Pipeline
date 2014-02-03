@@ -15,7 +15,7 @@ C_OPTIONS_HEADER = "options.h"
 #Format is: (Category,Parameter_name,Parameter_type,Default_value)
 
 submission=[
-("submission","sumbission_style",int,2),
+("submission","submission_style",int,2),
 ]
 
 paths=[

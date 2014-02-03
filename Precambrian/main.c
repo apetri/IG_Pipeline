@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <math.h>
 
 #include "main.h"
@@ -50,9 +51,6 @@ int fgetline(FILE *stream, char s[], int lim);
 
 
 int main (int argc, const char * argv[]) {
-
-//options parsed from ini_file
-sys_options options;
 
 char CAMB_param_filename[200], NGenIC_param_filename[200], Gadget_param_filename[200], power_end[200], power_front[200], ics_front[200], filerawbase[200], filebase[200], simulation_codename[200], filebase2[200], power_spectrum_filename[200], converted_power_spectrum_filename[200];	
 // Strings above contain filenames and file name fragments:
@@ -124,7 +122,9 @@ if (argc < 3)
 }
 
 //Parse options
-if(ini_parse(argv[1],handler,&options)<0){
+sys_options *options = malloc(sizeof(sys_options));
+
+if(ini_parse(argv[1],handler,options)<0){
 	fprintf(stderr,"ini options file %s not found\n",argv[1]);
 	exit(1);
 }
@@ -151,7 +151,7 @@ sleep(1);
 /////////////////////////////////////////////////////////////////////
 
 // Submission style (NYBlue job submission files are generated only for desired jobs and numbered sequentially for easy submission later);
-submission_style=2; // select 1, 2 (recommended default), 3, 4, 5, or 6 here. Affects only mode=4 (submission script generation) and mode=6 (simple simulation codename list output).
+submission_style=options->submission_style; // select 1, 2 (recommended default), 3, 4, 5, or 6 here. Affects only mode=4 (submission script generation) and mode=6 (simple simulation codename list output).
 // 1: all, 2: cross jobs only, 3: fiducial model only (many random seeds), 4: anti-cross (complement of 2), 5: cross-anti-fiducial (like 2 but without 3), 6: anti-fiducial (complement of 3).
 // Standard submissions are: NYBlue/L: single, nonGSL, long jobs on 128 nodes in VN mode (all CPUs), 256 CPUs, wall time 72 hours.
 //                           NYBlue/P: Octopus, GSL, normal jobs on 512 nodes in VN mode (all CPUs), 8 simulations in parallel, 256 CPUs each, wall time 48 hours.
@@ -159,17 +159,19 @@ submission_style=2; // select 1, 2 (recommended default), 3, 4, 5, or 6 here. Af
 ///////////////////////////////                                                
 // Home, Repository, and Mass Storage Paths (set here depending on Blue Gene type):
 // sprintf(home_path, "/gpfs/home2/jank"); // for Blue Gene/L and /P
-sprintf(home_path, "/bgsys/home2/jank"); // for Blue Gene/Q
-sprintf(repository_path, "%s/Documents/GIT/IG_Pipeline_0.1", home_path); // path of Inspector Gadget pipeline repository in home directory.
-sprintf(mass_storage_path, "/bgusr/data01/jank"); // path on mass storage disk (for storage of bulky stuff like simulations).  
+sprintf(home_path, "%s",options->home_path); // for Blue Gene/Q
+sprintf(repository_path, "%s%s", home_path,options->repository_relative_path); // path of Inspector Gadget pipeline repository in home directory.
+sprintf(mass_storage_path, "%s",options->mass_storage_path); // path on mass storage disk (for storage of bulky stuff like simulations).  
 
 // N-body simulation specs:
-sprintf(series, "mQ3"); // simulation series name (typically one lower case letter).
-part=512; // Number of particles in one dimension, N-body simulation has part^3 particles.
+sprintf(series,"%s",options->series_name); // simulation series name (typically one lower case letter).
+part=options->num_particles_side; // Number of particles in one dimension, N-body simulation has part^3 particles.
 // List of Box sizes (in Mpc/h) for N-body simulation:
-Nboxsize=1; // number of different boxsizes to be evaluated (more can be added later easily).
+Nboxsize=options->Nboxsize; // number of different boxsizes to be evaluated (more can be added later easily).
 boxsize=(double *)malloc(Nboxsize*sizeof(double));
-boxsize[0]=240.0;
+for(i=0;i<Nboxsize;i++){
+	boxsize[i]=options->boxsize[i];
+}
 /*
 boxsize[0]=480.0;
 boxsize[1]=400.0;
@@ -180,51 +182,60 @@ boxsize[5]=80.0;
 */
 
 // Settings:
-power_spectrum_at_zini=0; // Set !=0 if want to generate power spectrum at initial redshift rather than scaling it back in N-GenIC.
-flat_universe=1; // Set to !=0 if want universe to be flat (no curvature); ignores settings of OL (Omega_Lambda) and creates flat universe based on OM (Omega_matter).
-remove=0; // Set !=0 if want to remove old job files (old ones will be overwritten, but there may be stray superfluous ones so it's recommended even though job submission shell scripts will be updated such that they ignore the superfluous ones).
+power_spectrum_at_zini=options->power_spectrum_at_zini; // Set !=0 if want to generate power spectrum at initial redshift rather than scaling it back in N-GenIC.
+flat_universe=options->flat_universe; // Set to !=0 if want universe to be flat (no curvature); ignores settings of OL (Omega_Lambda) and creates flat universe based on OM (Omega_matter).
+remove=options->remove_old; // Set !=0 if want to remove old job files (old ones will be overwritten, but there may be stray superfluous ones so it's recommended even though job submission shell scripts will be updated such that they ignore the superfluous ones).
 
 /////////////////////////////////////////////////////////////////////////////
 // COSMOLOGICAL PARAMETERS: (arrays, can run various combinations)
 ////////////////////////////
 
 // OMEGA BARYON: Fractional baryon density * h^2:
-Nobh2=1; // Number of different parameter values of OMEGA BARYON to be investigated; make sure number equals number of different parameter values below.
+Nobh2=options->Nobh2; // Number of different parameter values of OMEGA BARYON to be investigated; make sure number equals number of different parameter values below.
 OBh2=(double *)malloc(Nobh2*sizeof(double));
-OBh2[0]=0.0227;  // OB ~ 0.042;   // OB=0.0437885802469 
+for(i=0;i<Nobh2;i++){
+	OBh2[i]=options->OBh2[i];
+}  // OB ~ 0.042;   // OB=0.0437885802469 
 
 // OMEGA MATTER: Fractional total matter density today (CDM + baryons, has to add up to 1 with OL below for flat universe):
-Nom=3; // Number of different parameter values of OMEGA MATTER to be investigated; make sure number equals number of different parameter values below.
+Nom=options->Nom; // Number of different parameter values of OMEGA MATTER to be investigated; make sure number equals number of different parameter values below.
 OM=(double *)malloc(Nom*sizeof(double));
-OM[0]=0.26;
-OM[1]=0.23;
-OM[2]=0.29;
+for(i=0;i<Nom;i++){
+	OM[i]=options->OM[i];
+}
 
 // OMEGA DARK ENERGY: Fractional dark energy density today (has to add up to 1 with OM above for flat universe):
-Nol=1; // make sure number equals number of different parameter values below.
+Nol=options->Nol; // make sure number equals number of different parameter values below.
 OL=(double *)malloc(Nol*sizeof(double));
-OL[0]=0.74; // will be reset to value to make universe flat if flat_universe flag above is set.
+for(i=0;i<Nol;i++){
+	OL[i]=options->OL[i];
+} 
+// will be reset to value to make universe flat if flat_universe flag above is set.
 
 /////////////////////////////////
 // DARK ENERGY EQUATION OF STATE:
 /////////////////////////////////
 // Dark Energy Model: w(z)=w_0+(z/(z+1))*w_a.
 // Currently only w_0 works (constant w) with CAMB.
-Nw0=3; // make sure number equals number of different parameter values below.
+Nw0=options->Nw0; // make sure number equals number of different parameter values below.
 w0=(double *)malloc(Nw0*sizeof(double));
-w0[0]=-1.0;
-w0[1]=-0.8;
-w0[2]=-1.2;
+for(i=0;i<Nw0;i++){
+	w0[i]=options->w0[i];
+}
 
-Nwa=1; // make sure number equals number of different parameter values below.
+Nwa=options->Nwa; // make sure number equals number of different parameter values below.
 wa=(double *)malloc(Nwa*sizeof(double));
-wa[0]=0.0;
+for(i=0;i<Nwa;i++){
+	wa[i]=options->wa[i];
+}
 /////////////////////////////////
 
 // Scalar spectral index n_s:
-Nns=1; // make sure number equals number of different parameter values below.
+Nns=options->Nns; // make sure number equals number of different parameter values below.
 ns=(double *)malloc(Nns*sizeof(double));
-ns[0]=0.96;
+for(i=0;i<Nns;i++){
+	ns[i]=options->ns[i];
+}
 /*
 ns[1]=0.92;
 ns[2]=1.00;
@@ -232,36 +243,41 @@ ns[2]=1.00;
 
 // Primordial amplitude of density perturbations A_s (Note: depends on pivot scale, set in CAMB parameter file):
 // (This parameter is reset by sigma_8 normalization in postprocessing.)
-Nas=1; // make sure number equals number of different parameter values below.
+Nas=options->Nas; // make sure number equals number of different parameter values below.
 As=(double *)malloc(Nas*sizeof(double));
-As[0]=2.41e-9;
+for(i=0;i<Nas;i++){
+	As[i]=options->as[i];
+}
 
 // sigma_8:
-Ns8=3; // make sure number equals number of different parameter values below.
+Ns8=options->Ns8; // make sure number equals number of different parameter values below.
 s8=(double *)malloc(Ns8*sizeof(double));
-s8[0]=0.80;  // m-series was: 0.798;     // 0.79841924
-s8[1]=0.75;
-s8[2]=0.85;
+for(i=0;i<Ns8;i++){
+	s8[i]=options->s8[i];  // m-series was: 0.798;     // 0.79841924
+}
 
 // Hubble parameter h: H_0 = 100 * h km/s/Mpc.
-Nh=1; // make sure number equals number of different parameter values below.
+Nh=options->Nh; // make sure number equals number of different parameter values below.
 h=(double *)malloc(Nh*sizeof(double));
-h[0]=0.72;
+for(i=0;i<Nh;i++){
+	h[i]=options->h[i];
+}
 
 // Starting Redshift of N-body simulations:
 // (Power spectrum redshift can be set via power_spectrum_at_zini flag above to initial redshift of simulation or to z=0 and normalized to sigma_8 today by modified N-GenIC, which is capable of scaling back with dark energy with w(z).)
-Nz=1; // make sure number equals number of different parameter values below.
+Nz=options->Nz; // make sure number equals number of different parameter values below.
 z=(double *)malloc(Nz*sizeof(double));
-z[0]=100.0;
+for(i=0;i<Nz;i++){
+	z[i]=options->z[i];
+}
 
 // Random number seed for N-GenIC:
-Nseed=5; // make sure number equals number of different parameter values below.
+Nseed=options->Nseed; // make sure number equals number of different parameter values below.
 seed=(int *)malloc(Nseed*sizeof(int));
-seed[0]=168757;
-seed[1]=580133;
-seed[2]=311652;
-seed[3]=325145;
-seed[4]=222701;
+for(i=0;i<Nseed;i++){
+	seed[i]=options->seed[i];
+}
+
 /*
 seed[5]=194340;
 seed[6]=705031;
@@ -309,6 +325,8 @@ seed[47]=482732;
 seed[48]=521713;
 seed[49]=855138;
 */
+
+free(options);
 
 /////////////////////////////////////////////////////////////
 // Paths, folders, and names (for description of all the variables here, see their declaration above):
