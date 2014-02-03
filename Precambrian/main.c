@@ -13,7 +13,8 @@
 #include "main.h"
 #include "darkenergy.h"
 #include "interface.h"
-
+#include "io_routines.h"
+#include "manual.h"
 
 
 double vel_prefac_lam; // global variable for velocity prefactor for particles, written into by interface function to Lam Hui's growth factor code (the code returns the growth factor as its return value).
@@ -28,7 +29,9 @@ char CAMB_param_folder[200], CAMB_data_folder[200], CAMB_jobs_folder[200], CAMB_
 char NGenIC_param_folder[200], NGenIC_data_folder[200], NGenIC_jobs_folder[200], NGenIC_logs_folder[200]; // folder for N-GenIC parameter files, input power spectra (converted from CAMB output), NYBlue job submission scripts, and logs from runs on NYBlue (<number>.out and <number>.err).
 char Gadget_param_folder[200], Gadget_data_folder[200], Gadget_jobs_folder[200], Gadget_logs_folder[200]; // folder for Gadget-2 parameter files, initial condition data files (output of N-GenIC), NYBlue job submission scripts, and logs from runs on NYBlue.
 char IG_output_dir[1000], IG_planes_folder[200], IG_maps_folder[200], IG_products_nonoise_folder[200], IG_products_noise_folder[200];
+char home_path[1000], repository_path[1000], mass_storage_path[1000];
 
+/*
 // Functions:
 void convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_power_spectrum_filename[]);
 void write_CAMB_parameter_file(char CAMB_param_filename[], char filebase[], char power_end[], double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double As, double h, double z);
@@ -42,8 +45,8 @@ void write_submission_script_P(int jobs, int Pjobs, char jobstamm[], char BG_typ
 void write_directory_script(FILE *script_file, char simulation_codename[]);
 void write_IG_directory_script(FILE *script_file, char simulation_codename[]);
 void write_simple_list(FILE *script_file, char simulation_codename[]);
-int fgetline(FILE *stream, char s[], int lim);
-
+// int fgetline(FILE *stream, char s[], int lim);
+*/
 
 
 int main (int argc, const char * argv[]) {
@@ -83,7 +86,8 @@ double *boxsize; // Array containing box sizes for simulations (more than one si
 int process_number, jobs, Pjobs, octo_counter; // counts through number of processes (not used much).
 char command[200], job_description_filename[1000], jobstammL[200], jobstammP[200], BG_type[200], directory_script_filename[1000], IG_directory_script_filename[1000], simple_list_filename[1000]; // string containing Condor job description filename and NYBlue job description filenames.
 FILE *CAMB_condor_file, *directory_script_file, *IG_directory_script_file, *simple_list_file; // pointer to Condor job description file.
-char home_path[1000], repository_path[1000], mass_storage_path[1000];
+
+ char input_parameter_filename[2000];
 
 // Set these parameters to span full suite of N-body simulations. Every combination will be evaluated.
 
@@ -106,9 +110,9 @@ char home_path[1000], repository_path[1000], mass_storage_path[1000];
 // Execution modes are directly chosen by providing an argument to the executable. Additional parameters are selectable in this file below.
 
 
-if (argc < 2)
+if (argc < 3)
 {
-	printf("Usage: Precambrian <mode>\nwhere <mode> can equal:\n");
+	printf("Usage: Precambrian <parameter_file> <mode>\nwhere <mode> can equal:\n");
 	printf("1: Generate parameter files for CAMB and Condor job description file for CAMB execution.\n");
 	printf("2: Convert CAMB matter power spectra to N-GenIC power spectra.\n");
 	printf("3: Generate N-GenIC and Gadget-2 parameter files (all combinations).\n");
@@ -117,8 +121,11 @@ if (argc < 2)
 	exit(1);
 }
 
+// Transfer first argument to input parameter filename string.
+ sprintf(input_parameter_filename, "%s",  argv[1]);
+
 // Mode: 
-mode=atoi(argv[1]); // First (and only) argument of Precambrian is mode; select 1, 2, 3 or 4.
+mode=atoi(argv[2]); // First (and only) argument of Precambrian is mode; select 1, 2, 3 or 4.
 printf("Running Precambrian in Mode=%d\n", mode);
 
 // Safety for NYBlue:
@@ -131,13 +138,44 @@ if (mode==1)
   exit(1);
 }
 */
+ // Note: Do not use the above safety anymore. Is obsolete.
+
 sleep(1);
+
+
+//////////////////////////
+// Read in user-specific paths from parameter file and parameter values from manually adjustable file manual.c:
+read_parameter_file(input_parameter_filename);
+get_manual_numbers(&submission_style, &part, &Nboxsize, &power_spectrum_at_zini, &flat_universe, &remove, &Nobh2, &Nom, &Nol, &Nw0, &Nwa, &Nns, &Nas, &Ns8, &Nh, &Nz, &Nseed);
+
+print_manual_numbers(submission_style, part, Nboxsize, power_spectrum_at_zini, flat_universe, remove, Nobh2, Nom, Nol, Nw0, Nwa, Nns, Nas, Ns8, Nh, Nz, Nseed);
+
+OBh2=(double *)malloc(Nobh2*sizeof(double));
+OM=(double *)malloc(Nom*sizeof(double));
+OL=(double *)malloc(Nol*sizeof(double));
+w0=(double *)malloc(Nw0*sizeof(double));
+wa=(double *)malloc(Nwa*sizeof(double));
+ns=(double *)malloc(Nns*sizeof(double));
+As=(double *)malloc(Nas*sizeof(double));
+s8=(double *)malloc(Ns8*sizeof(double));
+h=(double *)malloc(Nh*sizeof(double));
+z=(double *)malloc(Nz*sizeof(double));
+seed=(int *)malloc(Nseed*sizeof(int));
+get_manual_arrays(OBh2, OM, OL, w0, wa, ns, As, s8, h, z, seed);
+ printf ("All manual readins done.\n");
+ fflush(stdout);
+
+
+//////////////////////////
+
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 // Adjustable Parameters:
 /////////////////////////////////////////////////////////////////////
+// Note: This section here is obsolete and therefore commented out. These are all done in manual.c now and called by the above commands. 
 
+/*
 // Submission style (NYBlue job submission files are generated only for desired jobs and numbered sequentially for easy submission later);
 submission_style=2; // select 1, 2 (recommended default), 3, 4, 5, or 6 here. Affects only mode=4 (submission script generation) and mode=6 (simple simulation codename list output).
 // 1: all, 2: cross jobs only, 3: fiducial model only (many random seeds), 4: anti-cross (complement of 2), 5: cross-anti-fiducial (like 2 but without 3), 6: anti-fiducial (complement of 3).
@@ -145,27 +183,30 @@ submission_style=2; // select 1, 2 (recommended default), 3, 4, 5, or 6 here. Af
 //                           NYBlue/P: Octopus, GSL, normal jobs on 512 nodes in VN mode (all CPUs), 8 simulations in parallel, 256 CPUs each, wall time 48 hours.
 
 ///////////////////////////////                                                
+
+
 // Home, Repository, and Mass Storage Paths (set here depending on Blue Gene type):
 // sprintf(home_path, "/gpfs/home2/jank"); // for Blue Gene/L and /P
 sprintf(home_path, "/bgsys/home2/jank"); // for Blue Gene/Q
 sprintf(repository_path, "%s/Documents/GIT/IG_Pipeline_0.1", home_path); // path of Inspector Gadget pipeline repository in home directory.
 sprintf(mass_storage_path, "/bgusr/data01/jank"); // path on mass storage disk (for storage of bulky stuff like simulations).  
 
-// N-body simulation specs:
 sprintf(series, "mQ3"); // simulation series name (typically one lower case letter).
+
+
+// N-body simulation specs:
 part=512; // Number of particles in one dimension, N-body simulation has part^3 particles.
 // List of Box sizes (in Mpc/h) for N-body simulation:
 Nboxsize=1; // number of different boxsizes to be evaluated (more can be added later easily).
 boxsize=(double *)malloc(Nboxsize*sizeof(double));
 boxsize[0]=240.0;
-/*
-boxsize[0]=480.0;
-boxsize[1]=400.0;
-boxsize[2]=320.0;
-boxsize[3]=240.0;
-boxsize[4]=160.0;
-boxsize[5]=80.0;
-*/
+//boxsize[0]=480.0;
+//boxsize[1]=400.0;
+//boxsize[2]=320.0;
+//boxsize[3]=240.0;
+//boxsize[4]=160.0;
+//boxsize[5]=80.0;
+
 
 // Settings:
 power_spectrum_at_zini=0; // Set !=0 if want to generate power spectrum at initial redshift rather than scaling it back in N-GenIC.
@@ -210,13 +251,11 @@ wa[0]=0.0;
 /////////////////////////////////
 
 // Scalar spectral index n_s:
-Nns=1; // make sure number equals number of different parameter values below.
+Nns=3; // make sure number equals number of different parameter values below.
 ns=(double *)malloc(Nns*sizeof(double));
 ns[0]=0.96;
-/*
 ns[1]=0.92;
 ns[2]=1.00;
-*/
 
 // Primordial amplitude of density perturbations A_s (Note: depends on pivot scale, set in CAMB parameter file):
 // (This parameter is reset by sigma_8 normalization in postprocessing.)
@@ -243,14 +282,13 @@ z=(double *)malloc(Nz*sizeof(double));
 z[0]=100.0;
 
 // Random number seed for N-GenIC:
-Nseed=5; // make sure number equals number of different parameter values below.
+Nseed=50; // make sure number equals number of different parameter values below.
 seed=(int *)malloc(Nseed*sizeof(int));
 seed[0]=168757;
 seed[1]=580133;
 seed[2]=311652;
 seed[3]=325145;
 seed[4]=222701;
-/*
 seed[5]=194340;
 seed[6]=705031;
 seed[7]=674951;
@@ -410,6 +448,9 @@ if (mode==6)
 if (mode==1) // open condor job description file for writing and write header
 {
 	sprintf(job_description_filename, "%s/%s/%s/%s/CAMB_job_desc", ics_dir_speccomp, series_folder, CAMB_folder, CAMB_jobs_folder);
+	printf("Writing CAMB Condor submission file:\n %s\n", job_description_filename);
+	fflush(stdout);
+
 	CAMB_condor_file=fopen(job_description_filename, "w");
 	
 	fprintf(CAMB_condor_file,  "# Condor Job Description File for CAMB for generation of power spectra for N-body simulations\n"); 
@@ -445,6 +486,7 @@ for (i_h=0; i_h<Nh; i_h++)
 {
 for (i_z=0; i_z<Nz; i_z++)
 {
+
 	// Calculate derived quantities:
 	if (flat_universe!=0) OL[i_OL]=1-OM[i_OM]; // override to make flat universe if flat_universe flag is set;
 	OK=1-OM[i_OM]-OL[i_OL]; // curvature
@@ -461,6 +503,7 @@ for (i_z=0; i_z<Nz; i_z++)
 
 	if (mode==1) // write CAMB parameter file
 	{
+
 		if (power_spectrum_at_zini==0)
 		{
 			printf("NOTE: Setting up power spectrum to be generated at z=0 and scaled back later by N-GenIC.\n");
@@ -718,7 +761,8 @@ void write_CAMB_parameter_file(char CAMB_param_filename[], char filebase[], char
 	fprintf(param_file, "#Parameters for CAMB\n\n");
 
 	fprintf(param_file, "#output_root is prefixed to output file names\n");
-	fprintf(param_file, "output_root = %s\n", filebase); // no path needed here, Condor just has to have the proper working directory (CAMB data output folder).
+	// fprintf(param_file, "output_root = %s\n", filebase); // no path needed here, Condor just has to have the proper working directory (CAMB data output folder).
+	fprintf(param_file, "output_root = %s/%s/%s/%s/%s\n", ics_dir_speccomp, series_folder, CAMB_folder, CAMB_data_folder, filebase);
 
 	fprintf(param_file,"#What to do\n");
 	fprintf(param_file, "get_scalar_cls = T\n");
@@ -1556,7 +1600,7 @@ void write_simple_list(FILE *script_file, char simulation_codename[])
 }
 
 
-
+/*
 int fgetline(FILE *stream, char s[], int lim)
 {
 	int c, i, j;
@@ -1571,3 +1615,5 @@ int fgetline(FILE *stream, char s[], int lim)
 	s[i]='\0';
 	return i;
 }
+*/
+
