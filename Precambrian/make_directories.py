@@ -13,6 +13,7 @@ options.readfp(file(sys.argv[1],"r"))
 ############Useful names#############
 data_folders = ["data_CAMB","data_N-GenIC","data_Gadget"]
 type_folders = ["Jobs","Logs","Parameters"]
+mass_storage_folders = ["ics","snapshots"]
 camb_output = "Output_Data"
 power_spectra = "Power_Spectra"
 
@@ -68,5 +69,52 @@ try:
 	os.mkdir(folder)
 except OSError:
 	print "%s already exists!"%folder
+
+###########Create mass Storage directory structure####################
+massStorage = options.get("paths","mass_storage_path") + "/Storage"
+try:
+	print "Creating %s"%massStorage
+	os.mkdir(massStorage)
+except OSError:
+	print "%s already exists!"%massStorage
+
+try:
+	folder = massStorage+"/sims"
+	print "Creating %s"%folder
+	os.mkdir(folder)
+except OSError:
+	print "%s already exists!"%folder
+
+for type_name in mass_storage_folders:
+	
+	folder = massStorage+"/sims"+"/%s"%type_name
+	try:
+		print "Creating %s"%folder
+		os.mkdir(folder)
+	except OSError:
+		print "%s already exists!"%folder
+
+	folder = folder + "/%s-series"%options.get("series","series_name")
+	try:
+		print "Creating %s"%folder
+		os.mkdir(folder)
+	except OSError:
+		print "%s already exists!"%folder
+
+folder = massStorage+"/sims/%s/%s-series/data_Gadget"%(mass_storage_folders[0],options.get("series","series_name"))
+try:
+	print "Creating %s"%folder
+	os.mkdir(folder)
+except OSError:
+	print "%s already exists!"%folder
+
+
+folder = massStorage+"/sims/%s/%s-series/data_Gadget/IC_Files"%(mass_storage_folders[0],options.get("series","series_name"))
+try:
+	print "Creating %s"%folder
+	os.mkdir(folder)
+except OSError:
+	print "%s already exists!"%folder
+	
 
 print 'Done!'
