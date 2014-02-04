@@ -6,7 +6,8 @@
 
 
 #SYSTYPE="Blue_Gene_L"
-SYSTYPE="Mac_OS_X"
+#SYSTYPE="Mac_OS_X"
+SYSTYPE="Blue_Gene_Q"
 
 ifeq ($(SYSTYPE),"Blue_Gene_L")
 FC=f77
@@ -15,6 +16,15 @@ CC=gcc
 CFLAGS=-O2 -I.
 FLIB = -L/usr/lib -lg2c -lm
 PYTHON = python
+endif
+
+ifeq ($(SYSTYPE),"Blue_Gene_Q")
+FC=gfortran
+FFLAGS=-O2
+CC=gcc
+CFLAGS=-O2 -I.
+FLIB= -lm
+PYTHON=python
 endif
 
 ifeq ($(SYSTYPE),"Mac_OS_X")
@@ -55,6 +65,11 @@ options.c: build_options.py
 ifeq ($(SYSTYPE),"Blue_Gene_L")
 $(EXEC): $(FFILES) $(CFILES)
 	$(CC) $(CFLAGS) $(FFILES) $(CFILES) -o $(EXEC) $(FLIB)
+endif
+
+ifeq ($(SYSTYPE),"Blue_Gene_Q")
+$(EXEC): $(FFILES) $(CFILES)
+	$(FC) $(CFLAGS) $(FFILES) $(CFILES) -o $(EXEC) $(FLIB)
 endif
 
 ifeq ($(SYSTYPE),"Mac_OS_X")
