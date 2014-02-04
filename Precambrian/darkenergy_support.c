@@ -356,6 +356,6 @@ void free_Matrix(double** matrix, int m) // need to specify how many rows origin
 	free(matrix);
 }
 
-#undef FMAX(A, B)
-#undef FMIN(A, B)
-#undef SIGN(A, B)
+#undef FMAX
+#undef FMIN
+#undef SIGN

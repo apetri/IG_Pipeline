@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <math.h>
 
 #include "main.h"
@@ -112,12 +114,13 @@ char home_path[1000], repository_path[1000], mass_storage_path[1000];
 
 if (argc < 3)
 {
-	printf("Usage: Precambrian <ini_options_file> <mode>\nwhere <mode> can equal:\n");
+	printf("Run make_directories.py before running Precambrian!!!\n\n");
+	printf("Usage: ./Precambrian <ini_options_file> <mode>\nwhere <mode> can equal:\n\n");
 	printf("1: Generate parameter files for CAMB and Condor job description file for CAMB execution.\n");
 	printf("2: Convert CAMB matter power spectra to N-GenIC power spectra.\n");
 	printf("3: Generate N-GenIC and Gadget-2 parameter files (all combinations).\n");
 	printf("4: Generate selected NYBlue job description files and submission shell scripts;\n   this option also takes into account the submission_style variable in the code.\n");
-	printf("Aborting. Rerun Precambrian with one of the above modes as its argument.\n");
+	printf("Aborting. Rerun Precambrian with one of the above modes as its argument.\n\n");
 	exit(1);
 }
 
@@ -131,7 +134,7 @@ if(ini_parse(argv[1],handler,options)<0){
 
 // Mode: 
 mode=atoi(argv[2]); // First (and only) argument of Precambrian is mode; select 1, 2, 3 or 4.
-printf("Running Precambrian in Mode=%d\n", mode);
+printf("\nRunning Precambrian in Mode=%d\n", mode);
 
 // Safety for NYBlue:
 /*
@@ -479,7 +482,8 @@ for (i_z=0; i_z<Nz; i_z++)
 	if (flat_universe!=0) OL[i_OL]=1-OM[i_OM]; // override to make flat universe if flat_universe flag is set;
 	OK=1-OM[i_OM]-OL[i_OL]; // curvature
 	OCh2=OM[i_OM]*h[i_h]*h[i_h]-OBh2[i_OBh2]; // Fractional CDM density * h^2
-	Dplus=0; vel_prefac_lam; // initialization to zero.
+	Dplus=0; 
+	vel_prefac_lam=0.0; // initialization to zero.
 	sprintf(filerawbase, "Om%1.3f_Ol%1.3f_w%1.3f_ns%1.3f", OM[i_OM], OL[i_OL], w0[i_w0], ns[i_ns]); // base of filenames for a particular parameter combination (must contain distinction based on parameter varied values).
 	sprintf(filebase, "%s-%s", series, filerawbase);
 	sprintf(CAMB_param_filename, "params_%s.ini", filebase); // construct name of CAMB parameter file (input file for CAMB).
@@ -646,12 +650,16 @@ for (i_z=0; i_z<Nz; i_z++)
 		}
 		sprintf(BG_type, "P");
 		write_submission_script_P(jobs, Pjobs, jobstammP, BG_type);
+
 		fclose(directory_script_file);
+
+		//set appropriate execution permissions 
+		chmod(directory_script_filename,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 	}
         if (mode == 5) fclose(IG_directory_script_file);
         if (mode == 6) fclose(simple_list_file);
 	
-    printf("Hello, World!\n");
+    printf("Done!!\n\n");
     return 0;
 }
 
