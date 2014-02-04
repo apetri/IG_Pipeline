@@ -52,13 +52,13 @@ boxes=[
 
 cosmo_parameters=[
 ("cosmo","Nobh2","OBh2",1,float,[0.0227]),
-("cosmo","Nom","OM",3,float,[0.23,0.26,0.29]),
+("cosmo","Nom","OM",4,float,[0.23,0.26,0.29,0.32]),
 ("cosmo","Nol","OL",1,float,[0.74]),
-("cosmo","Nw0","w0",3,float,[-1.0,-0.8,-1.2]),
+("cosmo","Nw0","w0",4,float,[-1.0,-0.8,-0.6,-1.2]),
 ("cosmo","Nwa","wa",1,float,[0.0]),
 ("cosmo","Nns","ns",1,float,[0.960]),
 ("cosmo","Nas","as",1,float,[2.41e-9]),
-("cosmo","Ns8","s8",3,float,[0.80,0.75,0.85]),
+("cosmo","Ns8","s8",4,float,[0.80,0.75,0.85,0.90]),
 ("cosmo","Nh","h",1,float,[0.72]),
 ("cosmo","Nz","z",1,float,[100.0]),
 ("cosmo","Nseed","seed",5,int,[168757,580133,311652,325145,222701])
