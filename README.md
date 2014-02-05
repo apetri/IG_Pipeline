@@ -6,13 +6,13 @@ This is a pipeline for Weak Gravitational Lensing simulations: given a set of co
  - Projection of the 3D simulation boxes on 2D lensing planes
  - Ray tracing and production of 2D convergence and shear maps
 
-**0) Precambrian**
+**1) 3D box generation: workflow**
 
-**1) 3D box generation**
+This step is broken down in three four sub-steps: setting the environment and directory structure, running the CAMB code to generate the matter power spectra, running an initial condition generator, and evolve the initial conditions using Gadget. These steps are glued together by Precambrian, an application that takes care of generating parameter files and reformatting the output of a particular step making it a suitable input for the next step.  
 
-This step is broken down in three smaller sub-steps: running the CAMB code to generate the matter power spectra, running an initial condition generator, and evolve the initial conditions using Gadget. 
+_1.0) Set the environment_
 
-_1.1) Running CAMB_
+_1.1) Run CAMB_
 
 In the camb directory, run make to compile the code; to run it, assuming you have openmpi installed, you can type:
 
