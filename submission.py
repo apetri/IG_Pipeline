@@ -46,8 +46,11 @@ def generate_BGQ_camb_submission(options):
 	#Write relevant paths
 	S.write("""HOMEPATH=%s
 REPOSITORY_DIR=%s
-WORKING_DIR=$HOMEPATH/$REPOSITORY_DIR/camb
-"""%(options.get("paths","home_path"),options.get("paths","repository_path")))
+WORKING_DIR=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/%s-series/data_CAMB/Output_Data
+
+EXECUTABLE=$HOMEPATH/$REPOSITORY_DIR/camb/camb
+LOGFILE_ROOT=log_camb_%s-series_OMP16
+"""%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"),options.get("series","series_name")))
 
 	#Check for how many cosmological models to calculate power spectra
 	cosmologies = options.options("cosmologies_camb")

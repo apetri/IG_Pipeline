@@ -1,4 +1,4 @@
-import sys,os
+import sys,os,shutil
 import ConfigParser
 
 #Check if ini options file is given 
@@ -62,6 +62,8 @@ try:
 	os.mkdir(folder)
 except OSError:
 	print "%s already exists!"%folder
+
+shutil.copy("%s%s/camb/HighLExtrapTemplate_lenspotentialCls.dat"%(options.get("paths","home_path"),options.get("paths","repository_relative_path")),folder+"/HighLExtrapTemplate_lenspotentialCls.dat")
 
 try:
 	folder = series_folder + "/%s"%data_folders[1] + "/%s"%power_spectra
