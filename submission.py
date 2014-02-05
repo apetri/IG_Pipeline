@@ -1,18 +1,6 @@
 import sys,os,stat,ConfigParser
 import StringIO
 
-#Check if options file is provided
-if(len(sys.argv)<3):
-	print "Usage: python %s <ini_options_file> <mode>"%sys.argv[0]
-	print "Operation modes:\n"
-	print "1: Generate CAMB submission script for Blue Gene Q"
-	print "\n"
-	exit(1)
-
-#Parse options from ini file
-options = ConfigParser.RawConfigParser()
-options.readfp(file(sys.argv[1],"r"))
-
 #This function returns the BGQ corner ID given the corner index
 def corner(index):
 	if(index==1):
@@ -32,7 +20,28 @@ def corner(index):
 	elif(index==8):
 		return "R00-M0-N03-J16"
 	else:
-		raise ValueError("The corner index must be less than or equal to 8!") 
+		raise ValueError("The corner index must be less than or equal to 8!")
+
+#This function checks how many simulations should be run in total, and prints according prompts to screen
+def num_simulations_check(options):
+	
+	cosmologies = options.options("cosmologies_gadget")
+	sims_per_model = options.getint("series","simulations_per_model")
+	print "You want to run %d models, %d simulations per model"%(len(cosmologies),sims_per_model)
+	needed_blocks = (len(cosmologies)*sims_per_model + 1)/2
+	num_sub_blocks = options.getint("topology","num_sub_blocks")
+	if(needed_blocks>num_sub_blocks):
+		
+		print "You need more than %d sub-blocks! You will need to split up your work!"%num_sub_blocks
+		return needed_blocks
+	
+	else:
+		
+		print "You will need %d sub-blocks for this batch"%needed_blocks
+		print "You will need to select the sub-blocks you want to use among these (make sure they are free)"
+		for i in range(1,num_sub_blocks+1):
+			print "%d --> %s"%(i,corner(i))
+		return needed_blocks  
 
 #This function generates CAMB submission script for BGQ
 def generate_BGQ_camb_submission(options):
@@ -66,7 +75,7 @@ NUM_MPI_TASKS=%d
 	S.write("""
 CORNER=%s
 SHAPE=%s
-"""%(corner(options.getint("topology","corner")),options.get("topology","shape")))
+"""%(corner(options.getint("topology","camb_corner")),options.get("topology","corner_shape")))
 
 	#Set Parameters and Logs directories
 	S.write("""
@@ -117,6 +126,19 @@ fi
 #Here we write the submission scripts to the appropriate folders
 
 if(__name__=="__main__"):
+
+	#Check if options file is provided
+	if(len(sys.argv)<3):
+		print "\nUsage: python %s <ini_options_file> <mode>"%sys.argv[0]
+		print "Operation modes:\n"
+		print "1: Generate CAMB submission script for Blue Gene Q"
+		print "3: Generate Gadget2 submission script for Blue Gene Q"
+		print "\n"
+		exit(1)
+
+	#Parse options from ini file
+	options = ConfigParser.RawConfigParser()
+	options.readfp(file(sys.argv[1],"r"))
 	
 	if(sys.argv[2]=="1"):
 		#CAMB submission script
@@ -126,6 +148,12 @@ if(__name__=="__main__"):
 		camb_script_filename = "jobsubmitQ_CAMB_%s-series.sh"%options.get("series","series_name")
 		file(camb_script_directory+camb_script_filename,"w").write(generate_BGQ_camb_submission(options))
 		os.chmod(camb_script_directory+camb_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+
+	elif(sys.argv[2]=="3"):
+		#Gadget2 submission script
+		print "Generating Gadget2 submission script..."
+		num_simulations_check(options)
+
 
 	else:
 		print "%s is not a valid option!"%sys.argv[2]
