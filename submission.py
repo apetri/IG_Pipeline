@@ -1,7 +1,9 @@
 import sys,os,stat,ConfigParser
 import StringIO
 
-#This function returns the BGQ corner ID given the corner index
+################################################################
+#This function returns the BGQ corner ID given the corner index#
+################################################################
 def corner(index):
 	if(index==1):
 		return "R00-M0-N00-J00"
@@ -22,7 +24,9 @@ def corner(index):
 	else:
 		raise ValueError("The corner index must be less than or equal to 8!")
 
-#This function checks how many simulations should be run in total, and prints according prompts to screen
+##########################################################################################################
+#This function checks how many simulations should be run in total, and prints according prompts to screen#
+##########################################################################################################
 def num_simulations_check(options):
 	
 	cosmologies = options.options("cosmologies_gadget")
@@ -37,13 +41,16 @@ def num_simulations_check(options):
 	
 	else:
 		
+		print "Each sub-block can run 2 simulations with 512x512x512 particles"
 		print "You will need %d sub-blocks for this batch"%needed_blocks
 		print "You will need to select the sub-blocks you want to use among these (make sure they are free)"
 		for i in range(1,num_sub_blocks+1):
-			print "%d --> %s"%(i,corner(i))
+			print "id %d --> %s"%(i,corner(i))
 		return needed_blocks  
 
-#This function generates CAMB submission script for BGQ
+############################################################
+#This function generates the CAMB submission script for BGQ#
+############################################################
 def generate_BGQ_camb_submission(options):
 	
 	S = StringIO.StringIO()
@@ -120,11 +127,13 @@ fi
 	S.seek(0)
 	return S.read()
 
+##############################################################
+#This function generates the Gadget submission script for BGQ#
+##############################################################
 
-
-
-#Here we write the submission scripts to the appropriate folders
-
+#################################################################
+#Here we write the submission scripts to the appropriate folders#
+#################################################################
 if(__name__=="__main__"):
 
 	#Check if options file is provided
@@ -151,8 +160,45 @@ if(__name__=="__main__"):
 
 	elif(sys.argv[2]=="3"):
 		#Gadget2 submission script
-		print "Generating Gadget2 submission script..."
-		num_simulations_check(options)
+		print "Generating Gadget2 submission script...\n"
+		
+		#Check that the partition can handle your work
+		needed_blocks = num_simulations_check(options)
+		num_sub_blocks = options.getint("topology","num_sub_blocks")
+		
+		if(needed_blocks>num_sub_blocks):
+			exit(1)
+		else:
+			#If there are enough sub blocks, proceed to select the blocks you want to run on
+			print "\n"
+			used_blocks = []
+			
+			for i in range(needed_blocks):
+				
+				print "Please select the id of block %d"%(i+1)
+				selected_block = int(raw_input("-->"))
+				while(True):
+					if(selected_block in used_blocks):
+						print "sub-block with id %d already selected! Choose another one!"%selected_block
+						print "Selected blocks so far"
+						print used_blocks
+						print "Please select the id of block %d"%(i+1)
+						selected_block = int(raw_input("-->"))
+					else:
+						used_blocks.append(selected_block)
+						break
+
+			print "\nThese are the sub-blocks you selected:"
+			for i in used_blocks:
+				print "%d --> %s"%(i,corner(i))
+			print ""
+
+			#Now the sub-blocks are selected, we can proceed in writing the submission script
+
+
+
+
+
 
 
 	else:
