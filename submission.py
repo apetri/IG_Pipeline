@@ -130,6 +130,57 @@ fi
 ##############################################################
 #This function generates the Gadget submission script for BGQ#
 ##############################################################
+def generate_BGQ_Gadget_submission(options,used_blocks):
+
+	S = StringIO.StringIO()
+
+	#Set blockid
+	S.write("""#!/bin/sh
+
+BLOCKID=%s
+"""%options.get("topology","blockid"))
+
+	#Set paths,executable name and log file basenames and directories
+	S.write("""
+HOMEPATH=%s
+REPOSITORY_DIR=%s
+
+EXECUTABLE=$HOMEPATH/$REPOSITORY_DIR/Gadget2/Gadget2q_OMP2_G800_TOPNODE16
+LOGFILE_ROOT=log_Gadget_%s-series
+LOGSDIR=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/mQ3-series/data_Gadget/Logs
+"""%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name")))
+
+	#Set computing resources usage (need to fix this, so far this job submission file runs two simulations per sub-block job)
+	S.write("""
+NUM_SIMS=2
+TASKS_PER_SIM=%d
+
+CORES_PER_NODE=%d
+NUM_MPI_TASKS=%d
+"""%(options.getint("computing_resources","tasks_per_simulation_gadget"),options.getint("computing_resources","cores_per_node_gadget"),options.getint("computing_resources","block_mpi_tasks_gadget")))
+
+	#Set path for Gadget parameter files
+	S.write("""
+G_ROOT=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/%s-series/data_Gadget/Parameters
+"""%options.get("series","series_name"))
+
+	#Create a list with all the initial conditions file names (one for each simulation to run)
+	parameter_filenames = []
+	series_name = options.get("series","series_name")
+	cosmologies = options.options("cosmologies_gadget")
+	num_particles_side = options.getint("series","num_particles_side")
+	box_size_kpc = options.getint("series","box_size_kpc")
+	simulations_per_model = options.getint("series","simulations_per_model")
+	for i in range(1,simulations_per_model+1):
+		for cosmology_id in cosmologies:
+			parameter_filenames.append("%s-%db%d_%s_ic%d.param"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i))
+
+	#parameter_filenames contains all the names of the Gadget parameter files; each block takes care of two of these
+	for filename in parameter_filenames:
+		S.write("""%s\n"""%filename)
+
+	S.seek(0)
+	return S.read()
 
 #################################################################
 #Here we write the submission scripts to the appropriate folders#
@@ -194,10 +245,10 @@ if(__name__=="__main__"):
 			print ""
 
 			#Now the sub-blocks are selected, we can proceed in writing the submission script
-
-
-
-
+			gadget_script_directory = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
+			gadget_script_filename = "jobsubmitQ_Gadget_%s-series.sh"%options.get("series","series_name")
+			file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,used_blocks))
+			os.chmod(gadget_script_directory+gadget_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
 
 
