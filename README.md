@@ -38,7 +38,7 @@ mpiexec -N <numTasks> ./camb params1.ini ... paramsN.ini
 
 to generate, in parallel, N power spectra, one for each parameter file (if you don't specify a parameter file for each task, camb quits and throws an error message). In the case where you are on a computer cluster (such as Blue Gene Q in this case), the CAMB runs have to be submitted to the cluster via a submission shell script. This will be taken care of for you. Notice that in the top level directory there is a python script, "submission.py", as long as a blueprint ini options file "submission\_sample\_options.ini", that will serve as a blueprint for an optons file to be passed to "submission.py", let's call it "submission\_options.ini". In this ini file you will adjust your paths as directed, you will select the block on which to run CAMB, the block corner and other options, such as the cosmological models for which to generate the power spectra. Once you are done run
 
-python submission.py submission_options.ini
+python submission.py submission_options.ini 1
 
 This will generate a submission script in localStorage/ics/xxx-series/data_CAMB/Jobs. Go in this directory and submit your job running the generated submission script
 
