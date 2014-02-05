@@ -36,7 +36,7 @@ char Gadget_param_folder[200], Gadget_data_folder[200], Gadget_jobs_folder[200],
 char IG_output_dir[1000], IG_planes_folder[200], IG_maps_folder[200], IG_products_nonoise_folder[200], IG_products_noise_folder[200];
 
 // Functions:
-void convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_power_spectrum_filename[]);
+int convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_power_spectrum_filename[]);
 void write_CAMB_parameter_file(char CAMB_param_filename[], char filebase[], char power_end[], double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double As, double h, double z);
 void write_CAMB_condor_job_description(FILE* CAMB_condor_file, char CAMB_param_filename[], char filebase[]);
 void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char NGenIC_param_filename[], char filebase2[], int part, double boxsize, double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double s8, double h, double z, int seed, int power_spectrum_at_zini, double Dplus, double vel_prefac_lam);
@@ -120,7 +120,7 @@ if (argc < 3)
 	printf("2: Convert CAMB matter power spectra to N-GenIC power spectra.\n");
 	printf("3: Generate N-GenIC and Gadget-2 parameter files (all combinations).\n");
 	printf("4: Generate selected NYBlue job description files and submission shell scripts;\n   this option also takes into account the submission_style variable in the code.\n");
-	printf("Aborting. Rerun Precambrian with one of the above modes as its argument.\n\n");
+	printf("\nAborting. Rerun Precambrian with one of the above modes as its argument.\n\n");
 	exit(1);
 }
 
@@ -659,13 +659,13 @@ for (i_z=0; i_z<Nz; i_z++)
         if (mode == 5) fclose(IG_directory_script_file);
         if (mode == 6) fclose(simple_list_file);
 	
-    printf("Done!!\n\n");
+    printf("\nDONE!!\n\n");
     return 0;
 }
 
 
 // Convert power spectrum from CAMB output format to N-GenIC input format: {k, P} --> {ln(k)/ln(10), ln(k^3*P)/(2*pi^2)/ln(10)}, where k is in (Mpc/h)^(-1).
-void convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_power_spectrum_filename[])
+int convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_power_spectrum_filename[])
 {
 	FILE *power_spectrum_file, *converted_power_spectrum_file;
 	char filename_in[1000], filename_out[1000];
@@ -679,7 +679,13 @@ void convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_
 	k=0; p=0; logk=0; logp=0; prevk=0; prevp=0;
 	
 	sprintf(filename_in, "%s/%s/%s/%s/%s", ics_dir_speccomp, series_folder, CAMB_folder, CAMB_data_folder, power_spectrum_filename);
+	
 	power_spectrum_file=fopen(filename_in, "r");
+	if(power_spectrum_file==NULL){
+		fprintf(stderr,"File %s doesn't exist, skipping conversion\n",filename_in);
+		return -1;
+	}
+	
 	sprintf(filename_out, "%s/%s/%s/%s/%s", ics_dir_speccomp, series_folder, NGenIC_folder, NGenIC_data_folder, converted_power_spectrum_filename);
 	converted_power_spectrum_file=fopen(filename_out, "w");
 	// printf("Converting CAMB power spectrum:\n%s\ninto N-GenIC power spectrum:\n%s\n", power_spectrum_filename, converted_power_spectrum_filename);
@@ -736,6 +742,8 @@ void convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_
 
 	printf("Done with a power spectrum conversion.\n");
 	fflush(stdout);
+
+	return 0;
 }
 
 
