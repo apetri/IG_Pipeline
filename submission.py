@@ -114,7 +114,11 @@ fi
 #Here we write the submission scripts to the appropriate folders
 
 #CAMB submission script
+print "Generating CAMB submission script..."
+
 camb_script_directory = "%s/%s/localStorage/ics/%s-series/data_CAMB/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
 camb_script_filename = "jobsubmitQ_CAMB_%s-series.sh"%options.get("series","series_name")
 file(camb_script_directory+camb_script_filename,"w").write(generate_BGQ_camb_submission(options))
 os.chmod(camb_script_directory+camb_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+
+print "Done!"
