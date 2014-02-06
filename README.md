@@ -76,11 +76,29 @@ If you did everything right your job is on its way to the BGQ compute nodes! Wai
 
 _1.3) Run Gadget for gravitational evolution_
 
+If you got to this step, it means now you have generated the initial conditions, and you are ready to evolve them with Gadget and generate a series of 3D snapshots which will be taken during the nonlinear evolution of the dark matter particles. Before even building the Gadget executable, you will need to create a text file in the repository top directory, called "outputs\_xxx-series.txt", with a list of numbers that will represent the time instants at which the snapshots will be taken (an example outputs\_mQ3-series.txt) is already provided. Now it's time to build the Gadget executable, just go in the Gadget2 directory and run
+
+make -f Makefile\_q 
+
+This will compile and link the code to an executable called Gadget2q\_OMP2\_G800\_TOPNODE16; of course this too will need its own formatted parameter files, which are a pain to write by hand. Luckily Precambrian will do it for us, just go in the Precambrian directory and run
+
+./Precambrian example\_options.ini 3
+
+which will generate all the required parameter files and save them to data\_Gadget/Parameters. Now comes the interesting part: you could in principle run the Gadget executable manually with mpiexec as usual, but Blue Gene Q requires that you submit your runs through a job submission script. This script will be generated automatically for you by submission.py. You have to be particularly careful in tuning the knobs in submission\_options.ini: the Blue Gene Q cluster connections have a complicated topology, and we need to specify the shapes and corners of the sub-blocks that make up our computing partition. In particular, in your submission\_options.ini file you need to specify the maximum number of simulations a sub block can handle; this of course depends on the size of the simulations (mainly the number of particles), so you need to choose this parameter carefully (for 512x512x512 particles this number is 2). After you do this just run
+
+python submission.py submission\_options.ini 3
+
+This will tell you how many sub-blocks you need for your job, and you will need to specify which ones you want to use (you have to make sure no one is using those, this script unfortunately does not check for that!). If submission.py completes succesfully, you will have your submission script ready in data\_Gadget/Jobs, and it will be called jobsubmitQ\_Gadget\_xxx-series.sh. Run it
+
+./jobsubmitQ\_N-GenIC\_xxx-series.sh
+
+and your Gadget jobs will be on their way to the Blue Gene Q compute nodes! Now you have to wait till they complete. When done, you are ready for step 2!
+
 _1.4) Read in a snapshot_
 
 The directory Gadget2/readOutput contains a slight modification of the read\_snapshot.c code provided with Gadget: it consists in a library of functions (coded in read\_snapshot\_utilities.c) that read in a single Gadget snapshot, doing the right thing (skipping headers, padding, etc...); the information about the particles is stored in a heap allocated array of type struct particle\_data, which has to be freed at the end of usage. (The allocation of the array is done automatically by the call of the read\_snapshot function). A test driver (read\_snapshot.c) is provided for testing, and it can be compiled and linked with read\_snapshot\_utilities.c just typing 'make'; you can do a test run just running the read_snapshot binary that is produced. In addition, if you have ffpmeg installed, you can run 'make movie' to make a movie of the simulation snapshots to see the particle evolution in real time (at this stage, it works efficiently only for 32x32x32 particles or smaller only, though).    
 
 **2) Generation of lens planes**
 
-**3) Ray tracing**
+**3) Ray tracing: creating the shear maps**
 
