@@ -24,6 +24,14 @@ def corner(index):
 	else:
 		raise ValueError("The corner index must be less than or equal to 8!")
 
+####################################################################
+#This function returns the number of needed sub blocks given the####
+#number of cosmological models, the number of simulations per model#
+#and the maximum number of simulations a block can run##############
+####################################################################
+def needed(Nmodels,sims_per_model,max_in_block):
+	return (Nmodels*sims_per_model)/max_in_block + cmp((Nmodels*sims_per_model)%max_in_block,0)
+
 ##########################################################################################################
 #This function checks how many simulations should be run in total, and prints according prompts to screen#
 ##########################################################################################################
@@ -31,8 +39,12 @@ def num_simulations_check(options):
 	
 	cosmologies = options.options("cosmologies_gadget")
 	sims_per_model = options.getint("series","simulations_per_model")
+	max_sims_sub_block = options.getint("topology","max_sims_sub_block")
+
 	print "You want to run %d models, %d simulations per model"%(len(cosmologies),sims_per_model)
-	needed_blocks = (len(cosmologies)*sims_per_model + 1)/2
+	
+	needed_blocks = needed(len(cosmologies),sims_per_model,max_sims_sub_block)
+
 	num_sub_blocks = options.getint("topology","num_sub_blocks")
 	if(needed_blocks>num_sub_blocks):
 		
@@ -41,7 +53,8 @@ def num_simulations_check(options):
 	
 	else:
 		
-		print "Each sub-block can run 2 simulations with 512x512x512 particles"
+		Nside = options.getint("series","num_particles_side")
+		print "Each sub-block can run %d simulations with %dx%dx%d particles"%(max_sims_sub_block,Nside,Nside,Nside)
 		print "You will need %d sub-blocks for this batch"%needed_blocks
 		print "You will need to select the sub-blocks you want to use among these (make sure they are free)"
 		for i in range(1,num_sub_blocks+1):
@@ -56,6 +69,8 @@ def generate_BGQ_camb_submission(options):
 	S = StringIO.StringIO()
 	
 	S.write("""#!/bin/sh
+
+#Do not edit!! This script is generated automatically by submission.py
 
 """)
 
@@ -121,6 +136,7 @@ if [ $ANSWER == "y" ]; then
 	runjob --block $BLOCKID --corner $CORNER --shape $SHAPE --exe $EXECUTABLE -p $CORES_PER_NODE --np $NUM_MPI_TASKS --args $ARGS --cwd $WORKING_DIR --envs OMP_NUM_THREADS=16 > $LOGSDIR/$LOGFILE_ROOT.out 2> $LOGSDIR/$LOGFILE_ROOT.err &
 else
 	echo "Aborting"
+	exit 1
 fi
 """)
 
@@ -137,6 +153,8 @@ def generate_BGQ_Gadget_submission(options,used_blocks):
 	#Set blockid
 	S.write("""#!/bin/sh
 
+#Do not edit!! This script is generated automatically by submission.py		
+
 BLOCKID=%s
 """%options.get("topology","blockid"))
 
@@ -152,12 +170,9 @@ LOGSDIR=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/mQ3-series/data_Gadget/Logs
 
 	#Set computing resources usage (need to fix this, so far this job submission file runs two simulations per sub-block job)
 	S.write("""
-NUM_SIMS=2
-TASKS_PER_SIM=%d
 
 CORES_PER_NODE=%d
-NUM_MPI_TASKS=%d
-"""%(options.getint("computing_resources","tasks_per_simulation_gadget"),options.getint("computing_resources","cores_per_node_gadget"),options.getint("computing_resources","block_mpi_tasks_gadget")))
+"""%(options.getint("computing_resources","cores_per_node_gadget")))
 
 	#Set path for Gadget parameter files
 	S.write("""
@@ -171,13 +186,56 @@ G_ROOT=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/%s-series/data_Gadget/Paramete
 	num_particles_side = options.getint("series","num_particles_side")
 	box_size_kpc = options.getint("series","box_size_kpc")
 	simulations_per_model = options.getint("series","simulations_per_model")
+	tasks_per_sim = options.getint("computing_resources","tasks_per_simulation_gadget")
 	for i in range(1,simulations_per_model+1):
 		for cosmology_id in cosmologies:
 			parameter_filenames.append("%s-%db%d_%s_ic%d.param"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i))
 
-	#parameter_filenames contains all the names of the Gadget parameter files; each block takes care of two of these
-	for filename in parameter_filenames:
-		S.write("""%s\n"""%filename)
+	#parameter_filenames now contains all the names of the Gadget parameter files, one for each simulation
+	
+	#Check for correct number of blocks
+	max_sims_sub_block = options.getint("topology","max_sims_sub_block")
+	if(len(used_blocks)!=needed(len(cosmologies),simulations_per_model,max_sims_sub_block)):
+		raise ValueError("Provided number of blocks doesn't match the one required by the number of simulations!")
+	
+	#Now divide work between sub-blocks, each one runs an instance of runjob, with the appropriate number of simulations
+	for sub_block in used_blocks:
+		gadget_arguments = ""
+		for num_sims in range(1,max_sims_sub_block+1):
+			try:
+				filename = parameter_filenames.pop()
+				gadget_arguments = gadget_arguments+"%s "%filename
+			except IndexError:
+				#Extremely bad programming practice, sorry :(
+				num_sims = num_sims - 1 
+				break
+
+		gadget_arguments = "%d %d "%(num_sims,tasks_per_sim) + gadget_arguments
+		total_mpi_tasks = num_sims*tasks_per_sim
+
+		runjob_command = "runjob --block $BLOCKID --corner %s --shape %s --exe $EXECUTABLE -p $CORES_PER_NODE --np %d"%(corner(sub_block),options.get("topology","corner_shape"),total_mpi_tasks) 
+		runjob_command = runjob_command + " --args %s --cwd $G_ROOT"%(gadget_arguments)
+		runjob_command = runjob_command + " > $LOGSDIR/${LOGFILE_ROOT}_Bl%d.out 2> $LOGSDIR/${LOGFILE_ROOT}_Bl%d.err"%(sub_block,sub_block)
+
+		#Write the execution part of the script
+		S.write("""
+
+
+echo "You will be executing this command:"
+echo ""
+echo "%s"
+echo ""
+echo "Do you wish to proceed? (y/n)"
+
+read ANSWER
+
+if [ $ANSWER == "y" ]; then
+	%s &
+else
+	echo "Aborting"
+	exit 1 
+fi
+"""%(runjob_command,runjob_command)) 
 
 	S.seek(0)
 	return S.read()
