@@ -90,7 +90,7 @@ python submission.py submission\_options.ini 3
 
 This will tell you how many sub-blocks you need for your job, and you will need to specify which ones you want to use (you have to make sure no one is using those, this script unfortunately does not check for that!). If submission.py completes succesfully, you will have your submission script ready in data\_Gadget/Jobs, and it will be called jobsubmitQ\_Gadget\_xxx-series.sh. Run it
 
-./jobsubmitQ\_N-GenIC\_xxx-series.sh
+./jobsubmitQ\_Gadget\_xxx-series.sh
 
 and your Gadget jobs will be on their way to the Blue Gene Q compute nodes! Now you have to wait till they complete. When done, you are ready for step 2!
 
