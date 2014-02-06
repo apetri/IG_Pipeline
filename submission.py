@@ -1,4 +1,5 @@
-import sys,os,stat,ConfigParser
+import sys,os,stat
+import ConfigParser
 import StringIO
 
 ################################################################
@@ -268,6 +269,7 @@ CORES_PER_NODE=%d
 	#Create a list with all the Gadget parameter file names (one for each simulation to run)
 	parameter_filenames = []
 	series_name = options.get("series","series_name")
+	mass_storage_path = "%s/Storage/sims/snapshots/%s-series"%(options.get("paths","mass_storage_path"),series_name)
 	cosmologies = options.options("cosmologies_gadget")
 	num_particles_side = options.getint("series","num_particles_side")
 	box_size_kpc = options.getint("series","box_size_kpc")
@@ -275,7 +277,14 @@ CORES_PER_NODE=%d
 	tasks_per_sim = options.getint("computing_resources","tasks_per_simulation_gadget")
 	for i in range(1,simulations_per_model+1):
 		for cosmology_id in cosmologies:
-			parameter_filenames.append("%s-%db%d_%s_ic%d.param"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i))
+			filename_root = "%s-%db%d_%s_ic%d"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i)
+			parameter_filenames.append(filename_root+".param")
+			#Create corresponding snapshot directory on mass storage disk
+			try:
+				os.mkdir("%s/%s"%(mass_storage_path,filename_root))
+				print "Created %s/%s"%(mass_storage_path,filename_root)
+			except OSError:
+				print "%s/%s already exists!!"%(mass_storage_path,filename_root)
 
 	#parameter_filenames now contains all the names of the Gadget parameter files, one for each simulation
 	
@@ -290,6 +299,7 @@ CORES_PER_NODE=%d
 		for num_sims in range(1,max_sims_sub_block+1):
 			try:
 				filename = parameter_filenames.pop()
+				#Add filename as argument for Gadget
 				gadget_arguments = gadget_arguments+"%s "%filename
 			except IndexError:
 				#Extremely bad programming practice, sorry :(
