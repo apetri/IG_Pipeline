@@ -143,6 +143,25 @@ fi
 	S.seek(0)
 	return S.read()
 
+
+###############################################################
+#This function generates the N-GenIC submission script for BGQ#
+###############################################################
+def generate_BGQ_ngenic_submission(options):
+
+	S = StringIO.StringIO()
+
+	S.write("""
+#!/bin/sh
+
+#Do not edit!! This script is generated automatically by submission.py
+""")
+
+	S.seek(0)
+	return S.read()
+
+
+
 ##############################################################
 #This function generates the Gadget submission script for BGQ#
 ##############################################################
@@ -250,6 +269,7 @@ if(__name__=="__main__"):
 		print "\nUsage: python %s <ini_options_file> <mode>"%sys.argv[0]
 		print "Operation modes:\n"
 		print "1: Generate CAMB submission script for Blue Gene Q"
+		print "2: Generate N-GenIC submission script for Blue Gene Q"
 		print "3: Generate Gadget2 submission script for Blue Gene Q"
 		print "\n"
 		exit(1)
@@ -266,6 +286,15 @@ if(__name__=="__main__"):
 		camb_script_filename = "jobsubmitQ_CAMB_%s-series.sh"%options.get("series","series_name")
 		file(camb_script_directory+camb_script_filename,"w").write(generate_BGQ_camb_submission(options))
 		os.chmod(camb_script_directory+camb_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+
+	elif(sys.argv[2]=="2"):
+		#N-GenIC submission script
+		print "Generating N-GenIC submission script..."
+
+		ngenic_script_directory = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
+		ngenic_script_filename = "jobsubmitQ_N-GenIC_%s-series.sh"%options.get("series","series_name")
+		file(ngenic_script_directory+ngenic_script_filename,"w").write(generate_BGQ_ngenic_submission(options))
+		os.chmod(ngenic_script_directory+ngenic_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
 	elif(sys.argv[2]=="3"):
 		#Gadget2 submission script
