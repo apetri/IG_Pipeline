@@ -20,7 +20,7 @@ submission=[
 
 paths=[
 ("paths","home_path",str,"/bgsys/home2/jank"),
-("paths","repository_relative_path",str,"/Documents/GIT/IG_Pipeline_0.1"),
+("paths","repository_relative_path",str,"Documents/GIT/IG_Pipeline_0.1"),
 ("paths","mass_storage_path",str,"/bgusr/data01/jank")
 ]
 

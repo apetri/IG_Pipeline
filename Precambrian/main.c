@@ -163,7 +163,7 @@ submission_style=options->submission_style; // select 1, 2 (recommended default)
 // Home, Repository, and Mass Storage Paths (set here depending on Blue Gene type):
 // sprintf(home_path, "/gpfs/home2/jank"); // for Blue Gene/L and /P
 sprintf(home_path, "%s",options->home_path); // for Blue Gene/Q
-sprintf(repository_path, "%s%s", home_path,options->repository_relative_path); // path of Inspector Gadget pipeline repository in home directory.
+sprintf(repository_path, "%s/%s", home_path,options->repository_relative_path); // path of Inspector Gadget pipeline repository in home directory.
 sprintf(mass_storage_path, "%s",options->mass_storage_path); // path on mass storage disk (for storage of bulky stuff like simulations).  
 
 // N-body simulation specs:
