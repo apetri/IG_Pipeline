@@ -76,7 +76,7 @@ If you did everything right your job is on its way to the BGQ compute nodes! Wai
 
 _1.3) Run Gadget for gravitational evolution_
 
-If you got to this step, it means now you have generated the initial conditions, and you are ready to evolve them with Gadget and generate a series of 3D snapshots which will be taken during the nonlinear evolution of the dark matter particles. Before even building the Gadget executable, you will need to create a text file in the repository top directory, called "outputs\_xxx-series.txt", with a list of numbers that will represent the time instants at which the snapshots will be taken (an example outputs\_mQ3-series.txt) is already provided. Now it's time to build the Gadget executable, just go in the Gadget2 directory and run
+If you got to this step, it means now you have generated the initial conditions, and you are ready to evolve them with Gadget and generate a series of 3D snapshots which will be taken during the nonlinear evolution of the dark matter particles. Before even building the Gadget executable, you will need to create a text file in the repository top directory, called "outputs\_xxx-series.txt", with a list of numbers that will represent the time instants at which the snapshots will be taken (an example called "outputs\_mQ3-series.txt" is already provided). Now it's time to build the Gadget executable, just go in the Gadget2 directory and run
 
 make -f Makefile\_q 
 
