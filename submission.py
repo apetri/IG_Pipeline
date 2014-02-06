@@ -151,15 +151,82 @@ def generate_BGQ_ngenic_submission(options):
 
 	S = StringIO.StringIO()
 
-	S.write("""
-#!/bin/sh
+	#Set blockid
+	S.write("""#!/bin/sh
 
-#Do not edit!! This script is generated automatically by submission.py
-""")
+#Do not edit!! This script is generated automatically by submission.py		
+
+BLOCKID=%s
+CORNER=%s 
+SHAPE=%s
+"""%(options.get("topology","blockid"),corner(options.getint("topology","camb_corner")),options.get("topology","corner_shape")))
+
+	#Set paths,executable name and log file basenames and directories
+	S.write("""
+HOMEPATH=%s
+REPOSITORY_DIR=%s
+
+EXECUTABLE=$HOMEPATH/$REPOSITORY_DIR/N-GenIC/N-GenICq
+LOGFILE_ROOT=log_N-GenIC_%s-series
+LOGSDIR=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/mQ3-series/data_N-GenIC/Logs
+"""%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name")))
+
+	#Set path for N-GenIC parameter files
+	S.write("""
+IC_ROOT=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/%s-series/data_N-GenIC/Parameters
+"""%options.get("series","series_name"))
+
+	#Set computing resources usage
+	S.write("""
+
+CORES_PER_NODE=%d
+NUM_MPI_TASKS=%d
+"""%(options.getint("computing_resources","cores_per_node_ngenic"),options.getint("computing_resources","tasks_per_simulation_ngenic")))
+
+	#Create a list with all the Gadget parameter file names (one for each simulation to run)
+	parameter_filenames = []
+	series_name = options.get("series","series_name")
+	cosmologies = options.options("cosmologies_gadget")
+	num_particles_side = options.getint("series","num_particles_side")
+	box_size_kpc = options.getint("series","box_size_kpc")
+	simulations_per_model = options.getint("series","simulations_per_model")
+	tasks_per_sim = options.getint("computing_resources","tasks_per_simulation_ngenic")
+	for i in range(1,simulations_per_model+1):
+		for cosmology_id in cosmologies:
+			parameter_filenames.append("ics_%s-%db%d_%s_ic%d.param"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i))
+
+	#parameter_filenames now contains all the names of the N-GenIC parameter files, one for each simulation
+
+	#Write the execution part of the script
+	ngenic_arguments = ""
+	for filename in parameter_filenames:
+		ngenic_arguments = ngenic_arguments + "%s "%filename
+
+	runjob_command = "runjob --block $BLOCKID --corner $CORNER --shape $SHAPE --exe $EXECUTABLE -p $CORES_PER_NODE --np $NUM_MPI_TASKS"
+	runjob_command = runjob_command + " --args %s --cwd $IC_ROOT > $LOGSDIR/$LOGFILE_ROOT.out 2> $LOGSDIR/$LOGFILE_ROOT.err"%ngenic_arguments
+
+	S.write("""
+
+echo "You will be executing this command:"
+echo ""
+echo "%s"
+echo ""
+echo "Do you wish to proceed? (y/n)"
+
+read ANSWER
+
+if [ $ANSWER == "y" ]; then
+
+        %s &
+
+else
+	echo "Aborting"
+	exit 1
+fi
+"""%(runjob_command,runjob_command))
 
 	S.seek(0)
 	return S.read()
-
 
 
 ##############################################################
@@ -187,18 +254,18 @@ LOGFILE_ROOT=log_Gadget_%s-series
 LOGSDIR=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/mQ3-series/data_Gadget/Logs
 """%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name")))
 
-	#Set computing resources usage (need to fix this, so far this job submission file runs two simulations per sub-block job)
-	S.write("""
-
-CORES_PER_NODE=%d
-"""%(options.getint("computing_resources","cores_per_node_gadget")))
-
 	#Set path for Gadget parameter files
 	S.write("""
 G_ROOT=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/%s-series/data_Gadget/Parameters
 """%options.get("series","series_name"))
 
-	#Create a list with all the initial conditions file names (one for each simulation to run)
+	#Set computing resources usage
+	S.write("""
+
+CORES_PER_NODE=%d
+"""%(options.getint("computing_resources","cores_per_node_gadget")))
+
+	#Create a list with all the Gadget parameter file names (one for each simulation to run)
 	parameter_filenames = []
 	series_name = options.get("series","series_name")
 	cosmologies = options.options("cosmologies_gadget")
