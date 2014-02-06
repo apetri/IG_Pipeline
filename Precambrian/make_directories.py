@@ -18,7 +18,7 @@ camb_output = "Output_Data"
 power_spectra = "Power_Spectra"
 
 #############Create localStorage directory structure#############
-repository_location = options.get("paths","home_path") + options.get("paths","repository_relative_path")
+repository_location = options.get("paths","home_path") + "/" + options.get("paths","repository_relative_path")
 localStorage = repository_location + "/localStorage"
 try: 
 	print "Creating %s"%localStorage
@@ -63,7 +63,7 @@ try:
 except OSError:
 	print "%s already exists!"%folder
 
-shutil.copy("%s%s/camb/HighLExtrapTemplate_lenspotentialCls.dat"%(options.get("paths","home_path"),options.get("paths","repository_relative_path")),folder+"/HighLExtrapTemplate_lenspotentialCls.dat")
+shutil.copy("%s/%s/camb/HighLExtrapTemplate_lenspotentialCls.dat"%(options.get("paths","home_path"),options.get("paths","repository_relative_path")),folder+"/HighLExtrapTemplate_lenspotentialCls.dat")
 
 try:
 	folder = series_folder + "/%s"%data_folders[1] + "/%s"%power_spectra
