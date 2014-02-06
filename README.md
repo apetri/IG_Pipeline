@@ -48,6 +48,32 @@ Once CAMB finishes running, the spectra are saved and stored in localStorage/ics
 
 _1.2) Run N-GenIC: generate the initial conditions_
 
+This step will take care of generating the initial conditions for the simulations using the power spactra computed with CAMB at the previous step. First we start with building the N-GenIC executable, by going in the N-GenIC directory and typing
+
+make -f Makefile\_q
+
+which will compile and link the code in an executable named N-GenICq. This executable will need its own parameter file and power spectrum format in order to run, which can be quite a pain to write by hand; luckily Precambrian will take care of this step for us. Just run, in the Precambrian directory
+
+./Precambrian example\_options.ini 2
+
+to convert the CAMB power spectra in a N-GenIC suitable format (these will be saved in data\_N-GenIC/Power\_Spectra), and 
+
+./Precambrian example\_options.ini 3
+
+to generate the appropriate N-GenIC parameter files (which will be written in data_N-GenIC/Parameters). Normally one would run the initial condition generator with mpiexec as usual
+
+mpiexec -np number\_of\_tasks ./N-GenICq   parameters1.param   parameters2.param   ...   parametersN.param
+
+but on a computer cluster such as Blue Gene Q we have to submit our runs via a job submission script. The generation of this script will be taken care of by submission.py, once you tune the appropriate knobs in submission_options.ini. You just have to run, in the top level repository
+
+python submission.py submission\_options.ini 2
+
+and this will generate a job submission script in data\_N-GenIC/Jobs, called jobsubmitQ\_N-GenIC\_xxx-series.sh. Go in this directory and run it
+
+./jobsubmitQ\_N-GenIC\_xxx-series.sh
+
+If you did everything right your job is on its way to the BGQ compute nodes! Wait till it is over and the files with the initial conditions will have been written to the mass storage disk. You are now ready to run Gadget2, the actual N-body code!!
+
 _1.3) Run Gadget for gravitational evolution_
 
 _1.4) Read in a snapshot_
