@@ -6,11 +6,12 @@ This is a pipeline for Weak Gravitational Lensing simulations: given a set of co
  - Projection of the 3D simulation boxes on 2D lensing planes
  - Ray tracing and production of 2D convergence and shear maps
 
-**1) 3D box generation: workflow**
+1) 3D box generation: workflow
+------------------------------
 
 This step is broken down in three four sub-steps: setting the environment and directory structure, running the CAMB code to generate the matter power spectra, running an initial condition generator, and evolve the initial conditions using Gadget. These steps are glued together by Precambrian, an application that takes care of generating parameter files and reformatting the output of a particular step making it a suitable input for the next step.  
 
-_1.0) Set the environment_
+**1.0) Set the environment**
 
 A batch of N-body simulations is defined by a set of cosmological models to run, along with other parameters, such as the box size, the number of independent simulations to run, etc... All these specifications are tunable in the options section of the script build_options.py, which resides in the Precambrian directory. Once you decided a setting, and have given a name to the simulation batch (for example "mQ2"), also in the Precambrian directory, run 
 
@@ -22,7 +23,7 @@ This will compile and link a Precambrian application suited for your simulation 
 
 that will generate the directory structure for your simulation batch. Now you are ready to start! The next step will be producing the CAMB executable.  
 
-_1.1) Compile and run CAMB_
+**1.1) Compile and run CAMB**
 
 In the camb directory, run
 
@@ -46,7 +47,7 @@ This will generate a submission script in localStorage/ics/xxx-series/data_CAMB/
 
 Once CAMB finishes running, the spectra are saved and stored in localStorage/ics/xxx-series/data\_CAMB/Output\_Data, and you are ready for the next step!
 
-_1.2) Run N-GenIC: generate the initial conditions_
+**1.2) Run N-GenIC: generate the initial conditions**
 
 This step will take care of generating the initial conditions for the simulations using the power spactra computed with CAMB at the previous step. First we start with building the N-GenIC executable, by going in the N-GenIC directory and typing
 
@@ -74,7 +75,7 @@ and this will generate a job submission script in data\_N-GenIC/Jobs, called job
 
 If you did everything right your job is on its way to the BGQ compute nodes! Wait till it is over and the files with the initial conditions will have been written to the mass storage disk. You are now ready to run Gadget2, the actual N-body code!!
 
-_1.3) Run Gadget for gravitational evolution_
+**1.3) Run Gadget for gravitational evolution**
 
 If you got to this step, it means now you have generated the initial conditions, and you are ready to evolve them with Gadget and generate a series of 3D snapshots which will be taken during the nonlinear evolution of the dark matter particles. Before even building the Gadget executable, you will need to create a text file in the repository top directory, called "outputs\_xxx-series.txt", with a list of numbers that will represent the time instants at which the snapshots will be taken (an example called "outputs\_mQ3-series.txt" is already provided). Now it's time to build the Gadget executable, just go in the Gadget2 directory and run
 
@@ -90,11 +91,13 @@ This will tell you how many sub-blocks you need for your job, and you will need 
 
 and your Gadget jobs will be on their way to the Blue Gene Q compute nodes! Now you have to wait till they complete. When done, you are ready for step 2!
 
-_1.4) Read in a snapshot_
+**1.4) Read in a snapshot**
 
 The directory Gadget2/readOutput contains a slight modification of the read\_snapshot.c code provided with Gadget: it consists in a library of functions (coded in read\_snapshot\_utilities.c) that read in a single Gadget snapshot, doing the right thing (skipping headers, padding, etc...); the information about the particles is stored in a heap allocated array of type struct particle\_data, which has to be freed at the end of usage. (The allocation of the array is done automatically by the call of the read\_snapshot function). A test driver (read\_snapshot.c) is provided for testing, and it can be compiled and linked with read\_snapshot\_utilities.c just typing 'make'; you can do a test run just running the read_snapshot binary that is produced. In addition, if you have ffpmeg installed, you can run 'make movie' to make a movie of the simulation snapshots to see the particle evolution in real time (at this stage, it works efficiently only for 32x32x32 particles or smaller only, though).    
 
-**2) Generation of lens planes**
+2) Generation of lens planes
+----------------------------
 
-**3) Ray tracing: creating the shear maps**
+3) Ray tracing: creating the shear maps
+---------------------------------------
 
