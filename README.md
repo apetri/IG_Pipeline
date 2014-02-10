@@ -85,9 +85,9 @@ This will compile and link the code to an executable called Gadget2q\_OMP2\_G800
 
     python submission.py submission_options.ini 3
 
-This will tell you how many sub-blocks you need for your job, and you will need to specify which ones you want to use (you have to make sure no one is using those, this script unfortunately does not check for that!). If submission.py completes succesfully, you will have your submission script ready in data\_Gadget/Jobs, and it will be called jobsubmitQ\_Gadget\_xxx-series.sh. Run it
+This will tell you how many sub-blocks you need for your job, and you will need to specify which ones you want to use (you have to make sure no one is using those, this script unfortunately does not check for that!); if you wish, this python script will allow you to split the simulation batch in multiple sub-batches that can be run independently, and will generate a submission script for each of these sub-batches. If submission.py completes succesfully, you will have your submission script ready in data\_Gadget/Jobs, and it will be called jobsubmitQ\_Gadget\_xxx-series\_n.sh (n is the sub-batch number, that may be absent if you run everything at once). Run it
 
-    ./jobsubmitQ_Gadget_xxx-series.sh
+    ./jobsubmitQ_Gadget_xxx-series_n.sh
 
 and your Gadget jobs will be on their way to the Blue Gene Q compute nodes! Now you have to wait till they complete. When done, you are ready for step 2!
 
