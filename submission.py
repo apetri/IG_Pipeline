@@ -30,8 +30,8 @@ def corner(index):
 #number of cosmological models, the number of simulations per model#
 #and the maximum number of simulations a block can run##############
 ####################################################################
-def needed(Nmodels,sims_per_model,max_in_block):
-	return (Nmodels*sims_per_model)/max_in_block + cmp((Nmodels*sims_per_model)%max_in_block,0)
+def needed(num_simulations,max_in_block):
+	return num_simulations/max_in_block + cmp(num_simulations%max_in_block,0)
 
 ##########################################################################################################
 #This function checks how many simulations should be run in total, and prints according prompts to screen#
@@ -42,9 +42,9 @@ def num_simulations_check(options):
 	sims_per_model = options.getint("series","simulations_per_model")
 	max_sims_sub_block = options.getint("topology","max_sims_sub_block")
 
-	print "You want to run %d models, %d simulations per model"%(len(cosmologies),sims_per_model)
+	print "You want to run %d models, %d simulations per model, for a total of %d simulations"%(len(cosmologies),sims_per_model,len(cosmologies)*sims_per_model)
 	
-	needed_blocks = needed(len(cosmologies),sims_per_model,max_sims_sub_block)
+	needed_blocks = needed(len(cosmologies)*sims_per_model,max_sims_sub_block)
 
 	num_sub_blocks = options.getint("topology","num_sub_blocks")
 	if(needed_blocks>num_sub_blocks):
@@ -233,7 +233,7 @@ fi
 ##############################################################
 #This function generates the Gadget submission script for BGQ#
 ##############################################################
-def generate_BGQ_Gadget_submission(options,used_blocks):
+def generate_BGQ_Gadget_submission(options,used_blocks,first,last):
 
 	S = StringIO.StringIO()
 
@@ -287,6 +287,7 @@ CORES_PER_NODE=%d
 				print "%s/%s already exists!!"%(mass_storage_path,filename_root)
 
 	#parameter_filenames now contains all the names of the Gadget parameter files, one for each simulation
+	parameter_filenames = parameter_filenames[first-1:last]
 
 	#Copy the outputs_xxx-series.txt into the Gadget parameters directory
 	try:
@@ -300,8 +301,8 @@ CORES_PER_NODE=%d
 	
 	#Check for correct number of blocks
 	max_sims_sub_block = options.getint("topology","max_sims_sub_block")
-	if(len(used_blocks)!=needed(len(cosmologies),simulations_per_model,max_sims_sub_block)):
-		raise ValueError("Provided number of blocks doesn't match the one required by the number of simulations!")
+	if(len(used_blocks)!=needed(len(parameter_filenames),max_sims_sub_block)):
+		raise ValueError("Provided number of blocks doesn't match the one required by the number of simulations to run!")
 	
 	#Now divide work between sub-blocks, each one runs an instance of runjob, with the appropriate number of simulations
 	for sub_block in used_blocks:
@@ -388,10 +389,12 @@ if(__name__=="__main__"):
 		print "Generating Gadget2 submission script...\n"
 		
 		#Check that the partition can handle your work
+		total_simulations = len(options.options("cosmologies_gadget"))*options.getint("series","simulations_per_model")
 		needed_blocks = num_simulations_check(options)
 		num_sub_blocks = options.getint("topology","num_sub_blocks")
 		
 		if(needed_blocks>num_sub_blocks):
+			#Might want to prompt user for job splitting instructions
 			exit(1)
 		else:
 			#If there are enough sub blocks, proceed to select the blocks you want to run on
@@ -421,7 +424,7 @@ if(__name__=="__main__"):
 			#Now the sub-blocks are selected, we can proceed in writing the submission script
 			gadget_script_directory = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
 			gadget_script_filename = "jobsubmitQ_Gadget_%s-series.sh"%options.get("series","series_name")
-			file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,used_blocks))
+			file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,used_blocks,1,total_simulations))
 			os.chmod(gadget_script_directory+gadget_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
 
