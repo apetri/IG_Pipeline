@@ -35,7 +35,7 @@ this will compile the code and produce a "camb" executable (you may have to adju
 
 This will generate the CAMB parameter files in localStorage/ics/xxx-series/data_CAMB/Parameters; on a multi-core machine, usually one would run camb as 
 
-    mpiexec -N <numTasks> ./camb params1.ini ... paramsN.ini
+    mpiexec -np <numTasks> ./camb params1.ini ... paramsN.ini
 
 to generate, in parallel, N power spectra, one for each parameter file (if you don't specify a parameter file for each task, camb quits and throws an error message). In the case where you are on a computer cluster (such as Blue Gene Q in this case), the CAMB runs have to be submitted to the cluster via a submission shell script. This will be taken care of for you. Notice that in the top level directory there is a python script, "submission.py", as long as a blueprint ini options file "submission\_sample\_options.ini", that will serve as a blueprint for an optons file to be passed to "submission.py", let's call it "submission\_options.ini". In this ini file you will adjust your paths as directed, you will select the block on which to run CAMB, the block corner and other options, such as the cosmological models for which to generate the power spectra. Once you are done run
 
@@ -63,7 +63,7 @@ to convert the CAMB power spectra in a N-GenIC suitable format (these will be sa
 
 to generate the appropriate N-GenIC parameter files (which will be written in data_N-GenIC/Parameters). Normally one would run the initial condition generator with mpiexec as usual
 
-    mpiexec -np number_of_tasks ./N-GenICq   parameters1.param   parameters2.param   ...   parametersN.param
+    mpiexec -np <numTasks> ./N-GenICq   parameters1.param   parameters2.param   ...   parametersN.param
 
 but on a computer cluster such as Blue Gene Q we have to submit our runs via a job submission script. The generation of this script will be taken care of by submission.py, once you tune the appropriate knobs in submission_options.ini. You just have to run, in the top level repository
 
