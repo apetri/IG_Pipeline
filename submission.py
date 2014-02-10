@@ -442,7 +442,7 @@ if(__name__=="__main__"):
 				#Generate a submission script for each part
 				for i in range(nparts):
 					
-					print "Part %d: select simulations to run (remember there are) %d in total"%(i+1,total_simulations)
+					print "\nPart %d: select simulations to run (remember there are) %d in total"%(i+1,total_simulations)
 					print "First:"
 					first = int(raw_input("-->"))
 					print "Last:"
@@ -453,7 +453,7 @@ if(__name__=="__main__"):
 					print "There are %d simulations in this sub-batch, you will need %d sub-blocks, please select them among:"%(subjob_nsim,subjob_needed_blocks)
 					for j in used_blocks:
 						print "%d --> %s"%(j,corner(j))
-						print ""
+					print ""
 
 					subjob_used_blocks = []
 
@@ -494,4 +494,4 @@ if(__name__=="__main__"):
 		print "%s is not a valid option!"%sys.argv[2]
 		exit(1)
 
-	print "Done!"
+	print "\nDone!"
