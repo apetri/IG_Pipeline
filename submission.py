@@ -421,11 +421,72 @@ if(__name__=="__main__"):
 				print "%d --> %s"%(i,corner(i))
 			print ""
 
-			#Now the sub-blocks are selected, we can proceed in writing the submission script
-			gadget_script_directory = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
-			gadget_script_filename = "jobsubmitQ_Gadget_%s-series.sh"%options.get("series","series_name")
-			file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,used_blocks,1,total_simulations))
-			os.chmod(gadget_script_directory+gadget_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+			#Prompt user if he wants to further split the job
+			print "Do you want to further split this batch in several sub-batches?(y/n)"
+			answer = raw_input("-->")
+
+			if(answer=="n"):
+
+				#Now the sub-blocks are selected, we can proceed in writing the submission script
+				gadget_script_directory = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
+				gadget_script_filename = "jobsubmitQ_Gadget_%s-series.sh"%options.get("series","series_name")
+				file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,used_blocks,1,total_simulations))
+				os.chmod(gadget_script_directory+gadget_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+
+			elif(answer=="y"):
+
+				#Prompt in how many parts user want to split the batch
+				print "In how many parts do you want to split this sub-batch?"
+				nparts = int(raw_input("-->"))
+
+				#Generate a submission script for each part
+				for i in range(nparts):
+					
+					print "Part %d: select simulations to run (remember there are) %d in total"%(i+1,total_simulations)
+					print "First:"
+					first = int(raw_input("-->"))
+					print "Last:"
+					last = int(raw_input("-->"))
+
+					subjob_nsim = last-first+1
+					subjob_needed_blocks = needed(subjob_nsim,options.getint("topology","max_sims_sub_block"))
+					print "There are %d simulations in this sub-batch, you will need %d sub-blocks, please select them among:"%(subjob_nsim,subjob_needed_blocks)
+					for j in used_blocks:
+						print "%d --> %s"%(j,corner(j))
+						print ""
+
+					subjob_used_blocks = []
+
+					for j in range(subjob_needed_blocks):
+				
+						print "Please select the id of block %d"%(j+1)
+						selected_block = int(raw_input("-->"))
+						while(True):
+							if(selected_block in subjob_used_blocks):
+								print "sub-block with id %d already selected! Choose another one!"%selected_block
+								print "Selected blocks so far"
+								print subjob_used_blocks
+								print "Please select the id of block %d"%(j+1)
+								selected_block = int(raw_input("-->"))
+							else:
+								subjob_used_blocks.append(selected_block)
+								break
+
+					print "\nThese are the sub-blocks you selected for part %d:"%(i+1)
+					for j in subjob_used_blocks:
+						print "%d --> %s"%(j,corner(j))
+					print ""
+
+					#Now the sub-blocks are selected, we can proceed in writing the submission script
+					gadget_script_directory = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
+					gadget_script_filename = "jobsubmitQ_Gadget_%s-series_%d.sh"%(options.get("series","series_name"),i+1)
+					file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,subjob_used_blocks,first,last))
+					os.chmod(gadget_script_directory+gadget_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+
+
+			else:
+				print "Please select y or n!"
+				exit(1)
 
 
 
