@@ -192,8 +192,9 @@ NUM_MPI_TASKS=%d
 	box_size_kpc = options.getint("series","box_size_kpc")
 	simulations_per_model = options.getint("series","simulations_per_model")
 	tasks_per_sim = options.getint("computing_resources","tasks_per_simulation_ngenic")
-	for i in range(1,simulations_per_model+1):
-		for cosmology_id in cosmologies:
+	
+	for cosmology_id in cosmologies:
+		for i in range(1,simulations_per_model+1):
 			parameter_filenames.append("ics_%s-%db%d_%s_ic%d.param"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i))
 
 	#parameter_filenames now contains all the names of the N-GenIC parameter files, one for each simulation
@@ -275,8 +276,9 @@ CORES_PER_NODE=%d
 	box_size_kpc = options.getint("series","box_size_kpc")
 	simulations_per_model = options.getint("series","simulations_per_model")
 	tasks_per_sim = options.getint("computing_resources","tasks_per_simulation_gadget")
-	for i in range(1,simulations_per_model+1):
-		for cosmology_id in cosmologies:
+	
+	for cosmology_id in cosmologies:
+		for i in range(1,simulations_per_model+1):
 			filename_root = "%s-%db%d_%s_ic%d"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i)
 			parameter_filenames.append(filename_root+".param")
 			#Create corresponding snapshot directory on mass storage disk
@@ -288,6 +290,12 @@ CORES_PER_NODE=%d
 
 	#parameter_filenames now contains all the names of the Gadget parameter files, one for each simulation
 	parameter_filenames = parameter_filenames[first-1:last]
+
+	#print list of simulations that will run
+	print "\nIn this sub-batch you will run the following simulations:"
+	for filename in parameter_filenames:
+		print filename
+	print ""
 
 	#Copy the outputs_xxx-series.txt into the Gadget parameters directory
 	try:
@@ -309,7 +317,7 @@ CORES_PER_NODE=%d
 		gadget_arguments = ""
 		for num_sims in range(1,max_sims_sub_block+1):
 			try:
-				filename = parameter_filenames.pop()
+				filename = parameter_filenames.pop(0)
 				#Add filename as argument for Gadget
 				gadget_arguments = gadget_arguments+"%s "%filename
 			except IndexError:
@@ -373,6 +381,7 @@ if(__name__=="__main__"):
 		camb_script_directory = "%s/%s/localStorage/ics/%s-series/data_CAMB/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
 		camb_script_filename = "jobsubmitQ_CAMB_%s-series.sh"%options.get("series","series_name")
 		file(camb_script_directory+camb_script_filename,"w").write(generate_BGQ_camb_submission(options))
+		print "\n%s job script written!\n"%(camb_script_directory+camb_script_filename)
 		os.chmod(camb_script_directory+camb_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
 	elif(sys.argv[2]=="2"):
@@ -382,6 +391,7 @@ if(__name__=="__main__"):
 		ngenic_script_directory = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
 		ngenic_script_filename = "jobsubmitQ_N-GenIC_%s-series.sh"%options.get("series","series_name")
 		file(ngenic_script_directory+ngenic_script_filename,"w").write(generate_BGQ_ngenic_submission(options))
+		print "\n%s job script written!\n"%(ngenic_script_directory+ngenic_script_filename)
 		os.chmod(ngenic_script_directory+ngenic_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
 	elif(sys.argv[2]=="3"):
@@ -394,8 +404,12 @@ if(__name__=="__main__"):
 		num_sub_blocks = options.getint("topology","num_sub_blocks")
 		
 		if(needed_blocks>num_sub_blocks):
-			#Might want to prompt user for job splitting instructions
-			exit(1)
+			
+			print "Your job is too large: I'm selecting for you all the blocks"
+			print "You will still need to split your job"
+			
+			used_blocks = range(1,num_sub_blocks+1)
+
 		else:
 			#If there are enough sub blocks, proceed to select the blocks you want to run on
 			print "\n"
@@ -416,77 +430,86 @@ if(__name__=="__main__"):
 						used_blocks.append(selected_block)
 						break
 
-			print "\nThese are the sub-blocks you selected:"
-			for i in used_blocks:
-				print "%d --> %s"%(i,corner(i))
-			print ""
+		print "\nThese are the sub-blocks you selected:"
+		for i in used_blocks:
+			print "%d --> %s"%(i,corner(i))
+		print ""
+
+		if(needed_blocks>num_sub_blocks):
+			
+			#Need to split the job in this case!!
+			answer = "y"
+
+		else:
 
 			#Prompt user if he wants to further split the job
 			print "Do you want to further split this batch in several sub-batches?(y/n)"
 			answer = raw_input("-->")
 
-			if(answer=="n"):
+		if(answer=="n"):
+
+			#Now the sub-blocks are selected, we can proceed in writing the submission script
+			gadget_script_directory = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
+			gadget_script_filename = "jobsubmitQ_Gadget_%s-series.sh"%options.get("series","series_name")
+			file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,used_blocks,1,total_simulations))
+			print "\n%s job script written!\n"%(gadget_script_directory+gadget_script_filename)
+			os.chmod(gadget_script_directory+gadget_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+
+		elif(answer=="y"):
+
+			#Prompt in how many parts user want to split the batch
+			print "In how many parts do you want to split this batch?"
+			nparts = int(raw_input("-->"))
+
+			#Generate a submission script for each part
+			for i in range(nparts):
+					
+				print "\nPart %d: select simulations to run (remember there are) %d in total"%(i+1,total_simulations)
+				print "First:"
+				first = int(raw_input("-->"))
+				print "Last:"
+				last = int(raw_input("-->"))
+
+				subjob_nsim = last-first+1
+				subjob_needed_blocks = needed(subjob_nsim,options.getint("topology","max_sims_sub_block"))
+				print "There are %d simulations in this sub-batch, you will need %d sub-blocks, please select them among:"%(subjob_nsim,subjob_needed_blocks)
+				for j in used_blocks:
+					print "%d --> %s"%(j,corner(j))
+				print ""
+
+				subjob_used_blocks = []
+
+				for j in range(subjob_needed_blocks):
+				
+					print "Please select the id of block %d"%(j+1)
+					selected_block = int(raw_input("-->"))
+					while(True):
+						if(selected_block in subjob_used_blocks):
+							print "sub-block with id %d already selected! Choose another one!"%selected_block
+							print "Selected blocks so far"
+							print subjob_used_blocks
+							print "Please select the id of block %d"%(j+1)
+							selected_block = int(raw_input("-->"))
+						else:
+							subjob_used_blocks.append(selected_block)
+							break
+
+				print "\nThese are the sub-blocks you selected for part %d:"%(i+1)
+				for j in subjob_used_blocks:
+					print "%d --> %s"%(j,corner(j))
+				print ""
 
 				#Now the sub-blocks are selected, we can proceed in writing the submission script
 				gadget_script_directory = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
-				gadget_script_filename = "jobsubmitQ_Gadget_%s-series.sh"%options.get("series","series_name")
-				file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,used_blocks,1,total_simulations))
+				gadget_script_filename = "jobsubmitQ_Gadget_%s-series_%d.sh"%(options.get("series","series_name"),i+1)
+				file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,subjob_used_blocks,first,last))
+				print "\n%s job script written!\n"%(gadget_script_directory+gadget_script_filename)
 				os.chmod(gadget_script_directory+gadget_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
-			elif(answer=="y"):
 
-				#Prompt in how many parts user want to split the batch
-				print "In how many parts do you want to split this sub-batch?"
-				nparts = int(raw_input("-->"))
-
-				#Generate a submission script for each part
-				for i in range(nparts):
-					
-					print "\nPart %d: select simulations to run (remember there are) %d in total"%(i+1,total_simulations)
-					print "First:"
-					first = int(raw_input("-->"))
-					print "Last:"
-					last = int(raw_input("-->"))
-
-					subjob_nsim = last-first+1
-					subjob_needed_blocks = needed(subjob_nsim,options.getint("topology","max_sims_sub_block"))
-					print "There are %d simulations in this sub-batch, you will need %d sub-blocks, please select them among:"%(subjob_nsim,subjob_needed_blocks)
-					for j in used_blocks:
-						print "%d --> %s"%(j,corner(j))
-					print ""
-
-					subjob_used_blocks = []
-
-					for j in range(subjob_needed_blocks):
-				
-						print "Please select the id of block %d"%(j+1)
-						selected_block = int(raw_input("-->"))
-						while(True):
-							if(selected_block in subjob_used_blocks):
-								print "sub-block with id %d already selected! Choose another one!"%selected_block
-								print "Selected blocks so far"
-								print subjob_used_blocks
-								print "Please select the id of block %d"%(j+1)
-								selected_block = int(raw_input("-->"))
-							else:
-								subjob_used_blocks.append(selected_block)
-								break
-
-					print "\nThese are the sub-blocks you selected for part %d:"%(i+1)
-					for j in subjob_used_blocks:
-						print "%d --> %s"%(j,corner(j))
-					print ""
-
-					#Now the sub-blocks are selected, we can proceed in writing the submission script
-					gadget_script_directory = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
-					gadget_script_filename = "jobsubmitQ_Gadget_%s-series_%d.sh"%(options.get("series","series_name"),i+1)
-					file(gadget_script_directory+gadget_script_filename,"w").write(generate_BGQ_Gadget_submission(options,subjob_used_blocks,first,last))
-					os.chmod(gadget_script_directory+gadget_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
-
-
-			else:
-				print "Please select y or n!"
-				exit(1)
+		else:
+			print "Please select y or n!"
+			exit(1)
 
 
 
