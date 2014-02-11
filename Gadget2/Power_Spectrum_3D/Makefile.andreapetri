@@ -18,3 +18,5 @@ GCCFLAGS = $(CFLAGS)
 FFTW3LIB =  -lfftw3_mpi -lfftw3 -lm
 CFITSIOLIB =  -lcfitsio
 MPICHLIB = -L/usr/local/opt/libevent/lib -L/usr/local/Cellar/open-mpi/1.7.4/lib -lmpi
+
+PYTHON = python

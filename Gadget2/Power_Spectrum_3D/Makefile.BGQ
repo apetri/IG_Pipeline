@@ -16,3 +16,5 @@ GCCFLAGS = $(CFLAGS)
 FFTW3LIB =  -L/bgsys/home1/slatest_a-g/fftw332dp-fenq-gnucompiler/fftw-3.3.2/lib -lfftw3_mpi -lfftw3 -lm
 CFITSIOLIB =  -L/bgsys/home1/slatest_a-g/cfitsio-fenq-gnucompiler/cfitsio/lib -lcfitsio -lm
 MPICHLIB = 
+
+PYTHON = python

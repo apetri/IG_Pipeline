@@ -30,6 +30,9 @@
 #include "fitsio.h"
 #include "fits.h"
 
+#include "ini.h"
+#include "options.h"
+
 
 int machine_endian;
 int snapshot_endian;
@@ -38,44 +41,62 @@ int superrank, supersize;
 
 
 int main (int argc, char ** argv) {
-    // insert code here...
 
+	if(argc<4){
+		fprintf(stderr,"Usage %s <ini_options_file> <snapshot_number> <number_of_files_per_snapshot>\n",*argv);
+		exit(1);
+	}
 	
-	char snapshot_path[1000], snapshot_filenamebase[1000], snapshot_filename[1000], power_spectrum_path[1000], power_spectrum_filenamebase[1000], power_spectrum_filename[1000];
+	char series_foldername[1000],snapshot_path[1000], snapshot_filenamebase[1000], snapshot_filename[1000], power_spectrum_path[1000], power_spectrum_filenamebase[1000], power_spectrum_filename[1000];
 	
 	//////////////////////////////////////////////////////////////////////////////
 	// MANUAL SECTION:
 	// NOTE: Need to read quantities below from a parameter file. eventually:
+	//AP: Done
 	//////////////////////////////////////////////////////////////////////////////
-	// Set these as desired:
-	int snapshot_number=60;
-	int number_of_files_per_snapshot=1;
-	int particle_side=32; // number of particles in N-body simulation along one dimension. 
+
+	//Parse options from file
+	sys_options *options = malloc(sizeof(sys_options));
+	if(ini_parse(argv[1],handler,options)<0){
+		fprintf(stderr,"ini options file %s not found\n",argv[1]);
+		exit(1);
+	}
+
+
+	int snapshot_number=atoi(argv[2]);
+	int number_of_files_per_snapshot=atoi(argv[3]);
+	int particle_side=options->num_particles_side; // number of particles in N-body simulation along one dimension. 
 	
 	// FFT Grid:
-	int FFT_grid=256;
+	int FFT_grid=options->FFT_grid_size;
 	
 	// Number of power spectrum bins"
-	int number_of_bins=256;
+	int number_of_bins=options->number_of_bins;
 	
 	// Length of particle position buffer (in number of particles; each particle will have three coordinates):
-	int particle_buffer_length=10000;
-	
+	int particle_buffer_length=options->particle_buffer_length;
+
 	// Gadget-2 snapshot path and filename:
-	sprintf(snapshot_path, "/Users/andreapetri/Desktop/Cosmology_software/IG_Pipeline_0.1/Storage/sims/snapshots/mQ2-series/m-32b15_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1");
+	
+	sprintf(series_foldername,"%s/Storage/sims/snapshots/%s-series",options->mass_storage_path,options->series_name);
+	sprintf(snapshot_path,"%s/%s-%db%d_%s_ic%d",series_foldername,options->series_name,particle_side,options->box_size_snapshot_kpc,options->model_basename,options->realization_number);
+	
 	sprintf(snapshot_filenamebase, "snapshot");
-	sprintf(power_spectrum_path, ".");
-	sprintf(power_spectrum_filenamebase, "power_spectrum_3D");
+	sprintf(power_spectrum_path, "%s",options->power_spectrum_savepath);
+	sprintf(power_spectrum_filenamebase, "%s", options->power_spectrum_filebase);
 	
 	// Project to 2D (just as output check):
 	char projection_filename[1000];
 	long *naxes;
 	naxes=malloc(2*sizeof(long));
-	sprintf(projection_filename, "./projection_2D.fit");
+	sprintf(projection_filename, "%s/%s",options->projection_savepath,options->projection_filebase);
 	int projection_axis=2;
 	int min_cell=0; // Determines start of slice in projected direction; in FFT grid cell units (integer), not in comoving distance.
 	int max_cell=FFT_grid; // Determines end of slice in projected direction.
 	//////////////////////////////////////////////////////////////////////////////
+
+	//Don't need options anymore
+	free(options);
 	
 	int i, file_number;
 	double boxsize;

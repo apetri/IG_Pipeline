@@ -1,8 +1,8 @@
 LIBS = $(FFTW3LIB) $(CFITSIOLIB) $(MPICHLIB)
 
-OBJFILES = main.o power_spectrum.o particle_processing.o snapshot_read.o endianness.o fits.o
+OBJFILES = main.o power_spectrum.o particle_processing.o snapshot_read.o endianness.o fits.o ini.o options.o
 
-INCLFILES = main.h power_spectrum.h particle_processing.h snapshot_read.h endianness.h fits.h
+INCLFILES = main.h power_spectrum.h particle_processing.h snapshot_read.h endianness.h fits.h ini.h
 
 default: programm
 
@@ -11,11 +11,14 @@ all : programm
 %.o: %.c
 	$(GCCC) $(GCCFLAGS) -c $*.c
 
-$(OBJFILES): $(INCLFILES)
+$(OBJFILES): $(INCLFILES) options.c
+
+options.c: build_options.py
+	$(PYTHON) build_options.py
 
 programm: $(OBJFILES) 	
 	$(GCCC) -o ./3D_Power_Spectrum_Calculator $(OBJFILES) $(GCCFLAGS) $(LIBS)
 
 clean:
-	rm -f *.o 3D_Power_Spectrum_Calculator
+	rm -f *.o options.c options.h default_options.ini 3D_Power_Spectrum_Calculator
 

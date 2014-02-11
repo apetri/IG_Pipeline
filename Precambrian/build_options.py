@@ -35,11 +35,25 @@ settings=[
 ("settings","remove_old",int,0)
 ]
 
+power3D=[
+("power3D","FFT_grid_size",int,256),
+("power3D","number_of_bins",int,256),
+("power3D","box_size_snapshot_kpc",int,240),
+("power3D","particle_buffer_length",int,10000),
+("power3D","model_basename",str,"Om0.260_Ol0.740_w-1.000_ns0.960_si0.798"),
+("power3D","realization_number",int,1),
+("power3D","power_spectrum_savepath",str,"."),
+("power3D","power_spectrum_filebase",str,"power_spectrum_3D"),
+("power3D","projection_savepath",str,"."),
+("power3D","projection_filebase",str,"projection_2D.fit")
+]
+
 scalar_options=[
 ("Submission type",submission),
 ("Path names (user specific)",paths),
 ("Simulation series",series),
-("Various settings",settings)
+("Various settings",settings),
+("3D output power spectrum",power3D)
 ]
 
 #Vector options (num_par = Size_of_the_vector; arr_name = Name_of_the_vector)
