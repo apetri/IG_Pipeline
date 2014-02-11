@@ -49,8 +49,8 @@ int main (int argc, char ** argv) {
 	//////////////////////////////////////////////////////////////////////////////
 	// Set these as desired:
 	int snapshot_number=60;
-	int number_of_files_per_snapshot=16;
-	int particle_side=512; // number of particles in N-body simulation along one dimension. 
+	int number_of_files_per_snapshot=1;
+	int particle_side=32; // number of particles in N-body simulation along one dimension. 
 	
 	// FFT Grid:
 	int FFT_grid=256;
@@ -62,7 +62,7 @@ int main (int argc, char ** argv) {
 	int particle_buffer_length=10000;
 	
 	// Gadget-2 snapshot path and filename:
-	sprintf(snapshot_path, "/Volumes/WD1TB/Other_Backups/snapshots/working/ic1");
+	sprintf(snapshot_path, "/Users/andreapetri/Desktop/Cosmology_software/IG_Pipeline_0.1/Storage/sims/snapshots/mQ2-series/m-32b15_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1");
 	sprintf(snapshot_filenamebase, "snapshot");
 	sprintf(power_spectrum_path, ".");
 	sprintf(power_spectrum_filenamebase, "power_spectrum_3D");
@@ -140,7 +140,11 @@ int main (int argc, char ** argv) {
 	{
 		
 		// Construct Gadget-2 snapshot filename:
-		sprintf(snapshot_filename, "%s/%s_%03d.%d", snapshot_path, snapshot_filenamebase, snapshot_number, file_number);
+		if(number_of_files_per_snapshot>1){
+			sprintf(snapshot_filename, "%s/%s_%03d.%d", snapshot_path, snapshot_filenamebase, snapshot_number, file_number);
+		} else{
+			sprintf(snapshot_filename, "%s/%s_%03d", snapshot_path, snapshot_filenamebase, snapshot_number);
+		}
 		
 		// Read particles from Gadget-2 snapshot file and insert them into FFT grid:
 		if (ThisTask==0) boxsize=read_particles_master(snapshot_filename, particle_buffer_length, data3d, N0_local, N0_local_start, N0, N1, N2);
@@ -157,11 +161,12 @@ int main (int argc, char ** argv) {
 	//show3d(data3d, local_0_start_3d, local_n0_3d, M1, M2, ThisTask, NTasks);
 	// Do the same for the MPI collected array:
 	//MPI_Gather(data, (int) local_n0*N1, MPI_COMPLEX, alldata, (int) local_n0*N1, MPI_COMPLEX, 0, MPI_COMM_WORLD);
-	
+
 	if (projection_axis==0) imagearray=malloc(N1*N2*sizeof(double));
 	else if (projection_axis==1) imagearray=malloc(N0*N2*sizeof(double));
 	else if (projection_axis==2) imagearray=malloc(N0*N1*sizeof(double));
 	assert(imagearray!=NULL);
+	
 	project_to_2D(data3d, N0_local, N0_local_start, N0, N1, N2, imagearray, projection_axis, min_cell, max_cell, naxes);
 	if (ThisTask==0) writeFITSimage_f(projection_filename, 2, naxes, imagearray);
 	free(imagearray);
