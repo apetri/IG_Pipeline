@@ -342,6 +342,10 @@ void project_to_2D(fftw_complex *data3d, int N0_local, int N0_local_start, int N
 {
 	int i, j, k, index, m, insert, imagearray_size=0;
 	int insertparticle=0;
+
+//<AP>
+	double *imagearray_copy;
+//</AP>
 	
 	if (projection_axis==0)
 	{	
@@ -362,7 +366,14 @@ void project_to_2D(fftw_complex *data3d, int N0_local, int N0_local_start, int N
 		naxes[1]=N0;
 	}
 
-	for (i=0; i<imagearray_size; i++) imagearray[i]=0.0;
+//<AP>
+	imagearray_copy = malloc(sizeof(double)*imagearray_size);
+//</AP>
+
+	for (i=0; i<imagearray_size; i++){ 
+		imagearray[i]=0.0;
+		imagearray_copy[i]=0.0;
+	}
 	
 	printf("projaxis: %d, min_cell %d, max_cell %d, N0_local %d, N0_start_local %d, N0 %d, N1 %d, N2 %d.\n", projection_axis, min_cell, max_cell, N0_local, N0_local_start, N0, N1, N2);
 	
@@ -401,7 +412,7 @@ void project_to_2D(fftw_complex *data3d, int N0_local, int N0_local_start, int N
 				{	
 					
 					index=i*N1*N2+j*N2+k;	
-					imagearray[m]+=creal(data3d[index]);
+					imagearray_copy[m]+=creal(data3d[index]);
 					insertparticle++;
 					if (insertparticle<10) printf("ThisTask: %d -- i, j, k: (%d, %d, %d), m: %d, index: %d, value: %e\n", superrank, i, j, k, m, index, creal(data3d[index])); 
 				}
@@ -411,10 +422,16 @@ void project_to_2D(fftw_complex *data3d, int N0_local, int N0_local_start, int N
 	
 	printf("Inserted %d cells\n", insertparticle);
 	
-	printf("Before MPI_Reduce: ThisTask: %d, imagearray: %e %e %e %e %e\n", superrank, imagearray[0], imagearray[1], imagearray[2], imagearray[3], imagearray[4]);
+	printf("Before MPI_Reduce: ThisTask: %d, imagearray: %e %e %e %e %e\n", superrank, imagearray_copy[0], imagearray_copy[1], imagearray_copy[2], imagearray_copy[3], imagearray_copy[4]);
 	
-	// MPI_Reduce(imagearray, imagearray, imagearray_size, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD); // WRONG: Send and receive buffer must be different in this case.
-	MPI_Allreduce(imagearray, imagearray, imagearray_size, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	// MPI_Reduce(imagearray, imagearray, imagearray_size, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD); 
+	// WRONG: Send and receive buffer must be different in this case.
+	// AP: EXTREMELY WRONG! MPI_Allreduce with same buffer addresses causes crash at runtime!!! 
+	MPI_Allreduce(imagearray_copy, imagearray, imagearray_size, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+//<AP>
+	free(imagearray_copy);
+//</AP>
 	
 	printf("After MPI_Reduce: ThisTask: %d, imagearray: %e %e %e %e %e\n", superrank, imagearray[0], imagearray[1], imagearray[2], imagearray[3], imagearray[4]);
 }

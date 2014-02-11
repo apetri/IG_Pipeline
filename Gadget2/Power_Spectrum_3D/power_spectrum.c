@@ -35,7 +35,7 @@ void Power_Spectrum3D_MPI(fftw_complex *data3d, ptrdiff_t M0, ptrdiff_t M1, ptrd
 	int i, bin;
 	double binsize;
 	double comoving_grid_cell_size, norm;
-	double *binbound_low, *binbound_high, *power_in_bin, *bin_averager;
+	double *binbound_low, *binbound_high, *power_in_bin, *bin_averager, *power_in_bin_copy, *bin_averager_copy;
 	double k_min, k_max, k_dist;
 	int k0, k1, k2, kk0, kk1, kk2;
 	int m, m_local;
@@ -89,25 +89,35 @@ void Power_Spectrum3D_MPI(fftw_complex *data3d, ptrdiff_t M0, ptrdiff_t M1, ptrd
 	// Allocate histogram arrays:
 	binbound_low=(double *) malloc(number_of_bins*sizeof(double));
 	assert(binbound_low != NULL);
+
 	binbound_high=(double *) malloc(number_of_bins*sizeof(double));
 	assert(binbound_high != NULL);
 	
 	power_in_bin=(double *) malloc(number_of_bins*sizeof(double));
 	assert(power_in_bin != NULL);
+
+	power_in_bin_copy=(double *) malloc(number_of_bins*sizeof(double));
+	assert(power_in_bin_copy != NULL);
+
 	bin_averager=(double *) malloc(number_of_bins*sizeof(double));
 	assert(bin_averager != NULL);
+
+	bin_averager_copy=(double *) malloc(number_of_bins*sizeof(double));
+	assert(bin_averager_copy != NULL);
 	
 	// Zero out power spectrum array:
 	
 	for (bin=0;bin<number_of_bins;bin++)
 	{
 		power_in_bin[bin]=0.0;
+		power_in_bin_copy[bin]=0.0;
 	}
 	
 	// Zero out bin averager:
 	for (bin=0;bin<number_of_bins;bin++)
 	{
 		bin_averager[bin]=0.0;
+		bin_averager_copy[bin]=0.0;
 	}
 	
 	// **Linear bins**:
@@ -172,9 +182,9 @@ void Power_Spectrum3D_MPI(fftw_complex *data3d, ptrdiff_t M0, ptrdiff_t M1, ptrd
 					//bin=floor((log(k_dist)/log(10)-log(k_min)/log(10))/binsize);
 					if (k_dist<k_max) // if prevents long k-vectors to be written that do not go full circle in square 3D zone (and are thus undercounted).
 					{
-						power_in_bin[bin]+=data3d[m_local]; // imagearray[m]; // average over all bins with same |k|
+						power_in_bin_copy[bin]+=data3d[m_local]; // imagearray[m]; // average over all bins with same |k|
 						// power_in_bin[i][bin]+=support_active_image[m];
-						bin_averager[bin]++; // counts how many spectrum points inserted in bin.
+						bin_averager_copy[bin]++; // counts how many spectrum points inserted in bin.
 					}
 				}
 			}
@@ -184,8 +194,8 @@ void Power_Spectrum3D_MPI(fftw_complex *data3d, ptrdiff_t M0, ptrdiff_t M1, ptrd
 	printf("Task %d done filling power spectrum bins.\n", ThisTask);
 	fflush(stdout);
 		
-	MPI_Allreduce(power_in_bin, power_in_bin, number_of_bins, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-	MPI_Allreduce(bin_averager, bin_averager, number_of_bins, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	MPI_Allreduce(power_in_bin_copy, power_in_bin, number_of_bins, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	MPI_Allreduce(bin_averager_copy, bin_averager, number_of_bins, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	
 	printf("Task %d done with MPI_Allreduce.\n", ThisTask);
 	fflush(stdout);
@@ -222,7 +232,9 @@ void Power_Spectrum3D_MPI(fftw_complex *data3d, ptrdiff_t M0, ptrdiff_t M1, ptrd
 		free(binbound_low);
 		free(binbound_high);
 		free(power_in_bin);
+		free(power_in_bin_copy);
 		free(bin_averager);
+		free(bin_averager_copy);
 	
 	
 }
