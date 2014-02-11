@@ -21,7 +21,9 @@ This will compile and link a Precambrian application suited for your simulation 
 
     python make_directories.py example_options.ini
 
-that will generate the directory structure for your simulation batch. Now you are ready to start! The next step will be producing the CAMB executable.  
+that will generate the directory structure for your simulation batch. Now you are ready to start! The next step will be producing the CAMB executable. 
+
+__IMPORTANT__: The number of cosmological parameters to vary (e.g. Nsi = 4 for 4 different values of sigma8) MUST be set in build_options.py and Precambrian must be re-maked once this is changed. If you simply change it in your ini options file, without re-running "make", it is likely that you'll bump in a segmentation fault at runtime!
 
 **1.1) Compile and run CAMB**
 
