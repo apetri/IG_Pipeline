@@ -1,0 +1,20 @@
+#GCCC     = gcc
+#GCCC = /direct/astro+u/jank/MPI/MPICH2-1.0.4/bin/mpicc
+GCCC = gcc-4.8
+
+FFTW3_INCL = 
+CFITSIO_INCL = 
+MPICH_INCL = -I/usr/local/Cellar/open-mpi/1.7.4/include
+
+# CFLAGS = -O0 -g -I. $(FFTW3_INCL) $(CFITSIO_INCL) #$(GSL_INCL) #-Vaxlib -W0 -WB -fpp -xN -vec_report0 -DMPI
+# CFLAGS = -O3 -I. -m32 -Wall $(FFTW3_INCL) $(MPICH_INCL) #$(CFITSIO_INCL) #$(GSL_INCL) #-Vaxlib -W0 -WB -fpp -xN -vec_report0 -DMPI
+
+CFLAGS = -O3 -I. $(FFTW3_INCL) $(CFITSIO_INCL) $(MPICH_INCL)
+
+GCCFLAGS = $(CFLAGS)
+
+#CFITSIOLIB = -L/direct/lsst+u/jank/mylibs/mylocal-MPICH2/lib -lcfitsio -lm
+
+FFTW3LIB =  -lfftw3_mpi -lfftw3 -lm
+CFITSIOLIB =  -lcfitsio
+MPICHLIB = -L/usr/local/opt/libevent/lib -L/usr/local/Cellar/open-mpi/1.7.4/lib -lmpi

@@ -1,0 +1,21 @@
+LIBS = $(FFTW3LIB) $(CFITSIOLIB) $(MPICHLIB)
+
+OBJFILES = main.o power_spectrum.o particle_processing.o snapshot_read.o endianness.o fits.o
+
+INCLFILES = main.h power_spectrum.h particle_processing.h snapshot_read.h endianness.h fits.h
+
+default: programm
+
+all : programm
+
+%.o: %.c
+	$(GCCC) $(GCCFLAGS) -c $*.c
+
+$(OBJFILES): $(INCLFILES)
+
+programm: $(OBJFILES) 	
+	$(GCCC) -o ./3D_Power_Spectrum_Calculator $(OBJFILES) $(GCCFLAGS) $(LIBS)
+
+clean:
+	rm -f *.o 3D_Power_Spectrum_Calculator
+
