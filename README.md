@@ -71,11 +71,11 @@ but on a computer cluster such as Blue Gene Q we have to submit our runs via a j
 
     python submission.py submission_options.ini 2
 
-and this will generate a job submission script in data\_N-GenIC/Jobs, called jobsubmitQ\_N-GenIC\_xxx-series.sh. Go in this directory and run it
+and this will generate a job submission script in data\_N-GenIC/Jobs, called jobsubmitQ\_N-GenIC\_xxx-series.sh (or jobsubmitQ\_N-GenIC\_xxx-series\_n.sh if you prompted submission.py to split the job) . Go in this directory and run it
 
-    ./jobsubmitQ_N-GenIC_xxx-series.sh
+    ./jobsubmitQ_N-GenIC_xxx-series_n.sh
 
-If you did everything right your job is on its way to the BGQ compute nodes! Wait till it is over and the files with the initial conditions will have been written to the mass storage disk. You are now ready to run Gadget2, the actual N-body code!!
+If you did everything right your job(s) is(are) on its(their) way to the BGQ compute nodes! Wait till it is over and the files with the initial conditions will have been written to the mass storage disk. You are now ready to run Gadget2, the actual N-body code!!
 
 **1.3) Run Gadget for gravitational evolution**
 
