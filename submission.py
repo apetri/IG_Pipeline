@@ -148,7 +148,7 @@ fi
 ###############################################################
 #This function generates the N-GenIC submission script for BGQ#
 ###############################################################
-def generate_BGQ_ngenic_submission(options):
+def generate_BGQ_ngenic_submission(options,sub_block,first,last):
 
 	S = StringIO.StringIO()
 
@@ -160,7 +160,7 @@ def generate_BGQ_ngenic_submission(options):
 BLOCKID=%s
 CORNER=%s 
 SHAPE=%s
-"""%(options.get("topology","blockid"),corner(options.getint("topology","camb_corner")),options.get("topology","corner_shape")))
+"""%(options.get("topology","blockid"),corner(sub_block),options.get("topology","corner_shape")))
 
 	#Set paths,executable name and log file basenames and directories
 	S.write("""
@@ -168,9 +168,9 @@ HOMEPATH=%s
 REPOSITORY_DIR=%s
 
 EXECUTABLE=$HOMEPATH/$REPOSITORY_DIR/N-GenIC/N-GenICq
-LOGFILE_ROOT=log_N-GenIC_%s-series
+LOGFILE_ROOT=log_N-GenIC_%s-series_block%d
 LOGSDIR=$HOMEPATH/$REPOSITORY_DIR/localStorage/ics/mQ3-series/data_N-GenIC/Logs
-"""%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name")))
+"""%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"),sub_block))
 
 	#Set path for N-GenIC parameter files
 	S.write("""
@@ -198,11 +198,17 @@ NUM_MPI_TASKS=%d
 			parameter_filenames.append("ics_%s-%db%d_%s_ic%d.param"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i))
 
 	#parameter_filenames now contains all the names of the N-GenIC parameter files, one for each simulation
+	parameter_filenames = parameter_filenames[first-1:last]
 
 	#Write the execution part of the script
+	print "\nThis job will handle the following initial conditions:"
+
 	ngenic_arguments = ""
 	for filename in parameter_filenames:
+		print filename
 		ngenic_arguments = ngenic_arguments + "%s "%filename
+
+	print ""
 
 	runjob_command = "runjob --block $BLOCKID --corner $CORNER --shape $SHAPE --exe $EXECUTABLE -p $CORES_PER_NODE --np $NUM_MPI_TASKS"
 	runjob_command = runjob_command + " --args %s --cwd $IC_ROOT > $LOGSDIR/$LOGFILE_ROOT.out 2> $LOGSDIR/$LOGFILE_ROOT.err"%ngenic_arguments
@@ -373,6 +379,9 @@ if(__name__=="__main__"):
 	#Parse options from ini file
 	options = ConfigParser.RawConfigParser()
 	options.readfp(file(sys.argv[1],"r"))
+
+	#Total number of simulations
+	total_simulations = len(options.options("cosmologies_gadget"))*options.getint("series","simulations_per_model")
 	
 	if(sys.argv[2]=="1"):
 		#CAMB submission script
@@ -387,19 +396,63 @@ if(__name__=="__main__"):
 	elif(sys.argv[2]=="2"):
 		#N-GenIC submission script
 		print "Generating N-GenIC submission script..."
+		print "\nThere are %d simulations in this batch"%total_simulations
 
-		ngenic_script_directory = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
-		ngenic_script_filename = "jobsubmitQ_N-GenIC_%s-series.sh"%options.get("series","series_name")
-		file(ngenic_script_directory+ngenic_script_filename,"w").write(generate_BGQ_ngenic_submission(options))
-		print "\n%s job script written!\n"%(ngenic_script_directory+ngenic_script_filename)
-		os.chmod(ngenic_script_directory+ngenic_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+		#Show user the blocks he can use
+		print "\nYou can use the following sub-blocks for this job:"
+		for i in range(1,options.getint("topology","num_sub_blocks")+1):
+			print "id %d --> %s"%(i,corner(i))
+		
+		#Prompt user for job splitting
+		print "Do you want to split this N-GenIC job (y/n)?"
+		answer = raw_input("-->")
+
+		if(answer=="n"):
+
+			#Prompt user for block to use
+			print "Which block do you want to use for this job? (select from the above)"
+			sub_block = int(raw_input("-->"))
+
+			#Generate script
+			ngenic_script_directory = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
+			ngenic_script_filename = "jobsubmitQ_N-GenIC_%s-series.sh"%options.get("series","series_name")
+			file(ngenic_script_directory+ngenic_script_filename,"w").write(generate_BGQ_ngenic_submission(options,sub_block,1,total_simulations))
+			print "\n%s job script written!\n"%(ngenic_script_directory+ngenic_script_filename)
+			os.chmod(ngenic_script_directory+ngenic_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+
+		elif(answer=="y"):
+
+			print "In how many parts do you want to split this job (%d simulations in total)?"%total_simulations
+			nparts = int(raw_input("-->"))
+
+			for i in range(nparts):
+				
+				#Prompt user for instructions
+				print "\nPart %d: which simulations do you want to run?"%(i+1)
+				print "First:"
+				first = int(raw_input("-->"))
+				print "Last:"
+				last = int(raw_input("-->"))
+
+				print "Which block do you want to use for this part of the job? (select from the above)"
+				sub_block = int(raw_input("-->"))
+
+				#Generate script
+				ngenic_script_directory = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/"%(options.get("paths","home_path"),options.get("paths","repository_path"),options.get("series","series_name"))
+				ngenic_script_filename = "jobsubmitQ_N-GenIC_%s-series_%d.sh"%(options.get("series","series_name"),i+1)
+				file(ngenic_script_directory+ngenic_script_filename,"w").write(generate_BGQ_ngenic_submission(options,sub_block,first,last))
+				print "\n%s job script written!\n"%(ngenic_script_directory+ngenic_script_filename)
+				os.chmod(ngenic_script_directory+ngenic_script_filename,stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+
+		else:
+			print "Please select y or n!"
+			exit(1)
 
 	elif(sys.argv[2]=="3"):
 		#Gadget2 submission script
 		print "Generating Gadget2 submission script...\n"
 		
 		#Check that the partition can handle your work
-		total_simulations = len(options.options("cosmologies_gadget"))*options.getint("series","simulations_per_model")
 		needed_blocks = num_simulations_check(options)
 		num_sub_blocks = options.getint("topology","num_sub_blocks")
 		
@@ -517,4 +570,4 @@ if(__name__=="__main__"):
 		print "%s is not a valid option!"%sys.argv[2]
 		exit(1)
 
-	print "\nDone!"
+	print "\nDONE!!\n!"
