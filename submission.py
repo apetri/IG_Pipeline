@@ -570,4 +570,4 @@ if(__name__=="__main__"):
 		print "%s is not a valid option!"%sys.argv[2]
 		exit(1)
 
-	print "\nDONE!!\n!"
+	print "\nDONE!!\n"
