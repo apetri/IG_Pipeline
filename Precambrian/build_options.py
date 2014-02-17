@@ -40,7 +40,7 @@ power3D=[
 ("power3D","num_snapshots",int,60),
 ("power3D","FFT_grid_size",int,256),
 ("power3D","number_of_bins",int,256),
-("power3D","box_size_snapshot_kpc",int,240),
+("power3D","box_size_snapshot_mpc",int,240),
 ("power3D","particle_buffer_length",int,10000),
 ("power3D","model_basename",str,"Om0.260_Ol0.740_w-1.000_ns0.960_si0.798"),
 ("power3D","realization_number",int,1),

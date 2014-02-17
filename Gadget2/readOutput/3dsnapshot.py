@@ -59,9 +59,9 @@ for snapshot in snapshots:
 		fig = plt.figure()
 		ax = fig.add_subplot(111,projection='3d')
 		ax.scatter(x,y,z,s=1)
-		ax.set_xlabel(r'$x(\mathrm{kpc})$')
-		ax.set_ylabel(r'$y(\mathrm{kpc})$')
-		ax.set_zlabel(r'$z(\mathrm{kpc})$')
+		ax.set_xlabel(r'$x(\mathrm{Mpc})$')
+		ax.set_ylabel(r'$y(\mathrm{Mpc})$')
+		ax.set_zlabel(r'$z(\mathrm{Mpc})$')
 
 		plt.savefig('%s/%s%s.png'%(frameDirectory,frameBase,snapshotID))
 		plt.clf()

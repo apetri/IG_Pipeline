@@ -189,13 +189,13 @@ NUM_MPI_TASKS=%d
 	series_name = options.get("series","series_name")
 	cosmologies = options.options("cosmologies_gadget")
 	num_particles_side = options.getint("series","num_particles_side")
-	box_size_kpc = options.getint("series","box_size_kpc")
+	box_size_mpc = options.getint("series","box_size_mpc")
 	simulations_per_model = options.getint("series","simulations_per_model")
 	tasks_per_sim = options.getint("computing_resources","tasks_per_simulation_ngenic")
 	
 	for cosmology_id in cosmologies:
 		for i in range(1,simulations_per_model+1):
-			parameter_filenames.append("ics_%s-%db%d_%s_ic%d.param"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i))
+			parameter_filenames.append("ics_%s-%db%d_%s_ic%d.param"%(series_name,num_particles_side,box_size_mpc,options.get("cosmologies_gadget",cosmology_id),i))
 
 	#parameter_filenames now contains all the names of the N-GenIC parameter files, one for each simulation
 	parameter_filenames = parameter_filenames[first-1:last]
@@ -279,13 +279,13 @@ CORES_PER_NODE=%d
 	mass_storage_path = "%s/Storage/sims/snapshots/%s-series"%(options.get("paths","mass_storage_path"),series_name)
 	cosmologies = options.options("cosmologies_gadget")
 	num_particles_side = options.getint("series","num_particles_side")
-	box_size_kpc = options.getint("series","box_size_kpc")
+	box_size_mpc = options.getint("series","box_size_mpc")
 	simulations_per_model = options.getint("series","simulations_per_model")
 	tasks_per_sim = options.getint("computing_resources","tasks_per_simulation_gadget")
 	
 	for cosmology_id in cosmologies:
 		for i in range(1,simulations_per_model+1):
-			filename_root = "%s-%db%d_%s_ic%d"%(series_name,num_particles_side,box_size_kpc,options.get("cosmologies_gadget",cosmology_id),i)
+			filename_root = "%s-%db%d_%s_ic%d"%(series_name,num_particles_side,box_size_mpc,options.get("cosmologies_gadget",cosmology_id),i)
 			parameter_filenames.append(filename_root+".param")
 			#Create corresponding snapshot directory on mass storage disk
 			try:

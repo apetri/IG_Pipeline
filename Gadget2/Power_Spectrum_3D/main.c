@@ -81,7 +81,7 @@ int main (int argc, char ** argv) {
 	// Gadget-2 snapshot path and filename:
 	
 	sprintf(series_foldername,"%s/Storage/sims/snapshots/%s-series",options->mass_storage_path,options->series_name);
-	sprintf(snapshot_path,"%s/%s-%db%d_%s_ic%d",series_foldername,options->series_name,particle_side,options->box_size_snapshot_kpc,options->model_basename,options->realization_number);
+	sprintf(snapshot_path,"%s/%s-%db%d_%s_ic%d",series_foldername,options->series_name,particle_side,options->box_size_snapshot_mpc,options->model_basename,options->realization_number);
 	
 	sprintf(snapshot_filenamebase, "snapshot");
 	sprintf(power_spectrum_path, "%s",options->power_spectrum_savepath);
