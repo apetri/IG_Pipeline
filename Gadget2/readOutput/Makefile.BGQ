@@ -1,0 +1,5 @@
+CC = gcc
+CFLAGS = -g -Wall
+LDFLAGS = -g
+
+PYTHON = python
