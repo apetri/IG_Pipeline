@@ -42,12 +42,13 @@ int superrank, supersize;
 
 int main (int argc, char ** argv) {
 
-	if(argc<3){
-		fprintf(stderr,"Usage %s <ini_options_file> <snapshot_number>\n",*argv);
+	if(argc<2){
+		fprintf(stderr,"Usage %s <ini_options_file>\n",*argv);
 		exit(1);
 	}
 	
 	char series_foldername[1000],snapshot_path[1000], snapshot_filenamebase[1000], snapshot_filename[1000], power_spectrum_path[1000], power_spectrum_filenamebase[1000], power_spectrum_filename[1000];
+	char projection_savepath[1000],projection_filebase[1000];
 	
 	//////////////////////////////////////////////////////////////////////////////
 	// MANUAL SECTION:
@@ -63,7 +64,8 @@ int main (int argc, char ** argv) {
 	}
 
 
-	int snapshot_number=atoi(argv[2]);
+	int snapshot_number;
+	int num_snapshots=options->num_snapshots;
 	int number_of_files_per_snapshot=options->num_files_snapshot;
 	int particle_side=options->num_particles_side; // number of particles in N-body simulation along one dimension. 
 	
@@ -84,12 +86,14 @@ int main (int argc, char ** argv) {
 	sprintf(snapshot_filenamebase, "snapshot");
 	sprintf(power_spectrum_path, "%s",options->power_spectrum_savepath);
 	sprintf(power_spectrum_filenamebase, "%s", options->power_spectrum_filebase);
+
+	sprintf(projection_savepath,options->projection_savepath);
+	sprintf(projection_filebase,options->projection_filebase);
 	
 	// Project to 2D (just as output check):
 	char projection_filename[1000];
 	long *naxes;
 	naxes=malloc(2*sizeof(long));
-	sprintf(projection_filename, "%s/%s_%d.fit",options->projection_savepath,options->projection_filebase,snapshot_number);
 	int projection_axis=2;
 	int min_cell=0; // Determines start of slice in projected direction; in FFT grid cell units (integer), not in comoving distance.
 	int max_cell=FFT_grid; // Determines end of slice in projected direction.
@@ -147,6 +151,12 @@ int main (int argc, char ** argv) {
 	N2=M2;
 	N0_local=local_n0_3d;
 	N0_local_start=local_0_start_3d;
+
+	//<AP>For loop that computes power spectra of all snapshots</AP>
+	for(snapshot_number=1;snapshot_number<=num_snapshots;snapshot_number++){
+
+	//assign correct filename to projection
+	sprintf(projection_filename, "%s/%s_%d.fit",projection_savepath,projection_filebase,snapshot_number);
 	
 	// Process zero collects all boundaries:
 	// MPI_Gather(N0_locals, MPI_INT, 1, N0_local, MPI_INT, 1, 0, MPI_COMM_WORLD);
@@ -249,7 +259,7 @@ int main (int argc, char ** argv) {
 	MPI_Barrier(MPI_COMM_WORLD);
 	*/
 	
-	
+	}
 	
 	fftw_mpi_cleanup();
 	
