@@ -53,6 +53,7 @@ int snapshotEndianness(char *fname)
   FILE *fd;
   char   buf[1000];
   int    dummy;
+  char *first;
 
 	struct io_header_1 header1;
 	
@@ -72,16 +73,19 @@ int snapshotEndianness(char *fname)
       printf("Checking Endianness of Snapshot `%s' ...\n",buf); fflush(stdout);
 
       fread(&dummy, sizeof(dummy), 1, fd);
+      first = (char *)&dummy;
+     
 	  printf("First integer in snapshot file (used for endianness determination): %d\n", dummy);
+          printf("Byte sequence: %d %d %d %d\n",*first,*(first+1),*(first+2),*(first+3));
 	  fflush(stdout);
 	  fread(&header1, sizeof(header1), 1, fd);
 	  fclose(fd);
-	  if (dummy==256)
+	  if ((*(first+1))==1)
 	  {
 		printf("Snapshot file is little-endian. Determined based on first integer in file.\n");
 		return LITTLE_END; // little endian.
 	  }
-	  else if (dummy==65536)
+	  else if ((*(first+1))==0)
 	  {
 		printf("Snapshot file is big-endian. Determined based on first integer in file.\n");
 		return BIG_END; // big endian.
