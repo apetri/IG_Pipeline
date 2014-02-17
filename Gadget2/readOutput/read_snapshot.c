@@ -14,7 +14,7 @@ int do_what_you_want(int NumPart,struct particle_data *P,struct io_header_1 *hea
 
   //print header values
   fprintf(stderr,"\ntime=%lf redshift=%lf\n\n",header->time,header->redshift);
-  fprintf(stderr,"Box size = %lf pc\n\n",header->BoxSize);
+  fprintf(stderr,"Box size = %lf kpc\n\n",header->BoxSize);
   fprintf(stderr,"Omega0 = %lf OmegaL = %lf Hubble = %lf\n\n",header->Omega0,header->OmegaLambda,header->HubbleParam);
 
   //print the positions of the particles

@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 #Options
 
-snapshotPathDefault = '/Users/andreapetri/Documents/Cosmology_software/IG_Pipeline_0.1/Storage/sims/snapshots/mQ2-series/m-32b15_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1'
+snapshotPathDefault = '/Users/andreapetri/Documents/Cosmology_software/IG_Pipeline_0.1/Storage/sims/snapshots/mQ2-series/mQ2-32b15_Om0.260_Ol0.740_w-1.000_ns0.960_si0.798_ic1'
 snapshotBaseDefault = 'snapshot'
 filesPerSnapshot = 1
 frameDirectory = sys.argv[1]
