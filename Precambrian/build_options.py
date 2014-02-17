@@ -36,6 +36,8 @@ settings=[
 ]
 
 power3D=[
+("power3D","num_files_snapshot",int,16),
+("power3D","num_snapshots",int,60),
 ("power3D","FFT_grid_size",int,256),
 ("power3D","number_of_bins",int,256),
 ("power3D","box_size_snapshot_kpc",int,240),

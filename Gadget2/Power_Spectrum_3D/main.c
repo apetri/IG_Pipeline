@@ -42,8 +42,8 @@ int superrank, supersize;
 
 int main (int argc, char ** argv) {
 
-	if(argc<4){
-		fprintf(stderr,"Usage %s <ini_options_file> <snapshot_number> <number_of_files_per_snapshot>\n",*argv);
+	if(argc<3){
+		fprintf(stderr,"Usage %s <ini_options_file> <snapshot_number>\n",*argv);
 		exit(1);
 	}
 	
@@ -64,7 +64,7 @@ int main (int argc, char ** argv) {
 
 
 	int snapshot_number=atoi(argv[2]);
-	int number_of_files_per_snapshot=atoi(argv[3]);
+	int number_of_files_per_snapshot=options->num_files_snapshot;
 	int particle_side=options->num_particles_side; // number of particles in N-body simulation along one dimension. 
 	
 	// FFT Grid:
