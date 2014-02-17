@@ -111,7 +111,7 @@ Once you read the Note, go in the Gadget2/Power\_Spectrum\_3D directory and run
 
 this will compile and link an executable called "3D\_Power\_Spectrum\_Calculator": this is the tool you will use to measure the 3D power spectrum of a Gadget snapshot. The "make" command, will also produce a "default\_options.ini" file, that serves as blueprint for the options file you will have to pass to "3D\_Power\_Spectrum\_Calculator"; let's call "power\_spectrum.ini" this options file. Adjust it to the settings corresponding to your simulation batch (the options should be self explanatory) and run it
 
-    mpiexec -n <number_of_tasks> ./3D_Power_Spectrum_Calculator   power_spectrum.ini   <snapshot_number>   <num_files_per_snapshot>
+    mpiexec -n <number_of_tasks> ./3D_Power_Spectrum_Calculator   power_spectrum.ini
 
 This will work on your laptop, but not on BGQ: here we need to submit the job via a submission script like for the other steps.
 
