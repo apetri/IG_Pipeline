@@ -89,7 +89,7 @@ int main (int argc, char ** argv) {
 	char projection_filename[1000];
 	long *naxes;
 	naxes=malloc(2*sizeof(long));
-	sprintf(projection_filename, "%s/%s",options->projection_savepath,options->projection_filebase);
+	sprintf(projection_filename, "%s/%s_%d.fit",options->projection_savepath,options->projection_filebase,snapshot_number);
 	int projection_axis=2;
 	int min_cell=0; // Determines start of slice in projected direction; in FFT grid cell units (integer), not in comoving distance.
 	int max_cell=FFT_grid; // Determines end of slice in projected direction.

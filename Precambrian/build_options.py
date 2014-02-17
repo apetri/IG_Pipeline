@@ -47,7 +47,7 @@ power3D=[
 ("power3D","power_spectrum_savepath",str,"."),
 ("power3D","power_spectrum_filebase",str,"power_spectrum_3D"),
 ("power3D","projection_savepath",str,"."),
-("power3D","projection_filebase",str,"projection_2D.fit")
+("power3D","projection_filebase",str,"projection_2D")
 ]
 
 scalar_options=[
