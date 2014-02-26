@@ -332,6 +332,9 @@ CORES_PER_NODE=%d
 				break
 
 		gadget_arguments = "%d %d "%(num_sims,tasks_per_sim) + gadget_arguments
+		if(options.getint("computing_resources","restart_flag")):
+			gadget_arguments += "1"
+		
 		total_mpi_tasks = num_sims*tasks_per_sim
 
 		runjob_command = "runjob --block $BLOCKID --corner %s --shape %s --exe $EXECUTABLE -p $CORES_PER_NODE --np %d"%(corner(sub_block),options.get("topology","corner_shape"),total_mpi_tasks) 
