@@ -5,25 +5,17 @@ import StringIO
 ################################################################
 #This function returns the BGQ corner ID given the corner index#
 ################################################################
-def corner(index):
-	if(index==1):
-		return "R00-M0-N00-J00"
-	elif(index==2):
-		return "R00-M0-N00-J29"
-	elif(index==3):
-		return "R00-M0-N01-J01"
-	elif(index==4):
-		return "R00-M0-N01-J28"
-	elif(index==5):
-		return "R00-M0-N02-J12"
-	elif(index==6):
-		return "R00-M0-N02-J17"
-	elif(index==7):
-		return "R00-M0-N03-J13"
-	elif(index==8):
-		return "R00-M0-N03-J16"
-	else:
-		raise ValueError("The corner index must be less than or equal to 8!")
+def corner(options,index):
+	sub_block_file = file("%s_sub_blocks.txt"%options.get("topology","blockid"),"r")
+	sub_blocks = sub_block_file.readlines()
+	sub_blocks = [block.strip("\n") for block in sub_blocks]
+
+	if(len(sub_blocks)!=options.getint("topology","num_sub_blocks")):
+		print "The number of entries in the sub_block file must be the same as the num_sub_block option!!"
+		exit(1)
+
+	return sub_blocks[index-1]
+	
 
 ####################################################################
 #This function returns the number of needed sub blocks given the####
@@ -59,7 +51,7 @@ def num_simulations_check(options):
 		print "You will need %d sub-blocks for this batch"%needed_blocks
 		print "You will need to select the sub-blocks you want to use among these (make sure they are free)"
 		for i in range(1,num_sub_blocks+1):
-			print "id %d --> %s"%(i,corner(i))
+			print "id %d --> %s"%(i,corner(options,i))
 		return needed_blocks  
 
 ############################################################
@@ -98,7 +90,7 @@ NUM_MPI_TASKS=%d
 	S.write("""
 CORNER=%s
 SHAPE=%s
-"""%(corner(options.getint("topology","camb_corner")),options.get("topology","corner_shape")))
+"""%(corner(options,options.getint("topology","camb_corner")),options.get("topology","corner_shape")))
 
 	#Set Parameters and Logs directories
 	S.write("""
@@ -160,7 +152,7 @@ def generate_BGQ_ngenic_submission(options,sub_block,first,last):
 BLOCKID=%s
 CORNER=%s 
 SHAPE=%s
-"""%(options.get("topology","blockid"),corner(sub_block),options.get("topology","corner_shape")))
+"""%(options.get("topology","blockid"),corner(options,sub_block),options.get("topology","corner_shape")))
 
 	#Set paths,executable name and log file basenames and directories
 	S.write("""
@@ -337,7 +329,7 @@ CORES_PER_NODE=%d
 		
 		total_mpi_tasks = num_sims*tasks_per_sim
 
-		runjob_command = "runjob --block $BLOCKID --corner %s --shape %s --exe $EXECUTABLE -p $CORES_PER_NODE --np %d"%(corner(sub_block),options.get("topology","corner_shape"),total_mpi_tasks) 
+		runjob_command = "runjob --block $BLOCKID --corner %s --shape %s --exe $EXECUTABLE -p $CORES_PER_NODE --np %d"%(corner(options,sub_block),options.get("topology","corner_shape"),total_mpi_tasks) 
 		runjob_command = runjob_command + " --args %s --cwd $G_ROOT"%(gadget_arguments)
 		runjob_command = runjob_command + " > $LOGSDIR/${LOGFILE_ROOT}_Bl%d.out 2> $LOGSDIR/${LOGFILE_ROOT}_Bl%d.err"%(sub_block,sub_block)
 
@@ -404,7 +396,7 @@ if(__name__=="__main__"):
 		#Show user the blocks he can use
 		print "\nYou can use the following sub-blocks for this job:"
 		for i in range(1,options.getint("topology","num_sub_blocks")+1):
-			print "id %d --> %s"%(i,corner(i))
+			print "id %d --> %s"%(i,corner(options,i))
 		
 		#Prompt user for job splitting
 		print "Do you want to split this N-GenIC job (y/n)?"
@@ -488,7 +480,7 @@ if(__name__=="__main__"):
 
 		print "\nThese are the sub-blocks you selected:"
 		for i in used_blocks:
-			print "%d --> %s"%(i,corner(i))
+			print "%d --> %s"%(i,corner(options,i))
 		print ""
 
 		if(needed_blocks>num_sub_blocks):
@@ -530,7 +522,7 @@ if(__name__=="__main__"):
 				subjob_needed_blocks = needed(subjob_nsim,options.getint("topology","max_sims_sub_block"))
 				print "There are %d simulations in this sub-batch, you will need %d sub-blocks, please select them among:"%(subjob_nsim,subjob_needed_blocks)
 				for j in used_blocks:
-					print "%d --> %s"%(j,corner(j))
+					print "%d --> %s"%(j,corner(options,j))
 				print ""
 
 				subjob_used_blocks = []
@@ -552,7 +544,7 @@ if(__name__=="__main__"):
 
 				print "\nThese are the sub-blocks you selected for part %d:"%(i+1)
 				for j in subjob_used_blocks:
-					print "%d --> %s"%(j,corner(j))
+					print "%d --> %s"%(j,corner(options,j))
 				print ""
 
 				#Now the sub-blocks are selected, we can proceed in writing the submission script
