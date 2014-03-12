@@ -6,7 +6,7 @@ This is a pipeline for Weak Gravitational Lensing simulations: given a set of co
  - Projection of the 3D simulation boxes on 2D lensing planes
  - Ray tracing and production of 2D convergence and shear maps
 
-1) 3D box generation: workflow
+1) 3D box generation: Blue Gene Q workflow
 ------------------------------
 
 This step is broken down in three four sub-steps: setting the environment and directory structure, running the CAMB code to generate the matter power spectra, running an initial condition generator, and evolve the initial conditions using Gadget. These steps are glued together by Precambrian, an application that takes care of generating parameter files and reformatting the output of a particular step making it a suitable input for the next step.  
@@ -39,7 +39,7 @@ This will generate the CAMB parameter files in localStorage/ics/xxx-series/data_
 
     mpiexec -np <numTasks> ./camb params1.ini ... paramsN.ini
 
-to generate, in parallel, N power spectra, one for each parameter file (if you don't specify a parameter file for each task, camb quits and throws an error message). In the case where you are on a computer cluster (such as Blue Gene Q in this case), the CAMB runs have to be submitted to the cluster via a submission shell script. This will be taken care of for you. Notice that in the top level directory there is a python script, "submission.py", as long as a blueprint ini options file "submission\_sample\_options.ini", that will serve as a blueprint for an optons file to be passed to "submission.py", let's call it "submission\_options.ini". In this ini file you will adjust your paths as directed, you will select the block on which to run CAMB, the block corner and other options, such as the cosmological models for which to generate the power spectra. Once you are done run
+to generate, in parallel, N power spectra, one for each parameter file (if you don't specify a parameter file for each task, camb quits and throws an error message). In the case where you are on a computer cluster (such as Blue Gene Q in this case), the CAMB runs have to be submitted to the cluster via a submission shell script. This will be taken care of for you. Notice that in the top level directory there is a python script, "submission.py", as long as a blueprint ini options file "submission\_sample\_options.ini", that will serve as a blueprint for an optons file to be passed to "submission.py", let's call it "submission\_options.ini". In this ini file you will adjust your paths as directed, you will select the block on which to run CAMB, the block corner and other options, such as the cosmological models for which to generate the power spectra. Before doing anything, remember that you should create a txt file named "<blockid>\_sub\_blocks.txt" that contains the names of all the sub-block corners you want to use. A sample file for the blockid R00-M0-N00-128, called "R00-M0-N00-128\_sub\_blocks.txt", has already been created for you. Once you are done run
 
     python submission.py submission_options.ini 1
 
