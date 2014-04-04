@@ -1,0 +1,34 @@
+#Make a movie out of the snapshots using ffmpeg (optional!!)
+MOVIENAME = movie.mp4
+FRAMEDIR = frames
+FRAMEBASE = frame
+FRAMESPERSECOND = 6
+
+all: read_snapshot read_redshifts
+
+read_snapshot: read_snapshot.o read_snapshot_utils.o 
+
+read_redshifts: read_redshifts.o read_snapshot_utils.o
+
+read_snapshot_utils.o: read_snapshot_utils.c read_snapshot_utils.h
+
+read_snapshot.o: read_snapshot.c read_snapshot_utils.h
+
+read_redshifts.o: read_redshifts.c read_snapshot_utils.h
+
+.PHONY: clean
+clean:
+	rm -rf *.o *.dSYM read_snapshot read_redshifts
+
+.PHONY: superclean
+superclean:
+	rm -rf *.o *.dSYM *.mp4 read_snapshot read_redshifts
+
+.PHONY: movie
+movie: pngframes 
+	ffmpeg -f image2 -r $(FRAMESPERSECOND) -i $(FRAMEDIR)/$(FRAMEBASE)%03d.png -vcodec mpeg4 -y $(MOVIENAME)
+
+pngframes: read_snapshot read_snapshot.sh 3dsnapshot.py 
+	rm -rf pngframes
+	$(PYTHON) 3dsnapshot.py $(FRAMEDIR) $(FRAMEBASE)
+	touch pngframes

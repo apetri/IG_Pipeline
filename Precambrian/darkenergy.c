@@ -172,6 +172,7 @@ double free_darkenergy(void) // frees any dark energy calculation arrays not fre
 	free_Vector(y2);
 	free_Vector(ap);
 	free_Matrix(DEp, neqs);
+	return 0.0;
 }
 
 //#undef NRANSI

@@ -2,12 +2,12 @@
 # Contains Lam Hui's growth factor code (written in FORTRAN 77).
 
 # NOTE:
-# If compiled on IBM Blue Gene NYBlue at Brookhaven National Laboratory to run on FEN (front-end nodes, this code runs only briefly, so that's o.k.), needs to be compiled on NYBlue/L, because NYBlue/P does not have -lg2c (/usr/lib/libg2c.a). The Blue Gene/Q is an exception to this: it has gfortran and does not need the g2c library.
+# If compiled on IBM Blue Gene NYBlue at Brookhaven National Laboratory to run on FEN (front-end nodes, this code runs only briefly, so that's o.k.), needs to be compiled on NYBlue/L, because NYBlue/P does not have -lg2c (/usr/lib/libg2c.a).
 
 
 #SYSTYPE="Blue_Gene_L"
-SYSTYPE="Mac_OS_X"
-# Note: Mac_OS_X also works for Blue Gene/Q front end node (has gfortran installed).
+#SYSTYPE="Mac_OS_X"
+SYSTYPE="Blue_Gene_Q"
 
 ifeq ($(SYSTYPE),"Blue_Gene_L")
 FC=f77
@@ -15,6 +15,16 @@ FFLAGS=-O2
 CC=gcc
 CFLAGS=-O2 -I.
 FLIB = -L/usr/lib -lg2c -lm
+PYTHON = python
+endif
+
+ifeq ($(SYSTYPE),"Blue_Gene_Q")
+FC=gfortran
+FFLAGS=-O2
+CC=gcc
+CFLAGS=-O2 -I.
+FLIB= -lm
+PYTHON=python
 endif
 
 ifeq ($(SYSTYPE),"Mac_OS_X")
@@ -23,13 +33,14 @@ FFLAGS=-O2
 CC=gcc
 CFLAGS=-O2 -I.
 FLIB = # gfortran does not need libg2c anymore.
+PYTHON = python
 # With Fink, Mac OS 10.6, and f77 as the fortran compiler (which needs libg2c):
 # FC=f77
 # FLIB = -L/sw/lib -lg2c -lm
 endif
 
-INCLFILES = main.h io_routines.h manual.h darkenergy.h darkenergy_support.h parameters.inc
-CFILES = main.o io_routines.o manual.o interface.o darkenergy.o darkenergy_support.o
+INCLFILES = darkenergy.h darkenergy_support.h parameters.inc
+CFILES = main.o interface.o darkenergy.o darkenergy_support.o options.o ini.o
 FFILES = f77main.o angdiamQp.o dverk.o growthq.o universal.o
 EXEC = Precambrian
 
@@ -44,9 +55,21 @@ default: all
 
 all: $(EXEC)
 
+main.o: main.c options.c
+
+options.o: options.c
+
+options.c: build_options.py
+	$(PYTHON) build_options.py
+
 ifeq ($(SYSTYPE),"Blue_Gene_L")
 $(EXEC): $(FFILES) $(CFILES)
 	$(CC) $(CFLAGS) $(FFILES) $(CFILES) -o $(EXEC) $(FLIB)
+endif
+
+ifeq ($(SYSTYPE),"Blue_Gene_Q")
+$(EXEC): $(FFILES) $(CFILES)
+	$(FC) $(CFLAGS) $(FFILES) $(CFILES) -o $(EXEC) $(FLIB)
 endif
 
 ifeq ($(SYSTYPE),"Mac_OS_X")
@@ -62,4 +85,4 @@ $(CFILES): $(INCLFILES)
 # -lI77 -lF77
 
 clean:
-	rm -f *~ *.o $(EXEC)
+	rm -f *~ *.o $(EXEC) options.c options.h default_options.ini

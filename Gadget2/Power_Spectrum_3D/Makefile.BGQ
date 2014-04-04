@@ -1,0 +1,20 @@
+GCCC = /bgsys/drivers/ppcfloor/comm/gcc/bin/mpicc
+
+FFTW3_INCL = -I/bgsys/home1/slatest_a-g/fftw332dp-fenq-gnucompiler/fftw-3.3.2/include
+CFITSIO_INCL = -I/bgsys/home1/slatest_a-g/cfitsio-fenq-gnucompiler/cfitsio/include
+MPICH_INCL = 
+
+# CFLAGS = -O0 -g -I. $(FFTW3_INCL) $(CFITSIO_INCL) #$(GSL_INCL) #-Vaxlib -W0 -WB -fpp -xN -vec_report0 -DMPI
+# CFLAGS = -O3 -I. -m32 -Wall $(FFTW3_INCL) $(MPICH_INCL) #$(CFITSIO_INCL) #$(GSL_INCL) #-Vaxlib -W0 -WB -fpp -xN -vec_report0 -DMPI
+
+CFLAGS = -O3 -I. $(FFTW3_INCL) $(CFITSIO_INCL) $(MPICH_INCL)
+
+GCCFLAGS = $(CFLAGS)
+
+#CFITSIOLIB = -L/direct/lsst+u/jank/mylibs/mylocal-MPICH2/lib -lcfitsio -lm
+
+FFTW3LIB =  -L/bgsys/home1/slatest_a-g/fftw332dp-fenq-gnucompiler/fftw-3.3.2/lib -lfftw3_mpi -lfftw3 -lm
+CFITSIOLIB =  -L/bgsys/home1/slatest_a-g/cfitsio-fenq-gnucompiler/cfitsio/lib -lcfitsio -lm
+MPICHLIB = 
+
+PYTHON = python
