@@ -258,7 +258,7 @@ void writePlaneFITSimage_f(char filename[], long naxis, long naxes[], double *im
 }
 
 
-void writeWLmapFITSimage_f(char filename[], long naxis, long naxes[], double *imagearray) // ATTENTION: externally fed in image imagearray must be a true 2D array.
+void writeWLmapFITSimage_f(char filename[], long naxis, long naxes[], double *imagearray,int plane_number) // ATTENTION: externally fed in image imagearray must be a true 2D array.
 
     /******************************************************/
     /* Create a FITS primary array containing a 2-D image */
@@ -268,7 +268,7 @@ void writeWLmapFITSimage_f(char filename[], long naxis, long naxes[], double *im
     int status, ii;
     long  fpixel, nelements; //, exposure;
 	float Z_redshift, A_scale_factor, CHI_comoving_distance, BOXSIZE_boxsize, H_0_parameter, Omega_m_parameter, Omega_L_parameter, w0_parameter, wa_parameter, ns_parameter, sigma8_parameter, initial_condition, ANGLE_survey_angle, GRID_resolution, GRID_space_x, GRID_space_y, MAP_resolution, ASPP_resolution, PPAM_resolution, N_CDM, M_CDM, PLANES, CHI_plane;
-	int plane_number;
+	//int plane_number;
 	char MODEL_folder[MAXNAME], MODEL[MAXNAME], label[MAXNAME], comment[MAXNAME], USER_comment[MAXNAME];
 
 	float *writearray;

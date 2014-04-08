@@ -607,7 +607,7 @@ void weak_lensing2(int NbinsX_global, int NbinsY_global, int nx, int ny, int ray
     free_Vector0(potential_array); // with current version of code not needed anymore, so free before allocating writeout arrays.
     if (galaxy_catalogue_type==0) save_WL_results(theta1, theta2, theta1_ini, theta2_ini, A11, A12, A21, A22, writeout_array, last_plane_number, 0, NbinsX_global, NbinsY_global, nx, realization); // save WL maps.
     // else save_WL_galaxy_catalogue(galaxy_input_filename, galaxy_output_filename, theta1, theta2, theta1_ini, theta2_ini, A11, A12, A21, A22, writeout_array, NbinsX, NbinsY);
-    else save_WL_galaxy_catalogue_output_only(galaxy_output_filename, theta1, theta2, theta1_ini, theta2_ini, A11, A12, A21, A22, writeout_array, NbinsX, NbinsY, number_of_galaxies, number_of_redshifts_per_galaxy); // save WL values at positions of galaxies in catalogue (and don't write galaxy positions into the file to save disk space).
+    else save_WL_galaxy_catalogue_output_only(galaxy_output_filename, theta1, theta2, theta1_ini, theta2_ini, A11, A12, A21, A22, writeout_array,last_plane_number, NbinsX, NbinsY, number_of_galaxies, number_of_redshifts_per_galaxy); // save WL values at positions of galaxies in catalogue (and don't write galaxy positions into the file to save disk space).
     // NOTE: The galaxy catalogue does not work with the MPI subprocess split (but it does work with OpenMP).
 
 
@@ -1521,7 +1521,7 @@ void readpotentialplanes_header(struct fitsheader *FITSheader, struct plane_2D *
 
             
 //<AP>:this line needs to be removed once we run more simulations
-    //ic_number = 1;
+    ic_number = 1;
 //</AP>
             
             //////////////////////////
@@ -1740,7 +1740,7 @@ void load_potential_plane(double *potential_array, int plane_number, int nx, int
     }
     
 //<AP>:this line needs to be removed once we run more simulations
-    //ic_number = 1;
+    ic_number = 1;
 //</AP>
     
     

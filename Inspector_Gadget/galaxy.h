@@ -26,5 +26,5 @@ struct galaxy_struct
 int get_number_of_galaxies(char galaxy_input_filename[], int *number_of_galaxies_per_redshift);
 int get_galaxy_parameters(FILE *galaxy_input_file, struct galaxy_struct *galaxy, int *number_of_galaxies_per_redshift);
 // void save_WL_galaxy_catalogue(char galaxy_input_filename[], char galaxy_output_filename[], double **theta1, double **theta2, double **theta1_ini, double **theta2_ini, double **A11, double **A12, double **A21, double **A22, double *writeout_array, int NbinsX, int NbinsY);
-void save_WL_galaxy_catalogue_output_only(char galaxy_output_filename[], double **theta1, double **theta2, double **theta1_ini, double **theta2_ini, double **A11, double **A12, double **A21, double **A22, double *writeout_array, int NbinsX, int NbinsY, int number_of_galaxies, int number_of_redshifts_per_galaxy);
+void save_WL_galaxy_catalogue_output_only(char galaxy_output_filename[], double **theta1, double **theta2, double **theta1_ini, double **theta2_ini, double **A11, double **A12, double **A21, double **A22, double *writeout_array, int last_plane_number, int NbinsX, int NbinsY, int number_of_galaxies, int number_of_redshifts_per_galaxy);
 

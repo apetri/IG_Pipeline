@@ -186,7 +186,7 @@ void save_WL_galaxy_catalogue(char galaxy_input_filename[], char galaxy_output_f
  
  */
 
-void save_WL_galaxy_catalogue_output_only(char galaxy_output_filename[], double **theta1, double **theta2, double **theta1_ini, double **theta2_ini, double **A11, double **A12, double **A21, double **A22, double *writeout_array, int NbinsX, int NbinsY, int number_of_galaxies, int number_of_redshifts_per_galaxy)
+void save_WL_galaxy_catalogue_output_only(char galaxy_output_filename[], double **theta1, double **theta2, double **theta1_ini, double **theta2_ini, double **A11, double **A12, double **A21, double **A22, double *writeout_array, int last_plane_number, int NbinsX, int NbinsY, int number_of_galaxies, int number_of_redshifts_per_galaxy)
 {
     // NOTE: writeout_array not used in this function.
     
@@ -243,7 +243,7 @@ void save_WL_galaxy_catalogue_output_only(char galaxy_output_filename[], double 
          }
     }
     
-    writeWLmapFITSimage_f(galaxy_output_filename, 2, mapdims, output_array);
+    writeWLmapFITSimage_f(galaxy_output_filename, 2, mapdims, output_array,last_plane_number);
     
 }
 
