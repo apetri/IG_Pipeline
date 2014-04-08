@@ -1520,6 +1520,9 @@ void readpotentialplanes_header(struct fitsheader *FITSheader, struct plane_2D *
             }
 
             
+//<AP>:this line needs to be removed once we run more simulations
+    //ic_number = 1;
+//</AP>
             
             //////////////////////////
             // TEMP:
@@ -1736,6 +1739,9 @@ void load_potential_plane(double *potential_array, int plane_number, int nx, int
         shifty=cosmology_sampler[realization-1][5*plane_number+4];
     }
     
+//<AP>:this line needs to be removed once we run more simulations
+    //ic_number = 1;
+//</AP>
     
     
     //////////////////////////

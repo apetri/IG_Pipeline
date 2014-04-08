@@ -19,7 +19,7 @@
 // NOTE: The current code must have MPI enables. Running it without MPI is a depreciated option.
 
 // Use this line if want to have OpenMP shared memory threading in addition to distributed memory MPI parallelization:
-//#define HAVE_OpenMP
+#define HAVE_OpenMP
 // The number of OpenMP threads used by the code will depend on the setting of the OpenMP environment variable OMP_NUM_THREADS on the system on which the code is run.
 
 // Use this line to define the file output format. Currently only FITS files (cfitsion library) are supported:

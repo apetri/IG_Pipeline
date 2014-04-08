@@ -292,6 +292,13 @@ int main(int argc, char **argv)
            exit(0);
        } 
 
+//<AP>
+       for(i=0;i<parameters.number_of_boxcenters;i++){
+	   Snapshot[i].P = NULL;
+       }
+
+//</AP>
+
 	
        printf("Number of planes before allocating Plane array: %d\n", parameters.number_of_planes);
 
@@ -527,12 +534,22 @@ void allocate_snapshot_memory(int NumPart, int snapshot_number)
 
 void free_snapshot_arrays(int snapshot_number) // frees all large particle arrays in a snapshot
 {
+	printf("Superrank %d: before freeing P\n",superrank);
+	fflush(stdout);
 	Snapshot[snapshot_number].P++;
 	free(Snapshot[snapshot_number].P);
+	printf("Superrank %d: after freeing P\n",superrank);
+	fflush(stdout);
+	
 	Snapshot[snapshot_number].P=NULL;
 	Snapshot[snapshot_number].Id++;
+	printf("Superrank %d: before freeing Id\n",superrank);
+	fflush(stdout);
 	free(Snapshot[snapshot_number].Id);
 	Snapshot[snapshot_number].Id=NULL;
+
+	printf("Superrank %d: leaving free_snapshot_number\n",superrank);
+	fflush(stdout);
 }
 
 void free_all_snapshots(void) // frees all snapshots (only information retained is in planes (struct Plane).
