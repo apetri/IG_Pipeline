@@ -600,6 +600,10 @@ void weak_lensing2(int NbinsX_global, int NbinsY_global, int nx, int ny, int ray
 
    
 } // end plane number loop.
+
+    //<AP> Temporary hard code of last_plane_number
+    last_plane_number = 46;
+    //</AP>
  
     
     free_Matrix0(SC, NbinsY);
