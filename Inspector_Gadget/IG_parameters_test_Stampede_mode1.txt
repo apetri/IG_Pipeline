@@ -1,0 +1,149 @@
+# Parameters for Inspector Gadget
+# Can be changed arbitrarily after Gadget-2 run.
+# Have nothing to do with Gadget-2 run itself, just with output processing.
+# Keywords in arbitrary order, but care sensitive.
+# No spaces within keywords allowed.
+# Feedback will not start until feedback keyword is read,
+# thus if you wish feedback for read-in of parameters, place this keyword first.
+
+
+### Condor Paths: ###
+
+Parameter_path .  # always keep this way and pu parameter file in same folder as executable.
+
+### File names: ###
+
+Snapshot_name snapshot
+Density_basename dens
+Potential_basename pot
+
+Map_basename WL-
+Convergence_basename conv
+Shear1_basename	     shear1
+Shear2_basename shear2
+Omega_basename omega
+Shear_modulus_basename shear_abs
+Shear_angle_basename shear_ang
+Deflection1_basename defl1
+Deflection2_basename defl2
+Deflection_total_basename defl_total
+Deflection_angle_basename defl_ang
+
+### Comments: ###
+# Enter brief comments here to be included in FITS header.
+# Use underscores instead of blanks.
+Plane_comment (none)
+WL_map_comment (none)
+
+
+### Parameters: ###
+
+
+### Useful parameters (but rarely changed): ###
+
+Feedback -1
+nx 4096 # 4096   # 4096   #  2048                     # Number of grid points on 2D lens planes, 2048 is a good choice for high resolution maps.
+ny 4096 # 4096   # 4096   #  2048                     # Number of grid points on 2D lens planes.
+NbinsX 2048 # 2048                 # Number of bins (pixels in 1 dimension) for weak lensing analysis.
+NbinsY 2048 # 2048                 # Number of bins (pixels in 1 dimension) for weak lensing analysis.
+# Obsolete:
+Seed 1
+
+########################################################################
+
+
+### Unusual parameters (typically not to be changed): ###
+Species 1                  # 0: gas (SPH), 1: dark matter (halo). So far only 1 used and tested.
+Scramble_mode 2            # 0: No box rotations or shifts, 1: simple random number (does not work well when code is run parallel), 2: random numbers from prefabricated list (up to 1000 realizations possible). Default is 2.
+Plane_shift 1 # Shifts planes transversally (with periodic completion) before ray-tracing, causing additional randomization. Depreciated parameter, always set to 0.
+Ray_tracing 1              # Ray-tracing is on if !=0. Default is 1 (on).
+Cell_embedding 2     # Particles on Grid: 1: Cloud-in-cell, 2: TSC. Best is TSC.
+Raypoint_averaging 3 # 1: for linear averaging, 2: for bicubic averaging, 3 (and everything else): for TSC averaging over derivative values on grid. 
+Convergence_direct 0  # If !=0, calculate convergence directly from density planes (for testing mostly, default is 0 for this parameter).
+
+### Unusual parameters (typically automatically set by code from sim): ###
+Plane_padding 0 #0.05          # 0 is no padding, i.e. exact size visible by survey, 1.0 is size of survey (extra half on each side), etc. Alway leave this at zero.
+
+
+#########################################################################
+### Frequently used parameters:
+
+Mode 1 # 1: Potential Planes, 2: WL Maps
+First_snapshot 0   # 0 
+Last_snapshot 58    # 58 
+First_realization 1  # 1
+Last_realization 9 #  In Mode 1: Set to number of lens planes per snapshot (9); in Mode 2, set to number of maps (or foreground realizations per galaxy catalogue subfield), i.e. typically 1000.
+Seed_block 9   #9      # 10 is a good value for 1GB memory / CPU on NYBlue/P (i.e. DUAL mode) and nx=2048, 3 for nx=4096 on NYBlue/P and DUAL mode (2 on NYBlue/L and CO mode). 8 for nx=4096 and SMP mode (NYBlue/P only). Use 9 for new minimal plane method (or as many planes as there are per snapshot.
+
+Max_realizations 1000 # maximum number of realizations allowed during ray-tracing, before random numbers repeat between different subfields.
+Preload_planes 1 # 0: read in potential planes as needed for each map (standard operation mode), 1: preload all potential planes at the beginning of the run (into an RMA window) - useful for Blue Gene/Q with NFS PB disk.
+Number_of_plane_realizations 9 # This can be later automatized from random plane drawing file.
+Number_of_sim_ics 1 # 5 # This can be later automatized from random plane drawing file.
+First_sim_ic 1 # count starts at 1. First N-body simulation IC used.
+
+Snapskip 1   # 1 # Set to 1 if not snapshots are to be skipped, otherwise to correspondingly higher numbers (2 for j-series of simulations, 1 for the more modern i-series and m-series).
+Fiducial 0  # For Mode=2:  Submitted cosmologies beyond this number treated as nonfiducial models, cosmologies lower or equal to this number are fiducial (more ICs, fewer plane realizations per IC). Count starts at 1. Set to zero if all are nonfiducial. Leave this at zero. Control fiducial models by giving a a different random number file.
+
+
+# Paths for files to be used during MPI submission:
+Snapshot_path /scratch/02918/apetri/Storage/sims/snapshots/mQ3-series  # path from which Gadget-2 snapshots are read in.
+Plane_output_path /scratch/02918/apetri/Storage/wl/IG/mQ3-series   # path where density and potential planes are written to after TSC insertion.
+Plane_path /scratch/02918/apetri/Storage/wl/IG/mQ3-series   # path from which potential planes are read for WL map generation (typically same as Plane_output_path).
+Map_output_path /scratch/02918/apetri/Storage/wl/IG/mQ3-series  # path where WL maps are written to.
+Planes_folder Planes
+Maps_folder Maps
+
+
+####### Galaxy Catalogue: ###########
+Galaxy_catalogue_type 1 # 0: Maps with source redshift plane, 1: galaxy catalogue (with galaxies at various redshifts, and angular galaxy positions in radians from map center).
+Galaxy_catalogue_path /home1/02918/apetri/Surveys/CFHT/13subfields/raytrace_subfields
+Galaxy_catalogue_output_path /scratch/02918/apetri/Storage/wl/IG/mQ3-series/galaxy_catalogue_subfields1-13
+Galaxy_catalogue_basename raytrace_subfield # excludes file number.
+First_galaxy_subfield 1 # count starts at 1; e.g. the 13 CFHT subfields for our map sizes from the CFHT survey.
+Last_galaxy_subfield 1 # 13.
+# 1-2, 3-6, 7-13.
+
+
+####### Snapshot Rotations and Lens Plane Shifts (enter full paths including filename): ########
+Snapshot_rotation_randomizer_file /home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_Snapshot_Rotations.txt
+Plane_randomizer_file_general /home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_RandomPlanes_general_minimalplane.txt
+Plane_randomizer_file_fiducial /home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_RandomPlanes_fiducial_minimalplane.txt
+# Note: the fiducial option above may not work anymore.
+# Note: first path above is needed for mode=1 (lens plane generation), one of the other two for mode=2 (ray tracing).
+
+
+############# Source Parameters (since Inspector Gadget 5) #################
+Source_redshift 2.0
+Plane_before_source 46
+Survey_angle 3.4641 # If set to zero, automatically determined by code (typically set manually, so all cosmologies get maps of same angular size). Do not use this automatic feature.
+
+# Settings for m-series and mQ3-series:
+#
+# Source_redshift 1.0
+# Plane_before_source 29
+# Survey_angle 3.4641  # 4.55 = maximal angle at z=1 for a 200Mpc/h sim.
+#
+# Source_redshift 1.5
+# Plane_before_source 38
+# Survey_angle 3.4641  # 3.41 = maximal angle at z=1.5 for a 200Mpc/h sim.
+#
+# Source_redshift 2.0
+# Plane_before_source 46
+# Survey_angle 3.4641  # 3.4641 is 12 sq. degrees, maximal angle for 240Mpc/h sim is 3.51337764326 (but a little border needs to be left for light bending of the order of 1-2 arcminutes)  # 2.86 = maximal angle at z=2 for a 200Mpc/h sim.
+#
+# Source_redshift 2.5
+# Plane_before_source 52
+# Survey_angle 2.53
+#
+# Source_redshift 3.0
+# Plane_before_source 57
+# Survey_angle 2.32
+#
+# For small test fields on laptop (32^3 particles, 15Mpc/h boxsize):
+# Survey_angle 0.2125
+
+
+
+
+### Note for MPI: Further parameters to be adjusted are in mpi_support.c ! ###
+### Note for MPI: To compile with MPI, also need to set compilation macro MPI_COMPILE to 1 in main.h ! ###
