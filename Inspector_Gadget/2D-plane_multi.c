@@ -207,6 +207,7 @@ double cloud_in_cell(double x_particle, double y_particle, double* density_array
 #pragma omp critical (CICupdate)
             {
 #endif
+	    particle_fraction = 0.0;
             // If in center of array with at least one cell row/column from edge, assign all four components without further questioning:
             density_array[main_bin]=density_array[main_bin]+sector_A; // complex number addition, sector_A is real, but that's fine.
             particle_fraction=particle_fraction+sector_B;

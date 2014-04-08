@@ -17,7 +17,7 @@
 #include "io_routines.h"
 
 
-#define MAXLINE 1000
+#define MAXLINE 2000
 #define MAXRANDOMLINE 10000
 ////////////////////////////
 

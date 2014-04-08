@@ -419,7 +419,7 @@ int main(int argc, char **argv)
 			} // end loop over parameters.realization.
 			
 			timing();
-			printf("Superrank %d: Done generating WL quantities for Galaxy Subfield %d.\n", parameters.galaxy_subfield);
+			printf("Superrank %d: Done generating WL quantities for Galaxy Subfield %d.\n",superrank, parameters.galaxy_subfield);
 
 
 			// Free cosmology sampler:

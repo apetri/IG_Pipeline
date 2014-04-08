@@ -396,7 +396,7 @@ void diagnostic(void)
 	  parameters.source_comoving_distance,
 	  parameters.number_of_source_planes,
 	  parameters.number_of_planes,
-	  parameters.plane_before_source,
+	  parameters.plane_before_source);
   fclose(diagnos_file);
   
 }

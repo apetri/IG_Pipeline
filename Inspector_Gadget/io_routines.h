@@ -8,9 +8,9 @@
  */
 
 // Maximal allowable line length for read-in from input file:
-#define MAXLINE 1000
+#define MAXLINE 2000
 // Maximal allowable path name length for paths from input file:
-#define MAXPATHNAME 1000
+#define MAXPATHNAME 2000
 // Maximal allowable name length for parameters and file names in input file:
 #define MAXNAME 200
 // The above values can be modified as needed for longer line and name lengths.

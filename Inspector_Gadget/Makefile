@@ -13,8 +13,9 @@
 # Select which system to run on:
 # SYSTYPE="Blue_Gene_L"
 # SYSTYPE="Blue_Gene_P"
-SYSTYPE="Blue_Gene_Q"
+#SYSTYPE="Blue_Gene_Q"
 # SYSTYPE="Mac_OS_X"
+SYSTYPE="Stampede"
 
 ifeq ($(SYSTYPE),"Blue_Gene_L")
 GCCC = mpixlc  # Blue Gene/L cross-compiler
@@ -63,6 +64,16 @@ CFLAGS = -O3 $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL) -lm
 EXEC = Inspector_Gadget_Q
 endif
 
+ifeq ($(SYSTYPE),"Stampede")
+GCCC = mpicc
+FFTW3_INCL = -I${TACC_FFTW3_INC}
+FFTW3LIB = -Wl,-rpath,${TACC_FFTW3_LIB}  -L${TACC_FFTW3_LIB} -lfftw3
+CFITSIO_INCL = -I/home1/02918/apetri/misc/cfitsio/include
+CFITSIOLIB = -L/home1/02918/apetri/misc/cfitsio/lib -lcfitsio
+OMPFLAG = 
+CFLAGS = -O3 $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL)
+EXEC = Inspector_Gadget_Stampede
+endif
 
 ifeq ($(SYSTYPE),"Mac_OS_X")
 GCCC = mpicc
