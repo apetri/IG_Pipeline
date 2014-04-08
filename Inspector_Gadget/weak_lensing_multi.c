@@ -857,7 +857,7 @@ void save_WL_results(double **theta1, double **theta2, double **theta1_ini, doub
 		    if (fits_filetype<=3 || fits_filetype==7 || fits_filetype==8)
 			{
 #ifdef HAVE_FITS				
-				writeWLmapFITSimage_f(map_file, 2, mapdims, writeout_array); // writes a FITS image file with signed float pixel values.
+				writeWLmapFITSimage_f(map_file, 2, mapdims, writeout_array,plane_number); // writes a FITS image file with signed float pixel values.
                 // WARNING: Note that the above function still makes use of a lot of global variables, in particular of the parameters structure to write into the header.
 #else
 				exit(1); // currently not implemented, must have FITS.
@@ -878,7 +878,7 @@ void save_WL_results(double **theta1, double **theta2, double **theta1_ini, doub
 		    if (fits_filetype==1)
 			{
 #ifdef HAVE_FITS
-				writeWLmapFITSimage_f(map_file, 2, mapdims, writeout_array); // writes a FITS image file with signed float pixel values.
+				writeWLmapFITSimage_f(map_file, 2, mapdims, writeout_array,plane_number); // writes a FITS image file with signed float pixel values.
 #else
                 exit(1); // currently not implemented, must have FITS.
 #endif			 
