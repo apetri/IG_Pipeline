@@ -855,7 +855,9 @@ void save_WL_results(double **theta1, double **theta2, double **theta1_ini, doub
 		    // Includes both resolution labels below:
 		    // sprintf(map_file, "%s/%s%s_%s_%04dxy_%04nx_%04dr_%04dp_%04dz_og.%s", parameters.map_output_path, parameters.map_basename, basename, parameters.simulation_codename, parameters.NbinsX, parameters.nx, parameters.realization, plane_number, redshift_tag, parameters.extension);
 		    // To have xy in file name represent resolution of lattice on lens planes (plane dimension): (This is the preferred option, as plane resolution impacts the power spectrum at high l (see Sato et al. (2009)), so it needs to be tested with different values. The number of light-rays can be kept at 2048x2048 (increasing it would just add higher l's to the power spectrum, not improve its quality).)
-                    sprintf(map_file, "%s/%s%s_%s_%04dxy_%04dr_%04dp_%04dz_og.%s", parameters.map_output_path, parameters.map_basename, basename, parameters.simulation_codename, nx, realization, plane_number, redshift_tag, parameters.extension);
+                    //sprintf(map_file, "%s/%s%s_%s_%04dxy_%04dr_%04dp_%04dz_og.%s", parameters.map_output_path, parameters.map_basename, basename, parameters.simulation_codename, nx, realization, plane_number, redshift_tag, parameters.extension);
+
+                    sprintf(map_file, "%s/%s%s_%s_%04dxy_%04dr_%.3fz_og.%s", parameters.map_output_path, parameters.map_basename, basename, parameters.simulation_codename, nx, realization, parameters.source_redshift, parameters.extension);
 		    // To have xy in file name represent resolution of light rays in map (map dinemsion) instead:
 		    // sprintf(map_file, "%s/%s%s_%s_%04dxy_%04dr_%04dp_%04dz_og.%s", parameters.map_output_path, parameters.map_basename, basename, parameters.simulation_codename, parameters.NbinsX, parameters.realization, plane_number, redshift_tag, parameters.extension);
 		    if (fits_filetype<=3 || fits_filetype==7 || fits_filetype==8)
@@ -1525,7 +1527,7 @@ void readpotentialplanes_header(struct fitsheader *FITSheader, struct plane_2D *
 
             
 //<AP>:this line needs to be removed once we run more simulations
-    ic_number = 1;
+//    ic_number = 1;
 //</AP>
             
             //////////////////////////
@@ -1744,7 +1746,7 @@ void load_potential_plane(double *potential_array, int plane_number, int nx, int
     }
     
 //<AP>:this line needs to be removed once we run more simulations
-    ic_number = 1;
+//    ic_number = 1;
 //</AP>
     
     

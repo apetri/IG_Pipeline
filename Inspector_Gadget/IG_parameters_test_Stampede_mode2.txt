@@ -72,13 +72,13 @@ Mode 2 # 1: Potential Planes, 2: WL Maps
 First_snapshot 0   # 0 
 Last_snapshot 58    # 58 
 First_realization 1  # 1
-Last_realization 32 #  In Mode 1: Set to number of lens planes per snapshot (9); in Mode 2, set to number of maps (or foreground realizations per galaxy catalogue subfield), i.e. typically 1000.
+Last_realization 256 #  In Mode 1: Set to number of lens planes per snapshot (9); in Mode 2, set to number of maps (or foreground realizations per galaxy catalogue subfield), i.e. typically 1000.
 Seed_block 9   #9      # 10 is a good value for 1GB memory / CPU on NYBlue/P (i.e. DUAL mode) and nx=2048, 3 for nx=4096 on NYBlue/P and DUAL mode (2 on NYBlue/L and CO mode). 8 for nx=4096 and SMP mode (NYBlue/P only). Use 9 for new minimal plane method (or as many planes as there are per snapshot.
 
 Max_realizations 1000 # maximum number of realizations allowed during ray-tracing, before random numbers repeat between different subfields.
 Preload_planes 1 # 0: read in potential planes as needed for each map (standard operation mode), 1: preload all potential planes at the beginning of the run (into an RMA window) - useful for Blue Gene/Q with NFS PB disk.
 Number_of_plane_realizations 9 # This can be later automatized from random plane drawing file.
-Number_of_sim_ics 1 # 5 # This can be later automatized from random plane drawing file.
+Number_of_sim_ics 5 # 5 # This can be later automatized from random plane drawing file.
 First_sim_ic 1 # count starts at 1. First N-body simulation IC used.
 
 Snapskip 1   # 1 # Set to 1 if not snapshots are to be skipped, otherwise to correspondingly higher numbers (2 for j-series of simulations, 1 for the more modern i-series and m-series).
@@ -95,12 +95,12 @@ Maps_folder Maps
 
 
 ####### Galaxy Catalogue: ###########
-Galaxy_catalogue_type 0 # 0: Maps with source redshift plane, 1: galaxy catalogue (with galaxies at various redshifts, and angular galaxy positions in radians from map center).
+Galaxy_catalogue_type 1 # 0: Maps with source redshift plane, 1: galaxy catalogue (with galaxies at various redshifts, and angular galaxy positions in radians from map center).
 Galaxy_catalogue_path /home1/02918/apetri/Surveys/CFHT/13subfields/raytrace_subfields
 Galaxy_catalogue_output_path /scratch/02918/apetri/Storage/wl/IG/mQ3-series/galaxy_catalogue_subfields1-13
 Galaxy_catalogue_basename raytrace_subfield # excludes file number.
 First_galaxy_subfield 1 # count starts at 1; e.g. the 13 CFHT subfields for our map sizes from the CFHT survey.
-Last_galaxy_subfield 1 # 13.
+Last_galaxy_subfield 2 # 13.
 # 1-2, 3-6, 7-13.
 
 
