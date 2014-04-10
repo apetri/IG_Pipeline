@@ -1,0 +1,37 @@
+\documentclass[11pt]{article}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{pbox}
+
+\addtolength{\hoffset}{-2.5cm}
+\addtolength{\textwidth}{4.5cm}
+\addtolength{\voffset}{-2cm}
+\addtolength{\textheight}{4.5cm}
+
+\begin{document}
+
+\section*{Inspector Gadget Pipeline 0.1: Stampede performance}
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+Step & Test performed & Runtime/cores used & Cost & Rough scaling \\ \hline
+\pbox{20cm}{Matter power spectra \\ (CAMB)} & \pbox{20cm}{16 power spectra \\ in parallel} & 01h 16m 51s/16 & 17.8 SU & 1.11 SU $\times N_{spectra}$ \\ \hline
+\pbox{20cm}{IC generation\\ (N-GenIC)} & \pbox{20cm}{1 initial condition \\ ($512^3$ particles)} & 27s/256 & 1.92 SU & 1.92 SU $\times N_{ICs}$ \\ \hline
+\pbox{20cm}{$N$-body simulations\\ (Gadget2)} & \pbox{20cm}{1 simulation \\ ($512^3$ particles)} & 3h 3m 16s/256 & 781.9 SU & 781.9 SU $\times N_{Sims}$ \\ \hline
+2D plane projections & \pbox{20cm}{Creation of 9 lens planes \\ per snapshot (58 snapshots,\\ 1 simulation)} & 7m 15s/64 & 7.7 SU & - \\ \hline
+2D plane projections & \pbox{20cm}{Creation of 9 lens planes \\ per snapshot (58 snapshots,\\ 5 simulations)} & 6m 59s/64 & ? & ? \\ \hline
+\pbox{20cm}{Ray tracing \\(CFHT catalogs)} & 2 subfields $\times$ 32 realizations & 9m 36s/64 & 10.24 SU & ? \\ \hline
+\pbox{20cm}{Ray tracing \\(CFHT catalogs)} & 2 subfields $\times$ 256 realizations & 14m 06s/256 & ? & ? \\ \hline
+\pbox{20cm}{Ray tracing\\ ($\kappa,\gamma$ maps)} & 32 realizations $(\kappa,\gamma)$ & 16m 50s/64 & ? & ? \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\end{document}
