@@ -39,13 +39,14 @@ This will generate the CAMB parameter files in localStorage/ics/xxx-series/data_
 
     mpiexec -np <numTasks> ./camb params1.ini ... paramsN.ini
 
-to generate, in parallel, N power spectra, one for each parameter file (if you don't specify a parameter file for each task, camb quits and throws an error message). In the case where you are on a computer cluster (such as Blue Gene Q in this case), the CAMB runs have to be submitted to the cluster via a submission shell script. This will be taken care of for you. Notice that in the top level directory there is a python script, "submission.py", as long as a blueprint ini options file "submission\_sample\_options.ini", that will serve as a blueprint for an optons file to be passed to "submission.py", let's call it "submission\_options.ini". In this ini file you will adjust your paths as directed, you will select the block on which to run CAMB, the block corner and other options, such as the cosmological models for which to generate the power spectra. Before doing anything, remember that you should create a txt file named "<blockid>\_sub\_blocks.txt" that contains the names of all the sub-block corners you want to use. A sample file for the blockid R00-M0-N00-128, called "R00-M0-N00-128\_sub\_blocks.txt", has already been created for you. Once you are done run
+to generate, in parallel, N power spectra, one for each parameter file (if you don't specify a parameter file for each task, camb quits and throws an error message). In the case where you are on a computer cluster (such as Blue Gene Q in this case), the CAMB runs have to be submitted to the cluster via a submission shell script. This will be taken care of for you. Notice that in the top level directory there is a python script, "xx_submission.py", as long as a blueprint ini options file "xx_submission\_sample\_options.ini", that will serve as a blueprint for an optons file to be passed to "xx_submission.py", let's call it "submission\_options.ini" ("xx" here is the name of the machine you run on). In this ini file you will adjust your paths as directed, you will select the block on which to run CAMB, the block corner and other options, such as the cosmological models for which to generate the power spectra. 
+Note for Blue Gene Q: before doing anything, remember that you should create a txt file named "<blockid>\_sub\_blocks.txt" that contains the names of all the sub-block corners you want to use. A sample file for the blockid R00-M0-N00-128, called "R00-M0-N00-128\_sub\_blocks.txt", has already been created for you. Once you are done run
 
-    python submission.py submission_options.ini 1
+    python xx_submission.py submission_options.ini 1
 
 This will generate a submission script in localStorage/ics/xxx-series/data_CAMB/Jobs. Go in this directory and submit your job running the generated submission script
 
-    ./jobsubmitQ_CAMB_xxx-series.sh
+    ./jobsubmitQ_CAMB_xxx-series.sh (BGQ)
 
 Once CAMB finishes running, the spectra are saved and stored in localStorage/ics/xxx-series/data\_CAMB/Output\_Data, and you are ready for the next step!
 
@@ -53,7 +54,7 @@ Once CAMB finishes running, the spectra are saved and stored in localStorage/ics
 
 This step will take care of generating the initial conditions for the simulations using the power spactra computed with CAMB at the previous step. First we start with building the N-GenIC executable, by going in the N-GenIC directory and typing
 
-    make -f Makefile_q
+    make -f Makefile_q (BGQ)
 
 which will compile and link the code in an executable named N-GenICq. This executable will need its own parameter file and power spectrum format in order to run, which can be quite a pain to write by hand; luckily Precambrian will take care of this step for us. Just run, in the Precambrian directory
 
@@ -67,13 +68,13 @@ to generate the appropriate N-GenIC parameter files (which will be written in da
 
     mpiexec -np <numTasks> ./N-GenICq   parameters1.param   parameters2.param   ...   parametersN.param
 
-but on a computer cluster such as Blue Gene Q we have to submit our runs via a job submission script. The generation of this script will be taken care of by submission.py, once you tune the appropriate knobs in submission_options.ini. You just have to run, in the top level repository
+but on a computer cluster such as Blue Gene Q we have to submit our runs via a job submission script. The generation of this script will be taken care of by xx_submission.py, once you tune the appropriate knobs in submission_options.ini. You just have to run, in the top level repository
 
-    python submission.py submission_options.ini 2
+    python xx_submission.py submission_options.ini 2
 
 and this will generate a job submission script in data\_N-GenIC/Jobs, called jobsubmitQ\_N-GenIC\_xxx-series.sh (or jobsubmitQ\_N-GenIC\_xxx-series\_n.sh if you prompted submission.py to split the job) . Go in this directory and run it
 
-    ./jobsubmitQ_N-GenIC_xxx-series_n.sh
+    ./jobsubmitQ_N-GenIC_xxx-series_n.sh (BGQ)
 
 If you did everything right your job(s) is(are) on its(their) way to the BGQ compute nodes! Wait till it is over and the files with the initial conditions will have been written to the mass storage disk. You are now ready to run Gadget2, the actual N-body code!!
 
@@ -81,15 +82,15 @@ If you did everything right your job(s) is(are) on its(their) way to the BGQ com
 
 If you got to this step, it means now you have generated the initial conditions, and you are ready to evolve them with Gadget and generate a series of 3D snapshots which will be taken during the nonlinear evolution of the dark matter particles. Before even building the Gadget executable, you will need to create a text file in the repository top directory, called "outputs\_xxx-series.txt", with a list of numbers that will represent the time instants at which the snapshots will be taken (an example called "outputs\_mQ3-series.txt" is already provided). Now it's time to build the Gadget executable, just go in the Gadget2 directory and run
 
-    make -f Makefile_OMPq 
+    make -f Makefile_OMPq (BGQ) 
 
 This will compile and link the code to an executable called Gadget2q\_OMP2\_G800\_TOPNODE16; of course this too will need its own formatted parameter files, which are a pain to write by hand. Luckily Precambrian already did it for us when we ran it last time: the Gadget parameter files are saved in data\_Gadget/Parameters. Now comes the interesting part: you could in principle run the Gadget executable manually with mpiexec as usual, but Blue Gene Q requires that you submit your runs through a job submission script. This script will be generated automatically for you by submission.py. You have to be particularly careful in tuning the knobs in submission\_options.ini: the Blue Gene Q cluster connections have a complicated topology, and we need to specify the shapes and corners of the sub-blocks that make up our computing partition. In particular, in your submission\_options.ini file you need to specify the maximum number of simulations a sub block can handle; this of course depends on the size of the simulations (mainly the number of particles), so you need to choose this parameter carefully (for 512x512x512 particles this number is 2). After you do this just run
 
-    python submission.py submission_options.ini 3
+    python xx_submission.py submission_options.ini 3
 
 This will tell you how many sub-blocks you need for your job, and you will need to specify which ones you want to use (you have to make sure no one is using those, this script unfortunately does not check for that!); if you wish, this python script will allow you to split the simulation batch in multiple sub-batches that can be run independently, and will generate a submission script for each of these sub-batches. If submission.py completes succesfully, you will have your submission script ready in data\_Gadget/Jobs, and it will be called jobsubmitQ\_Gadget\_xxx-series\_n.sh (n is the sub-batch number, that may be absent if you run everything at once). Run it
 
-    ./jobsubmitQ_Gadget_xxx-series_n.sh
+    ./jobsubmitQ_Gadget_xxx-series_n.sh (BGQ)
 
 and your Gadget jobs will be on their way to the Blue Gene Q compute nodes! Now you have to wait till they complete. When done, you are ready for step 2!
 
