@@ -21,17 +21,18 @@
 \begin{table}[h!]
 \begin{center}
 \begin{tabular}{c|c|c|c|c}
-Step & Test performed & Runtime/cores used & Cost & Rough scaling \\ \hline
-\pbox{20cm}{Matter power spectra \\ (CAMB)} & \pbox{20cm}{16 power spectra \\ in parallel} & 01h 16m 51s/16 & 17.8 SU & 1.11 SU $\times N_{spectra}$ \\ \hline
-\pbox{20cm}{IC generation\\ (N-GenIC)} & \pbox{20cm}{1 initial condition \\ ($512^3$ particles)} & 27s/256 & 1.92 SU & 1.92 SU $\times N_{ICs}$ \\ \hline
+\textbf{Step} & \textbf{Test performed} & \textbf{Runtime/cores used} & \textbf{Cost} & \textbf{Rough scaling} \\ \hline
+\pbox{20cm}{Matter power spectra \\ (CAMB)} & \pbox{20cm}{16 power spectra \\ in parallel} & 1h 16m 51s/16 & 17.8 SU & 1.11 SU $\times N_{spectra}$ \\ \hline
+\pbox{20cm}{Initial conditions\\ generation (N-GenIC)} & \pbox{20cm}{1 initial condition \\ ($512^3$ particles)} & 27s/256 & 1.92 SU & 1.92 SU $\times N_{ICs}$ \\ \hline
 \pbox{20cm}{$N$-body simulations\\ (Gadget2)} & \pbox{20cm}{1 simulation \\ ($512^3$ particles)} & 3h 3m 16s/256 & 781.9 SU & 781.9 SU $\times N_{Sims}$ \\ \hline
-2D plane projections & \pbox{20cm}{Creation of 9 lens planes \\ per snapshot (58 snapshots,\\ 1 simulation)} & 7m 15s/64 & 7.7 SU & - \\ \hline
-2D plane projections & \pbox{20cm}{Creation of 9 lens planes \\ per snapshot (58 snapshots,\\ 5 simulations)} & 6m 59s/64 & ? & ? \\ \hline
-\pbox{20cm}{Ray tracing \\(CFHT catalogs)} & 2 subfields $\times$ 32 realizations & 9m 36s/64 & 10.24 SU & ? \\ \hline
-\pbox{20cm}{Ray tracing \\(CFHT catalogs)} & 2 subfields $\times$ 256 realizations & 14m 06s/256 & ? & ? \\ \hline
-\pbox{20cm}{Ray tracing\\ ($\kappa,\gamma$ maps)} & 32 realizations $(\kappa,\gamma)$ & 16m 50s/64 & ? & ? \\ \hline
+2D plane projections & \pbox{20cm}{Creation of 9 lens planes \\ per snapshot (58 snapshots,\\ 1 simulation)} & 7m 15s/60 & 7.7 SU & - \\ \hline
+2D plane projections & \pbox{20cm}{Creation of 9 lens planes \\ per snapshot (58 snapshots,\\ 4 simulations)} & 6m 59s/240 & 27.9 SU & \pbox{20cm}{0.11 SU$\times N_{snapshots}$ \\ $\times N_{Sims}$} \\ \hline
+\pbox{20cm}{Ray tracing \\ (CFHT catalogs)} & \pbox{20cm}{2 subfields $\times$ 32 realizations \\ (from 1 simulation only \\with plane \\preloading in RAM)} & 9m 36s/64 & 10.24 SU & \pbox{20cm}{0.16 SU $\times N_{subfields}$\\ $\times N_{realizations}$\\ (not including \\ I/O corrections)} \\ \hline
+\pbox{20cm}{Ray tracing \\(CFHT catalogs)} & \pbox{20cm}{2 subfields $\times$ 256 realizations\\ (mixing 5 simulations\\no plane preloading, \\more I/O intensive)} & 14m 06s/256 & 60.16 SU & \pbox{20cm}{0.12 SU $\times N_{subfields}$\\ $\times N_{realizations}$\\ (not including \\ I/O corrections)} \\ \hline
+\pbox{20cm}{Ray tracing\\ ($\kappa,\gamma$ maps)} & \pbox{20cm}{32 realizations $(\kappa,\gamma)$ \\ (1 simulation only, \\ with plane preloading)} & 16m 50s/64 & 17.9 SU & \pbox{20cm}{0.55 SU $\times N_{realizations}$\\ (not including \\ I/O corrections)} \\ \hline
 \end{tabular}
 \end{center}
+\caption{\textit{"Not including I/O corrections"} means that, based on the performance of the scratch disk/memory, the computing cost might scale a little worse than linear when we use more cores to read simulteneously from disk. I can run additional tests if required}
 \end{table}
 
 \end{document}
