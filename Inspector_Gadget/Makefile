@@ -59,7 +59,7 @@ FFTW3LIB = -L/bgsys/home1/slatest_a-g/fftw332dp-fenq-gnucompiler/fftw-3.3.2/lib 
 CFITSIO_INCL = -I/bgsys/home1/slatest_a-g/cfitsio-fenq-gnucompiler/cfitsio/include
 CFITSIOLIB = -L/bgsys/home1/slatest_a-g/cfitsio-fenq-gnucompiler/cfitsio/lib -lcfitsio
 MPICHLIB = 
-OMPFLAG = -fopenmp
+OMPFLAG = -DHAVE_OpenMP -fopenmp
 CFLAGS = -O3 $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL) -lm 
 EXEC = Inspector_Gadget_Q
 endif
@@ -70,7 +70,7 @@ FFTW3_INCL = -I${TACC_FFTW3_INC}
 FFTW3LIB = -Wl,-rpath,${TACC_FFTW3_LIB}  -L${TACC_FFTW3_LIB} -lfftw3
 CFITSIO_INCL = -I/home1/02918/apetri/misc/cfitsio/include
 CFITSIOLIB = -L/home1/02918/apetri/misc/cfitsio/lib -lcfitsio
-OMPFLAG = -openmp
+OMPFLAG = -DHAVE_OpenMP -openmp
 CFLAGS = -O3 $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL)
 EXEC = Inspector_Gadget_Stampede
 endif
