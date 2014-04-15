@@ -1,0 +1,21 @@
+\begin{thebibliography}{4}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Hamana} and {Mellier}(2001)]{H&M01}
+{Hamana}, T. and Y.~{Mellier}, 2001: {\em {Numerical study of the statistical
+  properties of the lensing excursion angles}\/}. \mnras, {\bf 327}, 169--176.
+
+\bibitem[{Lewis} et~al.(2000){Lewis}, {Challinor}, and {Lasenby}]{CAMB}
+{Lewis}, A., A.~{Challinor}, and A.~{Lasenby}, 2000: {\em {Efficient
+  Computation of Cosmic Microwave Background Anisotropies in Closed
+  Friedmann-Robertson-Walker Models}\/}. \apj, {\bf 538}, 473--476.
+
+\bibitem[Seljak and Zaldarriaga(1996)]{CMBFAST}
+Seljak, U. and M.~Zaldarriaga, 1996: {\em A Line of Sight Approach to Cosmic
+  Microwave Background Anisotropies\/}. Astrophys. J., {\bf 469}, 437--444.
+
+\bibitem[{Springel}(2005)]{VS05}
+{Springel}, V., 2005: {\em {The cosmological simulation code GADGET-2}\/}.
+  \mnras, {\bf 364}, 1105--1134.
+
+\end{thebibliography}

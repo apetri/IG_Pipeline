@@ -1,0 +1,134 @@
+\begin{thebibliography}{19}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Abell} et~al.(2009){Abell}, {Allison}, {Anderson}, {Andrew}, {Angel},
+  {Armus}, {Arnett}, {Asztalos}, {Axelrod}, and et~al.]{LSSTbook}
+{Abell}, P.~A., J.~{Allison}, S.~F. {Anderson}, J.~R. {Andrew}, J.~R.~P.
+  {Angel}, L.~{Armus}, D.~{Arnett}, S.~J. {Asztalos}, T.~S. {Axelrod}, and
+  et~al., 2009: {\em {LSST Science Book, Version 2.0}\/}. e-print
+  arXiv:0912.0201.
+
+\bibitem[{Albrecht} et~al.(2006){Albrecht}, {Bernstein}, {Cahn}, {Freedman},
+  {Hewitt}, {Hu}, {Huth}, {Kamionkowski}, {Kolb}, {Knox}, {Mather}, {Staggs},
+  and {Suntzeff}]{DETF}
+{Albrecht}, A., G.~{Bernstein}, R.~{Cahn}, W.~L. {Freedman}, J.~{Hewitt},
+  W.~{Hu}, J.~{Huth}, M.~{Kamionkowski}, E.~W. {Kolb}, L.~{Knox}, J.~C.
+  {Mather}, S.~{Staggs}, and N.~B. {Suntzeff}, 2006: {\em {Report of the Dark
+  Energy Task Force}\/}. Appointed jointly by the DoE, NASA, and the NSF; see
+  e-print at arxiv.org/abs/astro-ph/0609591.
+
+\bibitem[{Borgani} et~al.(2004){Borgani}, {Murante}, {Springel}, {Diaferio},
+  {Dolag}, {Moscardini}, {Tormen}, {Tornatore}, and {Tozzi}]{SB04}
+{Borgani}, S., G.~{Murante}, V.~{Springel}, A.~{Diaferio}, K.~{Dolag},
+  L.~{Moscardini}, G.~{Tormen}, L.~{Tornatore}, and P.~{Tozzi}, 2004: {\em
+  {X-ray properties of galaxy clusters and groups from a cosmological
+  hydrodynamical simulation}\/}. \mnras, {\bf 348}, 1078--1096.
+
+\bibitem[{Hamana} and {Mellier}(2001)]{H&M01}
+{Hamana}, T. and Y.~{Mellier}, 2001: {\em {Numerical study of the statistical
+  properties of the lensing excursion angles}\/}. \mnras, {\bf 327}, 169--176.
+
+\bibitem[{Heitmann} et~al.(2009){Heitmann}, {Higdon}, {White}, {Habib},
+  {Williams}, {Lawrence}, and {Wagner}]{CoyoteII}
+{Heitmann}, K., D.~{Higdon}, M.~{White}, S.~{Habib}, B.~J. {Williams},
+  E.~{Lawrence}, and C.~{Wagner}, 2009: {\em {The Coyote Universe. II.
+  Cosmological Models and Precision Emulation of the Nonlinear Matter Power
+  Spectrum}\/}. \apj, {\bf 705}, 156--174.
+
+\bibitem[{Heymans} et~al.(2012){Heymans}, {Van Waerbeke}, {Miller}, {Erben},
+  {Hildebrandt}, {Hoekstra}, {Kitching}, {Mellier}, {Simon}, {Bonnett},
+  {Coupon}, {Fu}, {Harnois D{\'e}raps}, {Hudson}, {Kilbinger}, {Kuijken},
+  {Rowe}, {Schrabback}, {Semboloni}, {van Uitert}, {Vafaei}, and
+  {Velander}]{CFHTLS2012}
+{Heymans}, C., L.~{Van Waerbeke}, L.~{Miller}, T.~{Erben}, H.~{Hildebrandt},
+  H.~{Hoekstra}, T.~D. {Kitching}, Y.~{Mellier}, P.~{Simon}, C.~{Bonnett},
+  J.~{Coupon}, L.~{Fu}, J.~{Harnois D{\'e}raps}, M.~J. {Hudson},
+  M.~{Kilbinger}, K.~{Kuijken}, B.~{Rowe}, T.~{Schrabback}, E.~{Semboloni},
+  E.~{van Uitert}, S.~{Vafaei}, and M.~{Velander}, 2012: {\em {CFHTLenS: the
+  Canada-France-Hawaii Telescope Lensing Survey}\/}. \mnras, {\bf 427},
+  146--166.
+
+\bibitem[{Hockney} and {Eastwood}(1981)]{Hockney-Eastwood}
+{Hockney}, R.~W. and J.~W. {Eastwood}, 1981: {\em {Computer Simulation Using
+  Particles}\/}.
+
+\bibitem[{Kilbinger} et~al.(2013){Kilbinger}, {Fu}, {Heymans}, {Simpson},
+  {Benjamin}, {Erben}, {Harnois-D{\'e}raps}, {Hoekstra}, {Hildebrandt},
+  {Kitching}, {Mellier}, {Miller}, {Van Waerbeke}, {Benabed}, {Bonnett},
+  {Coupon}, {Hudson}, {Kuijken}, {Rowe}, {Schrabback}, {Semboloni}, {Vafaei},
+  and {Velander}]{Kilbinger2013}
+{Kilbinger}, M., L.~{Fu}, C.~{Heymans}, F.~{Simpson}, J.~{Benjamin},
+  T.~{Erben}, J.~{Harnois-D{\'e}raps}, H.~{Hoekstra}, H.~{Hildebrandt}, T.~D.
+  {Kitching}, Y.~{Mellier}, L.~{Miller}, L.~{Van Waerbeke}, K.~{Benabed},
+  C.~{Bonnett}, J.~{Coupon}, M.~J. {Hudson}, K.~{Kuijken}, B.~{Rowe},
+  T.~{Schrabback}, E.~{Semboloni}, S.~{Vafaei}, and M.~{Velander}, 2013: {\em
+  {CFHTLenS: combined probe cosmological model comparison using 2D weak
+  gravitational lensing}\/}. \mnras, {\bf 430}, 2200--2220.
+
+\bibitem[{Kneib} et~al.(1996){Kneib}, {Ellis}, {Smail}, {Couch}, and
+  {Sharples}]{Kneib+1996}
+{Kneib}, J.-P., R.~S. {Ellis}, I.~{Smail}, W.~J. {Couch}, and R.~M. {Sharples},
+  1996: {\em {Hubble Space Telescope Observations of the Lensing Cluster Abell
+  2218}\/}. \apj, {\bf 471}, 643.
+
+\bibitem[{Komatsu} et~al.(2011){Komatsu}, {Smith}, {Dunkley}, {Bennett},
+  {Gold}, {Hinshaw}, {Jarosik}, {Larson}, {Nolta}, {Page}, {Spergel},
+  {Halpern}, {Hill}, {Kogut}, {Limon}, {Meyer}, {Odegard}, {Tucker}, {Weiland},
+  {Wollack}, and {Wright}]{Komatsu2011}
+{Komatsu}, E., K.~M. {Smith}, J.~{Dunkley}, C.~L. {Bennett}, B.~{Gold},
+  G.~{Hinshaw}, N.~{Jarosik}, D.~{Larson}, M.~R. {Nolta}, L.~{Page}, D.~N.
+  {Spergel}, M.~{Halpern}, R.~S. {Hill}, A.~{Kogut}, M.~{Limon}, S.~S. {Meyer},
+  N.~{Odegard}, G.~S. {Tucker}, J.~L. {Weiland}, E.~{Wollack}, and E.~L.
+  {Wright}, 2011: {\em {Seven-year Wilkinson Microwave Anisotropy Probe (WMAP)
+  Observations: Cosmological Interpretation}\/}. \apjs, {\bf 192}, 18.
+
+\bibitem[{Kratochvil} et~al.(2010){Kratochvil}, {Haiman}, and {May}]{KHM09}
+{Kratochvil}, J.~M., Z.~{Haiman}, and M.~{May}, 2010: {\em {Probing cosmology
+  with weak lensing peak counts}\/}. \prd, {\bf 81(4)}, 043519.
+
+\bibitem[{Kratochvil} et~al.(2011){Kratochvil}, {Lim}, {Wang}, {Haiman}, {May},
+  and {Huffenberger}]{Minkowski}
+{Kratochvil}, J.~M., E.~A. {Lim}, S.~{Wang}, Z.~{Haiman}, M.~{May}, and
+  K.~{Huffenberger}, 2011: {\em {Probing Cosmology with Weak Lensing Minkowski
+  Functionals}\/}. \prd, submitted, e-print arXiv:1109.6334.
+
+\bibitem[{Lewis} et~al.(2000){Lewis}, {Challinor}, and {Lasenby}]{CAMB}
+{Lewis}, A., A.~{Challinor}, and A.~{Lasenby}, 2000: {\em {Efficient
+  Computation of Cosmic Microwave Background Anisotropies in Closed
+  Friedmann-Robertson-Walker Models}\/}. \apj, {\bf 538}, 473--476.
+
+\bibitem[{Munshi} et~al.(2008){Munshi}, {Valageas}, {van Waerbeke}, and
+  {Heavens}]{Munshireview}
+{Munshi}, D., P.~{Valageas}, L.~{van Waerbeke}, and A.~{Heavens}, 2008: {\em
+  {Cosmology with weak lensing surveys}\/}. \physrep, {\bf 462}, 67--121.
+
+\bibitem[{Petri} et~al.(2013){Petri}, {Haiman}, {Hui}, {May}, and
+  {Kratochvil}]{MF-Andrea}
+{Petri}, A., Z.~{Haiman}, L.~{Hui}, M.~{May}, and J.~M. {Kratochvil}, 2013:
+  {\em {Cosmology with Minkowski functionals and moments of the weak lensing
+  convergence field}\/}. \prd, {\bf 88(12)}, 123002.
+
+\bibitem[{Sato} et~al.(2009){Sato}, {Hamana}, {Takahashi}, {Takada}, {Yoshida},
+  {Matsubara}, and {Sugiyama}]{Sato09}
+{Sato}, M., T.~{Hamana}, R.~{Takahashi}, M.~{Takada}, N.~{Yoshida},
+  T.~{Matsubara}, and N.~{Sugiyama}, 2009: {\em {Simulations of Wide-Field Weak
+  Lensing Surveys. I. Basic Statistics and Non-Gaussian Effects}\/}. \apj, {\bf
+  701}, 945--954.
+
+\bibitem[{Springel}(2005)]{VS05}
+{Springel}, V., 2005: {\em {The cosmological simulation code GADGET-2}\/}.
+  \mnras, {\bf 364}, 1105--1134.
+
+\bibitem[{Turner} et~al.(2003){Turner}, {Adelberger}, {Bienenstock},
+  {Blandford}, {Faber}, and {\it et al}]{Tetal03}
+{Turner}, M.~S., E.~{Adelberger}, A.~I. {Bienenstock}, R.~D. {Blandford}, S.~M.
+  {Faber}, and {\it et al}, 2003: {\em {Connecting Quarks with the Cosmos}\/}.
+  NRC Committee on the Physics of the Universe, The National Academies Press.
+
+\bibitem[{Yang} et~al.(2011){Yang}, {Kratochvil}, {Wang}, {Lim}, {Haiman}, and
+  {May}]{Xiuyuan}
+{Yang}, X., J.~M. {Kratochvil}, S.~{Wang}, E.~A. {Lim}, Z.~{Haiman}, and
+  M.~{May}, 2011: {\em {Cosmological Information in Weak Lensing Peaks}\/}.
+  submitted~to~\prd.
+
+\end{thebibliography}
