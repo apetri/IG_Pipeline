@@ -262,7 +262,7 @@ left panel) producing stronger shear.
     foreground structures.  Each map represents a $3.5\times3.5$
     degree patch of the sky.  Noise has been added due to the random
     intrinsic shapes and orientations of the background galaxies, and
-    the maps have been smoothed with a 1-arcminute Gaussian filter.
+    the maps have been smofothed with a 1-arcminute Gaussian filter.
     The left panel, showing a map for dark energy with more negative
     pressure ($w=-1$), exhibits visibly more structure at high shear
     (in yellow and red) than the right panel (less negative pressure,
@@ -513,20 +513,42 @@ publication \citep{KHM09}.  We create pseudo-independent $\approx
 cosmology, by mixing simulations with different random ICs, and by
 randomly rotating and shifting the simulation data cubes.
 
-\subsection{Noise and smoothing}
+\subsection{Noise, smoothing, and mass reconstruction}
 
+%JL real (not analytical) noise is added.
 After the raw maps with the lensing signal are generated, we add
-ellipticity noise from the random orientations of the source galaxies
-to the maps pixel by pixel.  We assume the noise is represented by a
-Gaussian random field (with a top-hat filter of pixel size), whose
-amplitude is specific to the number density of galaxies in any
-specific survey. Once noise in each pixel is added, we smooth the maps
+ellipticity noise from the intrinsic shape and random orientations of 
+the source galaxies to the maps. We use realistic ellipticity from the 
+survey, by randomly rotate the galaxies on the spot.
+% pixel by pixel.  We assume the noise is represented by a
+%Gaussian random field (with a top-hat filter of pixel size), whose
+%amplitude is specific to the number density of galaxies in any
+%specific survey. 
+Once noise in each pixel is added, we smooth the maps
 with a finite version of a 2D Gaussian filter, on smoothing scales
 ranging from $\theta_G = 1-10$ arcmin.
+%JL add mass reconstruction below.
+To prepare for our analysis, we reconstruct the mass maps for 
+both simulated maps and CFHTLS maps using the Kaiser Squires method.
+%add citation
+%@ARTICLE{Kaiser1993,
+%   author = {{Kaiser}, N. and {Squires}, G.},
+%    title = "{Mapping the dark matter with weak gravitational lensing}",
+%  journal = {\apj},
+% keywords = {Cosmology, Dark Matter, Galactic Clusters, Gravitational Lenses, Ellipticity, Galactic Mass, Mass Distribution},
+%     year = 1993,
+%    month = feb,
+%   volume = 404,
+%    pages = {441-450},
+%      doi = {10.1086/172297},
+%   adsurl = {http://adsabs.harvard.edu/abs/1993ApJ...404..441K},
+%  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+%}
 
 \subsection{Analysis}
 
-Once the convergence and shear maps are created, they are ready for
+Once the %JL - convergence and shear
+mass maps are created, they are ready for
 analysis. Our final goal is to compare nonlinear statistics measured
 on these maps from various cosmologies with each other and with the
 values measured in the CFHTLS survey.  Following our earlier work, the
