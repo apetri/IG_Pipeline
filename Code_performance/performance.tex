@@ -127,8 +127,7 @@ the Zeldovich approximation, in a format directly compatible with
 Gadget-2.  The code is MPI-parallel and suitable for creating very
 large initial conditions.  This step has to be done once for each of
 the $N_{\rm sim}$ independent N-body simulations. It again represents
-a negligible computational expense, even for N-body boxes as large as
-$1,024^3$ particles (Lines~(2) $\&$ (3) in Table~1).
+a negligible computational expense (Line~(2) in Table~1).
 
 \subsubsection{N-body simulations}
 
@@ -147,13 +146,10 @@ We have benchmarked Gadget-2 on XSEDE Stampede, through Andrea Petri's
 participation in an unrelated allocation.
 %The results are simply stated: the Gadget runs consume nearly all of
 %the requested computing time
-As shown in Line~(4) in Table~1, our standard 512$^3$ particle runs
+As shown in Line~(3) in Table~1, our standard 512$^3$ particle runs
 require 780 SUs, using 256 processors.  As already described in the
 original code release paper \cite{VS05}, Gadget scales well for up to
-1024$^3$ particles, but this test is outdated, and shows runs only up
-to 124 processors.  We have verified on Stampede that the scaling
-remains essentially perfect with 512$^3$ particles up to 512
-processors.
+1024$^3$ particles.
 
 For the N-body simulation sizes we run, either 256 or 512 processors
 with 512MB of memory per core or more would work well. Because we want
@@ -175,20 +171,19 @@ file system on Stampede is a factor of several faster.
 
 
 
-\begin{table}[t!] \label{tab:benchmarks}
+\begin{table}[t!] 
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 \textbf{Step/Code} & \textbf{Description of Test} & \pbox{20cm}{\textbf{Runtime,}\\ \textbf{\# of cores}} & \textbf{Cost} & \textbf{Scaled Time} \\ \hline \hline \hline\hline
 \pbox{20cm}{(1) Matter power \\ spectrum (CAMB)} & \pbox{20cm}{16 power spectra \\ in parallel} & \pbox{20cm}{1h 16m 51s\\16 cores} & 17.8 SU & 1.11 SU $\times N_{\mathrm{cosmo}}$ \\ \hline 
 \pbox{20cm}{(2) Initial conditions\\ generation (N-GenIC)\\} & \pbox{20cm}{1 initial condition \\ ($512^3$ particles,\\ $240 h^{-1}$ Mpc)} & \pbox{20cm}{27s\\256 cores} & 1.92 SU & 1.92 SU $\times N_{\mathrm{sim,512}}$ \\ \hline
-\pbox{20cm}{(3) Initial conditions\\ generation (N-GenIC)\\} & \pbox{20cm}{1 initial condition \\ ($1024^3$ particles,\\ $480 h^{-1}$ Mpc)} & \pbox{20cm}{47s\\512 cores} & 6.68 SU & 6.68 SU $\times N_{\mathrm{sim,1024}}$ \\ \hline
-\pbox{20cm}{(4) $N$-body sim\\ (Gadget-2)} & \pbox{20cm}{1 simulation \\ ($512^3$ particles)} & \pbox{20cm}{3h 3m 16s\\256 cores} & 781.9 SU & 781.9 SU $\times N_{\mathrm{sim}}$ \\ \hline \hline \hline \hline
-\pbox{20cm}{(5) Lens plane\\ generation} & \pbox{20cm}{9 planes per snapshot\\ (58 snapshots, 1 sim)} & \pbox{20cm}{7m 15s\\60 cores} & 7.7 SU & 0.12 SU$\times N_{\mathrm{snapshots}}$ \\ \hline
-\pbox{20cm}{(6) Lens plane\\ generation} & \pbox{20cm}{9 planes per snapshot\\ (58 snapshots, 4 sim)} & \pbox{20cm}{6m 59s\\240 cores} & 27.9 SU & \pbox{20cm}{0.12 SU$\times N_{\mathrm{snapshots}}$ \\ $\times N_{\mathrm{sim}}$} \\ \hline \hline
-\pbox{20cm}{(7) Ray-tracing \\ CFHT catalogs} & \pbox{20cm}{2 subfields $\times$ 32 realiz. \\ (from 1 simulation only)} & \pbox{20cm}{9m 36s\\64 cores} & 10.24 SU & \pbox{20cm}{0.16 SU $\times N_{\mathrm{subfields}}$\\ $\times N_{\mathrm{map}}\times N_{\mathrm{cosmo}}$} \\ \hline
-\pbox{20cm}{(8) Ray-tracing \\ CFHT catalogs} & \pbox{20cm}{2 subfields $\times$ 256 realiz. \\ (mixing 5 simulations)} & \pbox{20cm}{10m 45s\\512 cores} & 91.73 SU & \pbox{20cm}{0.18 SU $\times N_{\mathrm{subfields}}$\\ $\times N_{\mathrm{map}}\times N_{\mathrm{cosmo}}$} \\ \hline \hline \hline \hline
-\pbox{20cm}{(9) Analysis \\ 2D Maps} & \pbox{20cm}{Measuring Power spectrum, \\ peak counts, moments \\ and Minkowski functionals for 10\\ 2048$\times$2048 pixel maps} & \pbox{20cm}{2m 6s\\1 core} & 0.01 SU & \pbox{20cm}{0.0035 SU $\times N_{\mathrm{maps}}$} \\ \hline
+\pbox{20cm}{(3) $N$-body sim\\ (Gadget-2)} & \pbox{20cm}{1 simulation \\ ($512^3$ particles)} & \pbox{20cm}{3h 3m 16s\\256 cores} & 781.9 SU & 781.9 SU $\times N_{\mathrm{sim}}$ \\ \hline \hline \hline \hline
+\pbox{20cm}{(4) Lens plane\\ generation} & \pbox{20cm}{9 planes per snapshot\\ (58 snapshots, 1 sim)} & \pbox{20cm}{7m 15s\\60 cores} & 7.7 SU & 0.12 SU$\times N_{\mathrm{snapshots}}$ \\ \hline
+\pbox{20cm}{(5) Lens plane\\ generation} & \pbox{20cm}{9 planes per snapshot\\ (58 snapshots, 4 sim)} & \pbox{20cm}{6m 59s\\240 cores} & 27.9 SU & \pbox{20cm}{0.12 SU$\times N_{\mathrm{snapshots}}$ \\ $\times N_{\mathrm{sim}}$} \\ \hline \hline
+\pbox{20cm}{(6) Ray-tracing \\ CFHT catalogs} & \pbox{20cm}{2 subfields $\times$ 32 realiz. \\ (from 1 simulation only)} & \pbox{20cm}{9m 36s\\64 cores} & 10.24 SU & \pbox{20cm}{0.16 SU $\times N_{\mathrm{subfields}}$\\ $\times N_{\mathrm{map}}\times N_{\mathrm{cosmo}}$} \\ \hline
+\pbox{20cm}{(7) Ray-tracing \\ CFHT catalogs} & \pbox{20cm}{2 subfields $\times$ 256 realiz. \\ (mixing 5 simulations)} & \pbox{20cm}{10m 45s\\512 cores} & 91.73 SU & \pbox{20cm}{0.18 SU $\times N_{\mathrm{subfields}}$\\ $\times N_{\mathrm{map}}\times N_{\mathrm{cosmo}}$} \\ \hline \hline \hline \hline
+\pbox{20cm}{(8) Analysis \\ (2D shear maps)} & \pbox{20cm}{Measuring Power spectrum, \\ peak counts, moments \\ and Minkowski functionals for 10\\ 2048$\times$2048 pixel maps} & \pbox{20cm}{2m 6s\\2 core\\ (on local machine \\with 2.9GHz\\ core speed)} & 0.01 SU & \pbox{20cm}{0.0035 SU $\times N_{\mathrm{maps}}$} \\ \hline
 %\pbox{20cm}{9) WL Method 2\\ ($\kappa,\gamma$ maps)} & \pbox{20cm}{32 realizations $(\kappa,\gamma)$ \\ (1 simulation only)} & \pbox{20cm}{16m 50s\\64 cores} & 17.9 SU & \pbox{20cm}{0.55 SU $\times N_{\mathrm{map}}$\\ $\times N_{\mathrm{cosmo}}$} \\ \hline
 \end{tabular}
 \end{center}
@@ -206,6 +201,7 @@ file system on Stampede is a factor of several faster.
     snapshots, \# of cosmological models, or the \# of $3.5\times3.5$
     subfields), which do not communicate with each other, so scaling
     between them is trivial.}}
+\label{tab:benchmarks}
 \end{table}
 
 
@@ -221,9 +217,9 @@ tracing.
 
 The time for generation of lens planes is very small compared to the
 time required for the underlying N-body simulations, as illustrated by
-Lines (5) and (6) in Table~1. In test (5), we created nine different
+Lines (4) and (5) in Table~1. In test (4), we created nine different
 lens planes (using random rotations and shifts) at each of the 58
-redshift outpouts of a single N-body simulation. Test (6) repeats
+redshift outpouts of a single N-body simulation. Test (5) repeats
 this, except for simultaneously processing four N-body
 simulations. This shows the linear scaling with the number of
 simulations, demonstrating that we can process at least four N-body
@@ -242,17 +238,29 @@ redshifts between redshift $0.2 < z < 1.3$.  We have benchmarked the
 step of creating lensing maps from the lens planes, by performing
 ray-tracing in the directions towards the $\approx$ 1 million galaxies
 located in the first two of our 13 subfields covering the CFHT sky
-area (see Figure 3 in the Main Document).  In line~(7) of Table~1, we
+area (see Figure 3 in the Main Document).  In line~(6) of Table~1, we
 have created 32 realizations of the shear maps in these two subfields,
 in our fiducial cosmology, using 64 processors on Stampede.  In
-line~(8), we have increased the number of processors to 512, and
+line~(7), we have increased the number of processors to 512, and
 created 8 times as many (256) realizations.  To further randomize
 these realizations, we have mixed the lens planes from five
 independent N-body runs.  As this test shows, the scaling of the
 ray-tracing step is also nearly perfect, with 8 times as many
-realizations requiring a factor of 8.96 longer runtime; the small
+realizations requiring a factor of 8.96 bigger SU cost; the small
 difference is attributable to the overhead involved in the mixing of
 planes from five different simulations.
+
+\subsubsection{Product maps post processing}
+
+Finally we need to perform the actual science analysis on the simulated 
+shear maps: this consists in roughly two steps, namely the pixelization
+of the galaxy catalogs via KS inversion and the measurement of the lensing 
+probes (Power Spectrum, Peak counts, Moments and Minkowski Functionals)
+from each map. Running these tests on a local machine, we have estimated 
+the cost of this post processing (line 8 in Table \ref{tab:benchmarks}) 
+to be roughly 0.0035 SU/map. This is a factor of 50 smaller than the cost
+of the actual ray tracing and hence negligible in the overall SU count
+
 \section{Storage Requirements}
 
 Storing the results (particle positions at each output) of a single
