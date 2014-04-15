@@ -12,4 +12,4 @@ CFITSIO_INCL = -I/bgsys/home1/slatest_a-g/cfitsio-fenq-gnucompiler/cfitsio/inclu
 CFITSIOLIB = -L/bgsys/home1/slatest_a-g/cfitsio-fenq-gnucompiler/cfitsio/lib -lcfitsio
 MPICHLIB = 
 OMPFLAG = -DHAVE_OpenMP -fopenmp
-CFLAGS = -O3 $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL) -lm 
+CFLAGS = -O3 -Wall $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL) -lm 

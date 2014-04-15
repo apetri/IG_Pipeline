@@ -18,4 +18,4 @@ FFTW3LIB = -L/bgsys/apps/fftw-3.1.2/fftw-3.1.2/.libs -lfftw3   # FFTW3 for NYBlu
 CFITSIO_INCL =  -I/gpfs/home1/slatest_a-g/cfitsio-P/include # can optionally use this on Blue Gene/P, but works without too (with Greycap Binary Format)
 CFITSIOLIB =  -L/gpfs/home1/slatest_a-g/cfitsio-P/lib -lcfitsio
 MPICHLIB = 
-CFLAGS = -O3 -I. $(FFTW3_INCL) $(CFITSIO_INCL) # -qsmp=auto -qarch=450 -qtune=450
+CFLAGS = -O3 -Wall -I. $(FFTW3_INCL) $(CFITSIO_INCL) # -qsmp=auto -qarch=450 -qtune=450
