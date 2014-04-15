@@ -1,0 +1,24 @@
+##################
+# Chose one of the two (comment out the other):
+MODE = "PREFAB_GROWTH"
+# MODE = 
+# Select empty string if want to compile N-GenIC together with Lam Hui's FORTRAN 77 growth factor code, otherwise it is assumed you will be feeding N-GenIC if parameter files which contain values for GrowthFactor and VelocityPrefactor explicitly.
+##################
+
+#######################################
+#######Compilers and libraries#########
+#######################################
+
+EXEC   = N-GenIC
+
+CC       = /bgsys/drivers/ppcfloor/comm/gcc/bin/mpicc  
+OPTIMIZE =  -O3 -I.
+GSL_INCL =
+GSL_LIBS =
+FFTW_INCL= -I/bgsys/home1/slatest_a-g/fftw215dp-fenq-gnucompiler-final/include
+FFTW_LIBS= -L/bgsys/home1/slatest_a-g/fftw215dp-fenq-gnucompiler-final/lib
+MPICHLIB =
+# These below only needed if compiling with Lam Hui's growth factor code:
+#FC       =  /bgsys/drivers/ppcfloor/comm/xl/bin/mpixlf77_r # mpif77  # mpixlf77 #  f77
+#FFLAGS   =  -O2
+#FLIB     =  -lg2c # This requires gnu compiler, while the above is with IBM compiler - maybe this version actally doesn't need Fortran code for compilation, because Dplus derivative has been outsourced.

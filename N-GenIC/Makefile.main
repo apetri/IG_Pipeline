@@ -1,0 +1,57 @@
+##################
+# Makefile for public version of N-GenIC by Volker Springel,
+# modified by Jan Michael Kratochvil for his modified version of N-GenIC as part of the Inspector Gadget lensing simulation pipeline.
+##################
+
+##################
+# Local extract from GNU Scientific Library (GSL) to be used directly in the code:
+# (Note that if you change GSL_DIR here, you will need to adjust it in the #include statements in the main code as well, but not in the GSL files, which are all locally referenced from this folder.)
+GSL_DIR = gsl_extract
+
+GSL_OBJS = $(GSL_DIR)/rng/rng.o $(GSL_DIR)/err/error.o $(GSL_DIR)/err/stream.o $(GSL_DIR)/rng/ranlxd.o $(GSL_DIR)/integration/qag.o $(GSL_DIR)/integration/qk.o $(GSL_DIR)/integration/qk15.o $(GSL_DIR)/integration/qk21.o $(GSL_DIR)/integration/qk31.o $(GSL_DIR)/integration/qk41.o $(GSL_DIR)/integration/qk51.o $(GSL_DIR)/integration/qk61.o $(GSL_DIR)/integration/workspace.o $(GSL_DIR)/sys/coerce.o $(GSL_DIR)/rng/mt.o
+
+GSL_H = $(GSL_DIR)/err/gsl_errno.h $(GSL_DIR)/gsl_inline.h $(GSL_DIR)/rng/gsl_rng.h $(GSL_DIR)/gsl_types.h $(GSL_DIR)/integration/gsl_integration.h $(GSL_DIR)/gsl_math.h $(GSL_DIR)/gsl_minmax.h $(GSL_DIR)/integration/initialise.c $(GSL_DIR)/integration/set_initial.c $(GSL_DIR)/integration/util.c $(GSL_DIR)/config.h
+##################
+
+##################
+ifeq ($(MODE), "PREFAB_GROWTH")
+OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o $(GSL_OBJS)
+
+INCL   = allvars.h proto.h $(GSL_H) Makefile_yeti
+FFILES =
+else
+OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o \
+         interface.o darkenergy.o darkenergy_support.o $(GSL_OBJS)
+
+INCL   = allvars.h proto.h darkenergy.h darkenergy_support.h \
+         $(GSL_H) parameters.inc Makefile
+
+FFILES = f77main.o angdiamQp.o dverk.o growthq.o universal.o
+endif
+##################
+
+
+#OPT	+=  -DPRODUCEGAS   # Set this to automatically produce gas particles 
+                         # for a single DM species in the input file by interleaved by a half a grid spacing
+
+OPT	+=  -DNO64BITID    # switch this on if you want normal 32-bit IDs
+#OPT	+=  -DCORRECT_CIC  # only switch this on if particles are homogenously distributed over mesh cells (say glass)
+
+
+OPTIONS =  $(OPT)
+
+FFTW_LIB =  $(FFTW_LIBS) -ldrfftw_mpi -ldfftw_mpi -ldrfftw -ldfftw
+
+LIBS   =  $(MPICHLIB)  $(FFTW_LIB)  $(GSL_LIBS) $(FLIB) -lm
+
+CFLAGS =   $(OPTIONS)  $(OPTIMIZE)  $(FFTW_INCL) $(GSL_INCL)
+
+$(EXEC): $(OBJS) $(FFILES)
+	$(CC) $(OPTIMIZE) $(FFILES) $(OBJS) $(LIBS)   -o  $(EXEC)  
+
+$(OBJS): $(INCL) 
+
+
+.PHONY : clean
+clean:
+	rm -f $(OBJS) $(EXEC)
