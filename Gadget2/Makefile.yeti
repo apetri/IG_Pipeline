@@ -1,0 +1,105 @@
+#----------------------------------------------------------------------
+# Here, select compile environment for the target machine. This may need 
+# adjustment, depending on your local system. Follow the examples to add
+# additional target platforms, and to get things properly compiled.
+#----------------------------------------------------------------------
+
+EXEC   = Gadget2
+HAVE_OMP = no
+
+CC = mpicc
+OPTIMIZE = -O3
+GSL_INCL = 
+GSL_LIBS =
+FFTW_INCL = -I/u/4/a/ap3020/misc/fftw-2.1.5/include
+FFTW_LIBS = -L/u/4/a/ap3020/misc/fftw-2.1.5/lib
+MPICHLIB = 
+HDF5INCL = 
+HDF5LIB = 
+
+#----------------------------------------------------------------------
+# From the list below, please activate/deactivate the options that     
+# apply to your run. If you modify any of these options, make sure     
+# that you recompile the whole code by typing "make clean; make".      
+#                                                                      
+# Look at end of file for a brief guide to the compile-time options.   
+#----------------------------------------------------------------------
+
+
+#--------------------------------------- Basic operation mode of code
+OPT   +=  -DPERIODIC 
+#OPT   +=  -DUNEQUALSOFTENINGS
+
+
+#--------------------------------------- Things that are always recommended
+OPT   +=  -DPEANOHILBERT
+OPT   +=  -DWALLCLOCK   
+
+
+#--------------------------------------- TreePM Options
+#OPT   +=  -DPMGRID=4096
+#OPT   +=  -DPMGRID=3072
+#OPT   +=  -DPMGRID=1800  # Optimal for Blue Gene/Q with OpenMP for a 1024^3-particle simulation (?)
+#OPT   +=  -DPMGRID=2048
+#OPT   +=  -DPMGRID=1700
+#OPT   +=  -DPMGRID=1600
+#OPT   +=  -DPMGRID=1500
+#OPT   +=  -DPMGRID=1400
+#OPT   +=  -DPMGRID=1024
+#OPT   +=  -DPMGRID=896
+#OPT   +=  -DPMGRID=830
+OPT   +=  -DPMGRID=700  # Standard for Blue Gene/P and /L (?)
+#OPT   +=  -DPMGRID=700
+#OPT   +=  -DPMGRID=512
+#OPT   +=  -DPMGRID=300
+#OPT   +=  -DPMGRID=256
+#OPT   +=  -DPMGRID=128
+#OPT   +=  -DPMGRID=32
+#OPT   +=  -DPLACEHIGHRESREGION=3
+#OPT   +=  -DENLARGEREGION=1.2
+#OPT   +=  -DASMTH=1.25
+#OPT   +=  -DRCUT=4.5
+
+
+#--------------------------------------- Single/Double Precision
+OPT   +=  -DDOUBLEPRECISION      
+OPT   +=  -DDOUBLEPRECISION_FFTW      
+
+
+#--------------------------------------- Time integration options
+OPT   +=  -DSYNCHRONIZATION
+#OPT   +=  -DFLEXSTEPS
+#OPT   +=  -DPSEUDOSYMMETRIC
+#OPT   +=  -DNOSTOP_WHEN_BELOW_MINTIMESTEP
+#OPT   +=  -DNOPMSTEPADJUSTMENT
+
+
+#--------------------------------------- Output options
+#OPT   +=  -DHAVE_HDF5  
+#OPT   +=  -DOUTPUTPOTENTIAL
+#OPT   +=  -DOUTPUTACCELERATION
+#OPT   +=  -DOUTPUTCHANGEOFENTROPY
+#OPT   +=  -DOUTPUTTIMESTEP
+
+
+#--------------------------------------- Things for special behaviour
+#OPT   +=  -DNOGRAVITY     
+#OPT   +=  -DNOTREERND 
+#OPT   +=  -DNOTYPEPREFIX_FFTW        
+#OPT   +=  -DLONG_X=60
+#OPT   +=  -DLONG_Y=5
+#OPT   +=  -DLONG_Z=0.2
+#OPT   +=  -DTWODIMS
+#OPT   +=  -DSPH_BND_PARTICLES
+#OPT   +=  -DNOVISCOSITYLIMITER
+#OPT   +=  -DCOMPUTE_POTENTIAL_ENERGY
+#OPT   +=  -DLONGIDS
+#OPT   +=  -DISOTHERMAL
+#OPT   +=  -DSELECTIVE_NO_GRAVITY=2+4+8+16
+
+#--------------------------------------- Testing and Debugging options
+#OPT   +=  -DFORCETEST=0.1
+
+
+#--------------------------------------- Glass making
+#OPT   +=  -DMAKEGLASS=262144

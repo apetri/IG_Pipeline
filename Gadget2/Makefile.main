@@ -1,315 +1,3 @@
-
-#----------------------------------------------------------------------
-# From the list below, please activate/deactivate the options that     
-# apply to your run. If you modify any of these options, make sure     
-# that you recompile the whole code by typing "make clean; make".      
-#                                                                      
-# Look at end of file for a brief guide to the compile-time options.   
-#----------------------------------------------------------------------
-
-
-#--------------------------------------- Basic operation mode of code
-OPT   +=  -DPERIODIC 
-#OPT   +=  -DUNEQUALSOFTENINGS
-
-
-#--------------------------------------- Things that are always recommended
-OPT   +=  -DPEANOHILBERT
-OPT   +=  -DWALLCLOCK   
-
-
-#--------------------------------------- TreePM Options
-#OPT   +=  -DPMGRID=4096
-#OPT   +=  -DPMGRID=3072
-#OPT   +=  -DPMGRID=1800  # Optimal for Blue Gene/Q with OpenMP for a 1024^3-particle simulation (?)
-#OPT   +=  -DPMGRID=2048
-#OPT   +=  -DPMGRID=1700
-#OPT   +=  -DPMGRID=1600
-#OPT   +=  -DPMGRID=1500
-#OPT   +=  -DPMGRID=1400
-#OPT   +=  -DPMGRID=1024
-#OPT   +=  -DPMGRID=896
-#OPT   +=  -DPMGRID=830
-OPT   +=  -DPMGRID=700  # Standard for Blue Gene/P and /L (?)
-#OPT   +=  -DPMGRID=700
-#OPT   +=  -DPMGRID=512
-#OPT   +=  -DPMGRID=300
-#OPT   +=  -DPMGRID=256
-#OPT   +=  -DPMGRID=128
-#OPT   +=  -DPMGRID=32
-#OPT   +=  -DPLACEHIGHRESREGION=3
-#OPT   +=  -DENLARGEREGION=1.2
-#OPT   +=  -DASMTH=1.25
-#OPT   +=  -DRCUT=4.5
-
-
-#--------------------------------------- Single/Double Precision
-OPT   +=  -DDOUBLEPRECISION      
-OPT   +=  -DDOUBLEPRECISION_FFTW      
-
-
-#--------------------------------------- Time integration options
-OPT   +=  -DSYNCHRONIZATION
-#OPT   +=  -DFLEXSTEPS
-#OPT   +=  -DPSEUDOSYMMETRIC
-#OPT   +=  -DNOSTOP_WHEN_BELOW_MINTIMESTEP
-#OPT   +=  -DNOPMSTEPADJUSTMENT
-
-
-#--------------------------------------- Output options
-#OPT   +=  -DHAVE_HDF5  
-#OPT   +=  -DOUTPUTPOTENTIAL
-#OPT   +=  -DOUTPUTACCELERATION
-#OPT   +=  -DOUTPUTCHANGEOFENTROPY
-#OPT   +=  -DOUTPUTTIMESTEP
-
-
-#--------------------------------------- Things for special behaviour
-#OPT   +=  -DNOGRAVITY     
-#OPT   +=  -DNOTREERND 
-#OPT   +=  -DNOTYPEPREFIX_FFTW        
-#OPT   +=  -DLONG_X=60
-#OPT   +=  -DLONG_Y=5
-#OPT   +=  -DLONG_Z=0.2
-#OPT   +=  -DTWODIMS
-#OPT   +=  -DSPH_BND_PARTICLES
-#OPT   +=  -DNOVISCOSITYLIMITER
-#OPT   +=  -DCOMPUTE_POTENTIAL_ENERGY
-#OPT   +=  -DLONGIDS
-#OPT   +=  -DISOTHERMAL
-#OPT   +=  -DSELECTIVE_NO_GRAVITY=2+4+8+16
-
-#--------------------------------------- Testing and Debugging options
-#OPT   +=  -DFORCETEST=0.1
-
-
-#--------------------------------------- Glass making
-#OPT   +=  -DMAKEGLASS=262144
-
-
-#----------------------------------------------------------------------
-# Here, select compile environment for the target machine. This may need 
-# adjustment, depending on your local system. Follow the examples to add
-# additional target platforms, and to get things properly compiled.
-#----------------------------------------------------------------------
-
-#--------------------------------------- Select some defaults
-
-CC       =  mpicc               # sets the C-compiler
-OPTIMIZE =  -O2 -Wall -g        # sets optimization and warning flags
-MPICHLIB =  -lmpich
-
-
-#--------------------------------------- Select target computer
-
-#SYSTYPE="Blue_Gene_L"
-#SYSTYPE="Blue_Gene_P"
-#SYSTYPE="Blue_Gene_Q"
-#SYSTYPE="LSST-Cluster"
-#SYSTYPE="Mac_OS_X"
-
-#SYSTYPE="MPA"
-#SYSTYPE="Mako"
-#SYSTYPE="Regatta"
-#SYSTYPE="RZG_LinuxCluster"
-#SYSTYPE="RZG_LinuxCluster-gcc"
-#SYSTYPE="Opteron"
-#SYSTYPE="Yeti"
-SYSTYPE="Stampede"
-
-#--------------------------------------- Adjust settings for target computer
-ifeq ($(SYSTYPE),"Yeti")
-CC = mpicc
-OPTIMIZE = -O3
-GSL_INCL = 
-GSL_LIBS =
-FFTW_INCL = -I/u/4/a/ap3020/misc/fftw-2.1.5/include
-FFTW_LIBS = -L/u/4/a/ap3020/misc/fftw-2.1.5/lib
-MPICHLIB = 
-HDF5INCL = 
-HDF5LIB = 
-endif
-
-ifeq ($(SYSTYPE),"Stampede")
-CC = mpicc
-OPTIMIZE = -O3
-GSL_INCL = 
-GSL_LIBS = 
-FFTW_INCL = -I${TACC_FFTW2_INC}
-FFTW_LIBS = -L${TACC_FFTW2_LIB}
-MPICHLIB =
-HDF5INCL = 
-HDF5LIB = 
-endif 
-
-
-ifeq ($(SYSTYPE),"Blue_Gene_L")  # (for nonGSL version):
-#CC       =  /afs/rhic.bnl.gov/@sys/opt/lsst/tool/MPICH-1.2.7/bin/mpicc
-CC       =  mpixlc
-OPTIMIZE =  -O3 # -Wall
-GSL_INCL = # -I/gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12 -I/gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12/cblas
-GSL_LIBS = # -L/gpfs/home2/jank/lib_gsl -Wl,"-R /gpfs/home2/jank/lib_gsl"
-FFTW_INCL= -I/bgl/apps/fftw-2.1.5/include
-FFTW_LIBS= -L/bgl/apps/fftw-2.1.5/lib
-MPICHLIB = # -L/direct/lsst+u/jank/MPI/MPICH2-1.0.4/lib
-HDF5INCL =
-HDF5LIB  =  -lhdf5 -lz
-endif
-
-
-ifeq ($(SYSTYPE),"Blue_Gene_P")  # Here with GSL (but could be removed in noGSL version)::
-#CC       =  /afs/rhic.bnl.gov/@sys/opt/lsst/tool/MPICH-1.2.7/bin/mpicc
-CC       =  mpixlc_r
-OPTIMIZE =  -O3 -qsmp=omp # -Wall
-GSL_INCL =  # -I/bgsys/apps/gsl-1.12/include  # -I/gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12 -I/gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12/cblas
-GSL_LIBS = # -L/bgsys/apps/gsl-1.12/lib -Wl,"-R /bgsys/apps/gsl-1.12/lib" # -L/gpfs/home2/jank/lib_gsl -Wl,"-R /gpfs/home2/jank/lib_gsl"
-#GSL_LIBS =  -L/gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12/.libs -L/gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12/blas/.libs  # -Wl,"-R /gpfs/home1/slatest/gsl-forcnodes-germanyhelp-P/gsl-1.12/.lib"
-#FFTW_INCL= -I/direct/lsst+u/jank/mylibs/mylocal/include
-#FFTW_LIBS= -L/direct/lsst+u/jank/mylibs/mylocal/lib
-FFTW_INCL= -I/bgsys/apps/fftw-2.1.5/include # -I/gpfs/home1/slatest/fftw215-nybP/fftw-2.1.5/include
-FFTW_LIBS= -L/bgsys/apps/fftw-2.1.5/lib # -L/gpfs/home1/slatest/fftw215-nybP/fftw-2.1.5/lib
-MPICHLIB = # -L/direct/lsst+u/jank/MPI/MPICH2-1.0.4/lib            
-HDF5INCL =
-HDF5LIB  =  -lhdf5 -lz
-endif
-
-
-ifeq ($(SYSTYPE),"Blue_Gene_Q")  # (for nonGSL version):
-CC       =  /bgsys/drivers/ppcfloor/comm/gcc/bin/mpicc
-OPTIMIZE =  -O3 # -Wall
-GSL_INCL =
-GSL_LIBS = 
-FFTW_INCL= -I/bgsys/home1/slatest_a-g/fftw215dp-fenq-gnucompiler-final/include # double precision (change to fftw215sp-fenq-... for single precision)
-FFTW_LIBS= -L/bgsys/home1/slatest_a-g/fftw215dp-fenq-gnucompiler-final/lib
-MPICHLIB = 
-HDF5INCL =
-HDF5LIB  =  -lhdf5 -lz
-endif
-
-
-ifeq ($(SYSTYPE),"LSST-Cluster")
-#CC       =  /afs/rhic.bnl.gov/@sys/opt/lsst/tool/MPICH-1.2.7/bin/mpicc
-CC	 =  /direct/lsst+u/jank/MPI/MPICH2-1.0.4/bin/mpicc 
-OPTIMIZE =  -O3 -Wall
-GSL_INCL =  # -I/direct/lsst+u/jank/mylibs/mylocal-MPICH2/include
-GSL_LIBS =  # -L/direct/lsst+u/jank/mylibs/mylocal-MPICH2/lib  -Wl,"-R /direct/lsst+u/ja\
-nk/mylibs/mylocal-MPICH2/lib"
-#FFTW_INCL= -I/direct/lsst+u/jank/mylibs/mylocal/include
-#FFTW_LIBS= -L/direct/lsst+u/jank/mylibs/mylocal/lib
-FFTW_INCL= -I/direct/lsst+u/jank/mylibs/mylocal-MPICH2/include
-FFTW_LIBS= -L/direct/lsst+u/jank/mylibs/mylocal-MPICH2/lib
-MPICHLIB = -L/direct/lsst+u/jank/MPI/MPICH2-1.0.4/lib
-HDF5INCL =
-HDF5LIB  =  -lhdf5 -lz
-endif
-
-
-ifeq ($(SYSTYPE),"Mac_OS_X")
-# NOTE: Make sure you install a C compiler which supports OpenMP (clang on Mac OS 10.8.5 does not, but you can install gcc-4.8 from hpc), and also set the following in your .profile in your home directory:
-# DYLD_FALLBACK_LIBRARY_PATH="/Users/jank/mylibs/hpc/gcc-4.8/usr/local/lib"
-# export DYLD_FALLBACK_LIBRARY_PATH 
-# (or whatever the path of your OpenMP libgomp library is which comes with the installation of the OpenMP-supporting C compiler). The above is the syntax if you use bash as your default shell (tcsh uses a somewhat different syntax).
-CC       =  gcc-4.8   
-OPTIMIZE =  -O3 -fopenmp -Wall -I/usr/local/Cellar/open-mpi/1.7.3/include
-GSL_INCL=  -I/usr/local/include # GSL library is not needed for this version.
-GSL_LIBS =  -L/usr/local/lib # GSL library is not needed for this version.
-FFTW_INCL = -I../../fftw-2.1.5/include
-FFTW_LIBS = -L../../fftw-2.1.5/lib
-MPICHLIB =  -L/usr/local/Cellar/open-mpi/1.7.3/lib -lmpi # Explicit path to MPI installation apparently not needed if path to mpicc is given properly in the PATH variable.
-HDF5INCL =
-HDF5LIB =
-# With Fink and Mac OS 10.6:
-# GSL_INCL =  -I/sw/include
-# GSL_LIBS =  -L/sw/lib -bind_at_load # -Wl,"-R /sw/lib"
-# FFTW_INCL=  -I/sw/include
-# FFTW_LIBS=  -L/sw/lib
-# MPICHLIB =  
-# HDF5INCL =  -I/sw/include
-# HDF5LIB  =  -L/sw/lib  -lhdf5 -lz 
-endif
-
-
-ifeq ($(SYSTYPE),"MPA")
-CC       =  mpicc   
-OPTIMIZE =  -O3 -Wall
-GSL_INCL =  -I/usr/common/pdsoft/include
-GSL_LIBS =  -L/usr/common/pdsoft/lib
-FFTW_INCL= 
-FFTW_LIBS= 
-MPICHLIB =
-HDF5INCL =  -I/opt/hdf5/include
-HDF5LIB  =  -L/opt/hdf5/lib -static -lhdf5 -lz 
-endif
-
-
-ifeq ($(SYSTYPE),"Opteron")
-CC       =  mpicc   
-OPTIMIZE =  -O3 -Wall -m64
-GSL_INCL =  -L/usr/local/include
-GSL_LIBS =  -L/usr/local/lib -static
-FFTW_INCL=
-FFTW_LIBS=
-MPICHLIB =
-HDF5INCL =  -I/opt/hdf5/include
-HDF5LIB  =  -L/opt/hdf5/lib -static -lhdf5 -lz
-endif
-
-
-ifeq ($(SYSTYPE),"Mako")
-CC       =  mpicc   # sets the C-compiler
-OPTIMIZE =  -O3 -march=athlon-mp  -mfpmath=sse
-GSL_INCL = 
-GSL_LIBS = 
-FFTW_INCL= 
-FFTW_LIBS= 
-MPICHLIB =
-endif
-
-
-ifeq ($(SYSTYPE),"Regatta")
-CC       =  mpcc_r 
-OPTIMIZE =  -O5 -qstrict -qipa -q64
-GSL_INCL =  -I/afs/rzg/u/vrs/gsl_psi64/include
-GSL_LIBS =  -L/afs/rzg/u/vrs/gsl_psi64/lib                
-FFTW_INCL=  -I/afs/rzg/u/vrs/fftw_psi64/include
-FFTW_LIBS=  -L/afs/rzg/u/vrs/fftw_psi64/lib  -q64 -qipa
-MPICHLIB =
-HDF5INCL =  -I/afs/rzg/u/vrs/hdf5_psi64/include
-HDF5LIB  =  -L/afs/rzg/u/vrs/hdf5_psi64/lib  -lhdf5 -lz 
-endif
-
-
-ifeq ($(SYSTYPE),"RZG_LinuxCluster")
-CC       =  mpicci   
-OPTIMIZE =  -O3 -ip     # Note: Don't use the "-rcd" optimization of Intel's compiler! (causes code crashes)
-GSL_INCL =  -I/afs/rzg/u/vrs/gsl_linux/include
-GSL_LIBS =  -L/afs/rzg/u/vrs/gsl_linux/lib -static
-FFTW_INCL=  -I/afs/rzg/u/vrs/fftw_linux/include
-FFTW_LIBS=  -L/afs/rzg/u/vrs/fftw_linux/lib
-HDF5INCL =  -I/afs/rzg/u/vrs/hdf5_linux/include
-HDF5LIB  =  -L/afs/rzg/u/vrs/hdf5_linux/lib -static  -lhdf5 -L/afs/rzg/u/vrs/zlib_linux/lib -lz 
-endif
-
-
-ifeq ($(SYSTYPE),"RZG_LinuxCluster-gcc")
-CC       =  mpiccg
-OPTIMIZE =  -Wall -g -O3 -march=pentium4
-GSL_INCL =  -I/afs/rzg/u/vrs/gsl_linux_gcc3.2/include
-GSL_LIBS =  -L/afs/rzg/u/vrs/gsl_linux_gcc3.2/lib
-FFTW_INCL=  -I/afs/rzg/u/vrs/fftw_linux_gcc3.2/include
-FFTW_LIBS=  -L/afs/rzg/u/vrs/fftw_linux_gcc3.2/lib  
-HDF5INCL =  -I/afs/rzg/u/vrs/hdf5_linux/include
-HDF5LIB  =  -L/afs/rzg/u/vrs/hdf5_linux/lib -static  -lhdf5 -L/afs/rzg/u/vrs/zlib_linux/lib -lz 
-endif
-
-
-ifneq (HAVE_HDF5,$(findstring HAVE_HDF5,$(OPT))) 
-HDF5INCL =
-HDF5LIB  =
-endif
-
-
-
 ##################
 # Local extract from GNU Scientific Library (GSL) to be used directly in the code:
 # (Note that if you change GSL_DIR here, you will need to adjust it in the #include statements in the main code as well, but not in the GSL files, which are all locally referenced from this folder.)
@@ -320,11 +8,21 @@ GSL_OBJS = $(GSL_DIR)/rng/rng.o $(GSL_DIR)/err/error.o $(GSL_DIR)/err/stream.o $
 GSL_H = $(GSL_DIR)/err/gsl_errno.h $(GSL_DIR)/gsl_inline.h $(GSL_DIR)/rng/gsl_rng.h $(GSL_DIR)/gsl_types.h $(GSL_DIR)/integration/gsl_integration.h $(GSL_DIR)/gsl_math.h $(GSL_DIR)/gsl_minmax.h $(GSL_DIR)/integration/initialise.c $(GSL_DIR)/integration/set_initial.c $(GSL_DIR)/integration/util.c $(GSL_DIR)/config.h
 ##################
 
-
-
 OPTIONS =  $(OPTIMIZE) $(OPT)
 
-EXEC   = Gadget2
+ifeq ($(HAVE_OMP),"yes")
+
+OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
+	 timestep.o  init.o restart.o  io.o    \
+	 accel.o   read_ic.o  ngb.o  \
+	 system.o  allocate_OMP.o  density.o  \
+	 gravtree_OMP.o hydra.o  driftfac.o  \
+	 domain.o  allvars_OMP.o potential.o  \
+         forcetree_OMP.o   peano.o gravtree_forcetest.o \
+	 pm_periodic_OMP.o pm_nonperiodic.o longrange.o \
+	 darkenergy.o darkenergy_support.o comoving_distance.o comoving_distance_support.o $(GSL_OBJS)
+
+else
 
 OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
 	 timestep.o  init.o restart.o  io.o    \
@@ -336,9 +34,9 @@ OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
 	 pm_periodic.o pm_nonperiodic.o longrange.o \
 	 darkenergy.o darkenergy_support.o comoving_distance.o comoving_distance_support.o $(GSL_OBJS)
 
+endif
 
-INCL   = allvars.h  proto.h  tags.h  darkenergy.h darkenergy_support.h comoving_distance.h comoving_distance_support.h $(GSL_H) Makefile_yeti
-
+INCL   = allvars.h  proto.h  tags.h  darkenergy.h darkenergy_support.h comoving_distance.h comoving_distance_support.h $(GSL_H) Makefile.$(me)
 
 # CFLAGS = $(OPTIONS) $(GSL_INCL) $(FFTW_INCL) $(HDF5INCL)
 CFLAGS = $(OPTIONS) $(FFTW_INCL) $(HDF5INCL)
@@ -610,4 +308,3 @@ clean:
 #     evolved towards a glass with the sign of gravity reversed.
 #
 #-----------------------------------------------------------------------
-
