@@ -17,7 +17,7 @@ GSL_H = $(GSL_DIR)/err/gsl_errno.h $(GSL_DIR)/gsl_inline.h $(GSL_DIR)/rng/gsl_rn
 ifeq ($(MODE), "PREFAB_GROWTH")
 OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o $(GSL_OBJS)
 
-INCL   = allvars.h proto.h $(GSL_H) Makefile_yeti
+INCL   = allvars.h proto.h $(GSL_H) Makefile.$(me)
 FFILES =
 else
 OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o \
