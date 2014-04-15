@@ -8,14 +8,14 @@ EXEC   = Gadget2q_OMP2_G800_TOPNODE16
 HAVE_OMP = yes
 
 CC       =  /bgsys/drivers/ppcfloor/comm/gcc/bin/mpicc
-OPTIMIZE =  -O3 -fopenmp # -Wall
+OPTIMIZE =  -O3 -fopenmp  -Wall
 GSL_INCL =
 GSL_LIBS = 
 FFTW_INCL= -I/bgsys/home1/slatest_a-g/fftw215dp-fenq-gnucompiler-final/include # double precision (change to fftw215sp-fenq-... for single precision)
 FFTW_LIBS= -L/bgsys/home1/slatest_a-g/fftw215dp-fenq-gnucompiler-final/lib
 MPICHLIB = 
 HDF5INCL =
-HDF5LIB  =  -lhdf5 -lz
+HDF5LIB  = 
 
 #----------------------------------------------------------------------
 # From the list below, please activate/deactivate the options that     
