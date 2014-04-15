@@ -6,10 +6,18 @@ This is a pipeline for Weak Gravitational Lensing simulations: given a set of co
  - Projection of the 3D simulation boxes on 2D lensing planes
  - Ray tracing and production of 2D convergence and shear maps
 
-1) 3D box generation: Blue Gene Q workflow
+1) 3D box generation: workflow
 ------------------------------
 
-This step is broken down in three four sub-steps: setting the environment and directory structure, running the CAMB code to generate the matter power spectra, running an initial condition generator, and evolve the initial conditions using Gadget. These steps are glued together by Precambrian, an application that takes care of generating parameter files and reformatting the output of a particular step making it a suitable input for the next step.  
+This step is broken down in three four sub-steps: setting the environment and directory structure, running the CAMB code to generate the matter power spectra, running an initial condition generator, and evolve the initial conditions using Gadget. These steps are glued together by Precambrian, an application that takes care of generating parameter files and reformatting the output of a particular step making it a suitable input for the next step.
+
+**Before you do anything**
+
+In order to make this pipeline portable between different computer clusters, we separated the main part of the Makefiles (which is always called Makefile.main) from the system specific one (which is called Makefile.xxx). If not existent, for each step in the pipeline you must create a Makefile.xxx file that points to the compilers and libraries specific to your system. After you do that, you need to set the environmeny variable "THIS" to "xxx"
+
+    export THIS=xxx
+
+This will select the correct system specific Makefile once you run "make". 
 
 **1.0) Set the environment**
 
@@ -31,7 +39,7 @@ In the camb directory, run
 
     make
 
-this will compile the code and produce a "camb" executable (you may have to adjust the paths to compilers or libraries in the Makefile). Before running CAMB, we have to specify the parameter files that will contain the appropriate directives; these files are generated for you by Precambrian. You have to go in the Precambrian directory and run
+this will compile the code and produce a "camb" executable. Before running CAMB, we have to specify the parameter files that will contain the appropriate directives; these files are generated for you by Precambrian. You have to go in the Precambrian directory and run
 
     ./Precambrian example_options.ini 1
 
@@ -54,7 +62,7 @@ Once CAMB finishes running, the spectra are saved and stored in localStorage/ics
 
 This step will take care of generating the initial conditions for the simulations using the power spactra computed with CAMB at the previous step. First we start with building the N-GenIC executable, by going in the N-GenIC directory and typing
 
-    make -f Makefile_q (BGQ)
+    make
 
 which will compile and link the code in an executable named N-GenICq. This executable will need its own parameter file and power spectrum format in order to run, which can be quite a pain to write by hand; luckily Precambrian will take care of this step for us. Just run, in the Precambrian directory
 
@@ -82,9 +90,9 @@ If you did everything right your job(s) is(are) on its(their) way to the BGQ com
 
 If you got to this step, it means now you have generated the initial conditions, and you are ready to evolve them with Gadget and generate a series of 3D snapshots which will be taken during the nonlinear evolution of the dark matter particles. Before even building the Gadget executable, you will need to create a text file in the repository top directory, called "outputs\_xxx-series.txt", with a list of numbers that will represent the time instants at which the snapshots will be taken (an example called "outputs\_mQ3-series.txt" is already provided). Now it's time to build the Gadget executable, just go in the Gadget2 directory and run
 
-    make -f Makefile_OMPq (BGQ) 
+    make 
 
-This will compile and link the code to an executable called Gadget2q\_OMP2\_G800\_TOPNODE16; of course this too will need its own formatted parameter files, which are a pain to write by hand. Luckily Precambrian already did it for us when we ran it last time: the Gadget parameter files are saved in data\_Gadget/Parameters. Now comes the interesting part: you could in principle run the Gadget executable manually with mpiexec as usual, but Blue Gene Q requires that you submit your runs through a job submission script. This script will be generated automatically for you by submission.py. You have to be particularly careful in tuning the knobs in submission\_options.ini: the Blue Gene Q cluster connections have a complicated topology, and we need to specify the shapes and corners of the sub-blocks that make up our computing partition. In particular, in your submission\_options.ini file you need to specify the maximum number of simulations a sub block can handle; this of course depends on the size of the simulations (mainly the number of particles), so you need to choose this parameter carefully (for 512x512x512 particles this number is 2). After you do this just run
+This will compile and link the code to an executable called Gadget2q\_OMP2\_G800\_TOPNODE16 (only on BGQ, the name of the executable is set by you in the system specific Makefile); of course this too will need its own formatted parameter files, which are a pain to write by hand. Luckily Precambrian already did it for us when we ran it last time: the Gadget parameter files are saved in data\_Gadget/Parameters. Now comes the interesting part: you could in principle run the Gadget executable manually with mpiexec as usual, but Blue Gene Q requires that you submit your runs through a job submission script. This script will be generated automatically for you by submission.py. You have to be particularly careful in tuning the knobs in submission\_options.ini: the Blue Gene Q cluster connections have a complicated topology, and we need to specify the shapes and corners of the sub-blocks that make up our computing partition. In particular, in your submission\_options.ini file you need to specify the maximum number of simulations a sub block can handle; this of course depends on the size of the simulations (mainly the number of particles), so you need to choose this parameter carefully (for 512x512x512 particles this number is 2). After you do this just run
 
     python xx_submission.py submission_options.ini 3
 
@@ -100,13 +108,7 @@ The directory Gadget2/readOutput contains a slight modification of the read\_sna
 
 **1.5) 3D shapshot power spectrum measurement**
 
-__Note__: if you run on BGQ you should type
-
-    export THIS=BGQ
-
-or set the "THIS" environment variable to "BGQ": this will select the correct Makefile to use.
-
-Once you read the Note, go in the Gadget2/Power\_Spectrum\_3D directory and run
+Go in the Gadget2/Power\_Spectrum\_3D directory and run
 
     make
 
