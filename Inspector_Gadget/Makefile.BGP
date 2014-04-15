@@ -1,0 +1,21 @@
+##########################
+###Compilers and paths####
+##########################
+
+EXEC = Inspector_Gadget
+
+GCCC = mpixlc_r  # Blue Gene/P thread-safe cross-compiler
+
+FFTW3_INCL = -I/bgsys/apps/fftw-3.1.2/fftw-3.1.2/api  # FFTW3 for NYBlue/P
+FFTW3LIB = -L/bgsys/apps/fftw-3.1.2/fftw-3.1.2/.libs -lfftw3   # FFTW3 for NYBlue/P
+# In Len Slatest's home directory:
+###FFTW3_INCL = -I/gpfs/home1/slatest/fftw-3.1.2-P/fftw-3.1.2/api  # FFTW3 for NYBlue/P
+# FFTW3_INCL = -I/gpfs/home1/slatest/fftw-3.1.2-P-vitali/fftw-3.1.2/api  # FFTW3 for NYBlue/P
+###FFTW3_INCL= -I/gpfs/home1/slatest/fftw215-nybP/fftw-2.1.5/include # does not work, needs to be FFTW3
+###FFTW3LIB = -L/gpfs/home1/slatest/fftw-3.1.2-P/fftw-3.1.2/.libs -lfftw3 -lm   # FFTW3 for NYBlue/P
+# FFTW3LIB = -L/gpfs/home1/slatest/fftw-3.1.2-P-vitali/fftw-3.1.2/.libs -lfftw3 -lm   # FFTW3 for NYBlue/P
+###FFTW3LIB = -L/gpfs/home1/slatest/fftw215-nybP/fftw-2.1.5/lib # does not work, needs to be FFTW3.
+CFITSIO_INCL =  -I/gpfs/home1/slatest_a-g/cfitsio-P/include # can optionally use this on Blue Gene/P, but works without too (with Greycap Binary Format)
+CFITSIOLIB =  -L/gpfs/home1/slatest_a-g/cfitsio-P/lib -lcfitsio
+MPICHLIB = 
+CFLAGS = -O3 -I. $(FFTW3_INCL) $(CFITSIO_INCL) # -qsmp=auto -qarch=450 -qtune=450

@@ -1,0 +1,14 @@
+##########################
+###Compilers and paths####
+##########################
+
+EXEC = Inspector_Gadget
+
+GCCC = gcc-4.8
+FFTW3_INCL = 
+FFTW3LIB = -lfftw3
+CFITSIO_INCL = 
+CFITSIOLIB = -lcfitsio
+OMPFLAG = -DHAVE_OpenMP -fopenmp
+CFLAGS = -O3 $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL)
+MPICHLIB = -lmpi
