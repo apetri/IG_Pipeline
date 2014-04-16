@@ -65,8 +65,8 @@ io_size=[
 ("i/o_amount","seed_block",int,9,"10 is a good value for 1GB memory / CPU on NYBlue/P (i.e. DUAL mode) and nx=2048, 3 for nx=4096 on NYBlue/P and DUAL mode (2 on NYBlue/L and CO mode). 8 for nx=4096 and SMP mode (NYBlue/P only). Use 9 for new minimal plane method (or as many planes as there are per snapshot"),
 ("i/o_amount","max_realizations",int,1000,"maximum number of realizations allowed during ray-tracing, before random numbers repeat between different subfields"),
 ("i/o_amount","number_of_plane_realizations",int,9,"This can be later automatized from random plane drawing file"),
-("i/o_amount","number_of_sim_ics",int,5,"This can be later automatized from random plane drawing file"),
-("i/o_amount","first_sim_ic",int,1,"count starts at 1. First N-body simulation IC used"),
+("i/o_amount","number_of_sim_ics",int,5,"This can be later automatized from random plane drawing file; relevant in mode 2 only!!!!"),
+("i/o_amount","first_sim_ic",int,1,"count starts at 1. First N-body simulation IC used; relevant in mode 2 only!!!!"),
 ("i/o_amount","snapskip",int,1,"Set to 1 if not snapshots are to be skipped, otherwise to correspondingly higher numbers (2 for j-series of simulations, 1 for the more modern i-series and m-series)"),
 ("i/o_amount","fiducial",int,1,"For Mode=2:  Submitted cosmologies beyond this number treated as nonfiducial models, cosmologies lower or equal to this number are fiducial (more ICs, fewer plane realizations per IC). Count starts at 1. Set to zero if all are nonfiducial. Leave this at zero. Control fiducial models by giving a a different random number file")
 ]
