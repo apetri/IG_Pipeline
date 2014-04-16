@@ -34,4 +34,4 @@ programm: $(OBJFILES)
 	$(GCCC) -o ./$(EXEC) $(OBJFILES) $(GCCFLAGS) $(LIBS)
 
 clean:
-	rm -f *.o $(EXEC) analysis_parameters.c analysis_parameters.h default_options.ini parameters_explanations.txt
+	rm -f *.o $(EXEC) analysis_parameters.c analysis_parameters.h default_parameters.ini parameters_explanations.txt

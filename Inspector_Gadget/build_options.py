@@ -6,7 +6,7 @@ import StringIO
 #########Type in your options here!!########
 ############################################
 
-DEFAULT_OPTIONS_FILENAME = "default_options.ini"
+DEFAULT_OPTIONS_FILENAME = "default_parameters.ini"
 HELP_FILENAME = "parameters_explanations.txt"
 C_HANDLER_SOURCE = "analysis_parameters.c"
 C_OPTIONS_HEADER = "analysis_parameters.h"
