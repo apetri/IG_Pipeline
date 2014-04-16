@@ -51,6 +51,33 @@ void prepare_MPI(int argc, char **argv) // Constructs parameters for MPI run (so
   MPI_Comm_rank(MPI_COMM_WORLD, &superrank);
   MPI_Comm_size(MPI_COMM_WORLD, &supersize);
 
+  if(superrank==0){
+
+    //Prompt user for correct number of arguments
+    if(argc<5){
+      fprintf(stderr,"Mode 1 usage: %s <num_ics_to_process(N)> <num_snapshots_per_ic> <ini_parameter_file> <ic_identifier_1> ... <ic_identifier_N>\n",*argv);
+      fprintf(stderr,"Mode 2 usage: %s <num_cosmologies(N)> <num_processors_per_cosmology> <ini_parameter_file> <cosmo_id_1> ... <cosmo_id_N>\n",*argv);
+      MPI_Finalize();
+      exit(1);
+    }
+
+    //Read in arguments:
+    printf("Called with number of arguments (count: 1 means no additional argument): %d\n", argc);
+    //printf("Argument content: %s\n", argv[0]);
+    //printf("Argument 1 content: %s\n", argv[1]);
+    fflush(stdout);
+
+    printf("--------------------------------------------------\n");
+    printf("Inspector Gadget, Version X-5.0\n");
+    printf("--------------------------------------------------\n");
+    fflush(stdout);
+
+    printf("Read-in completed.\n");
+    fflush(stdout);
+    // Read-in completed.
+  
+  }
+
   parameters.number_of_cosmologies=atoi(argv[1]); // How many cosmological models in parallel.
   parameters.number_of_processes=atoi(argv[2]); // On how many processors does each simulation run.
 
@@ -70,14 +97,15 @@ void prepare_MPI(int argc, char **argv) // Constructs parameters for MPI run (so
   //</AP>
 
   fclose(input_file1);
-  printf("Done reading main parameter file.\n");
-  fflush(stdout);
-
+  
   //<AP>
   if(superrank==0){
+    printf("Done reading main parameter file; here are the options that you gave me:\n");
+    fflush(stdout);
     print_options(stdout,&parameters);
     fflush(stdout);
   }
+
   //</AP>
 
   int subprocess_in_cosmology;
