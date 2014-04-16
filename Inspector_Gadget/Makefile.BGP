@@ -19,3 +19,5 @@ CFITSIO_INCL =  -I/gpfs/home1/slatest_a-g/cfitsio-P/include # can optionally use
 CFITSIOLIB =  -L/gpfs/home1/slatest_a-g/cfitsio-P/lib -lcfitsio
 MPICHLIB = 
 CFLAGS = -O3 -Wall -I. $(FFTW3_INCL) $(CFITSIO_INCL) # -qsmp=auto -qarch=450 -qtune=450
+
+PYTHON = python

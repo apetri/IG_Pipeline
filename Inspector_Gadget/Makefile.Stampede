@@ -11,3 +11,5 @@ CFITSIO_INCL = -I/home1/02918/apetri/misc/cfitsio/include
 CFITSIOLIB = -L/home1/02918/apetri/misc/cfitsio/lib -lcfitsio
 OMPFLAG = -DHAVE_OpenMP -openmp
 CFLAGS = -O3 -Wall $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL)
+
+PYTHON = python

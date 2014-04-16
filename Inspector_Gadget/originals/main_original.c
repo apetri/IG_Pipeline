@@ -361,7 +361,7 @@ int main(int argc, char **argv)
 		  for (plane_number=0; plane_number<parameters.number_of_planes; plane_number++)
 			  {
 			    match_planes(Plane, plane_number, parameters.global_last_snapshot, parameters.snapskip);
-			    Plane[plane_number].set=0; // sets flag that plane header parameters other than Plane[i].snapshot (which was set by match_planes(i)) have not been set properly yet and setup_plane() will need to be called later.
+			    Plane[plane_number].set==0; // sets flag that plane header parameters other than Plane[i].snapshot (which was set by match_planes(i)) have not been set properly yet and setup_plane() will need to be called later.
 
 			    // Set range which planes get processes by this process, based on which snapshots were uploaded for this process:
 			    if (Plane[plane_number].snapshot==parameters.last_snapshot) parameters.first_plane=plane_number;

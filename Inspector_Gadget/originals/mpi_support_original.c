@@ -26,8 +26,6 @@
 #include "2D-plane_multi.h"
 #include "mpi_support.h"
 
-#include "ini.h"
-
 #if defined(MPI_COMPILE)
 #include <mpi.h>
 #endif
@@ -57,28 +55,10 @@ void prepare_MPI(int argc, char **argv) // Constructs parameters for MPI run (so
   FILE *input_file1;
   // input_file1 = fopen ("IG_parameters_P.txt", "r");
   input_file1 = fopen (argv[3], "r"); // Third input argument of program is parameter filename. 
-  
-  //read_analysis_parameter_file(input_file1, 1);
-  
-  //<AP>
-  //Parse INI parameter file using INI parsing library
-  if(ini_parse_file(input_file1,handler,&parameters)<0){
-    fprintf(stderr,"There was a problem reading the input parameter file\n");
-    MPI_Finalize();
-    exit(1);
-  }
-  //</AP>
-
+  read_analysis_parameter_file(input_file1, 1);
   fclose(input_file1);
   printf("Done reading main parameter file.\n");
   fflush(stdout);
-
-  //<AP>
-  if(superrank==0){
-    print_options(stdout,&parameters);
-    fflush(stdout);
-  }
-  //</AP>
 
   int subprocess_in_cosmology;
   int number_of_subprocesses; // number of processes into which one plane or map generation is split (before Version X-4.0 there were no such subprocesses).

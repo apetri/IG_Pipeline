@@ -13,3 +13,5 @@ CFITSIOLIB = -L/bgsys/home1/slatest_a-g/cfitsio-fenq-gnucompiler/cfitsio/lib -lc
 MPICHLIB = 
 OMPFLAG = -DHAVE_OpenMP -fopenmp
 CFLAGS = -O3 -Wall $(OMPFLAG) -I. $(FFTW3_INCL) $(CFITSIO_INCL) -lm 
+
+PYTHON = python

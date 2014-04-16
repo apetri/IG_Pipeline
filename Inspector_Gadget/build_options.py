@@ -85,7 +85,7 @@ comments=[
 rarely_changed=[
 ("rarely_changed","feedback",int,-1,"don't touch it!"),
 ("rarely_changed","nx",int,4096,"Number of grid points on 2D lens planes, 2048 is a good choice for high resolution maps"),
-("rarely_changed","nx",int,4096,"Number of grid points on 2D lens planes, 2048 is a good choice for high resolution maps."),
+("rarely_changed","ny",int,4096,"Number of grid points on 2D lens planes, 2048 is a good choice for high resolution maps."),
 ("rarely_changed","NbinsX",int,2048,"Number of bins (pixels in 1 dimension) for weak lensing analysis"),
 ("rarely_changed","NbinsY",int,2048,"Number of bins (pixels in 1 dimension) for weak lensing analysis"),
 ]
@@ -103,9 +103,6 @@ not_changed=[
 
 not_used=[
 ("nonused","parameter_path",str,".","DON'T TOUCH IT!"),
-("nonused","parameterfile1",str,"(none)","DON'T TOUCH IT!"),
-("nonused","parameterfile2",str,"(none)","DON'T TOUCH IT!"),
-("nonused","modelname",str,"(none)","DON'T TOUCH IT!"),
 ("nonused","seed",int,1,"DON'T TOUCH IT!")
 ]
 
@@ -119,6 +116,7 @@ padding=[
 ("nxny",int),
 ("plane_assignment_mode",int),
 ("plane_averaging_mode",int),
+("averaging_mode",int),
 ("survey_angle_in_rad","float32"),
 ("snapshots",int),
 ("number_of_planes",int),
@@ -140,7 +138,7 @@ padding=[
 ("H_0",float),
 ("h",float),
 ("Omega_m",float),
-("Omega_lambda",float),
+("Omega_Lambda",float),
 ("w0",float),
 ("wa",float),
 ("ns",float),
@@ -149,7 +147,7 @@ padding=[
 ("source_scale_factor",float),
 ("source_comoving_distance",float),
 ("ASPP_resolution",float),
-("PPAM resolution",float),
+("PPAM_resolution",float),
 ("NumPartTotal[6]",float),
 ("mass[6]",float),
 ("plane_urpath[2000]","char"),
@@ -172,14 +170,14 @@ padding=[
 ("number_of_boxcenters",int),
 ("number_of_source_planes",int),
 ("ThisTask",int),
-("Ntasks",int),
+("NTasks",int),
 ("byteswap",int),
 ("endianness_set",int),
 ("diagnostic",int),
 ("number_of_cosmologies",int),
 ("cosmology_number",int),
 ("number_of_processes",int),
-("extension[20]",int),
+("extension[20]","char"),
 ("darkenergy_initialized",int),
 ("chi_initialized",int),
 ("snapshot_allocated",int),
