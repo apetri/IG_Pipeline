@@ -11,7 +11,7 @@ options = ConfigParser.RawConfigParser()
 options.readfp(file(sys.argv[1],"r"))
 
 ############Useful names#############
-data_folders = ["data_CAMB","data_N-GenIC","data_Gadget"]
+data_folders = ["data_CAMB","data_N-GenIC","data_Gadget","data_Inspector_Gadget"]
 type_folders = ["Jobs","Logs","Parameters"]
 mass_storage_folders = ["ics","snapshots"]
 camb_output = "Output_Data"
@@ -86,6 +86,29 @@ try:
 	os.mkdir(folder)
 except OSError:
 	print "%s already exists!"%folder
+
+try:
+	folder = massStorage+"/wl"
+	print "Creating %s"%folder
+	os.mkdir(folder)
+except OSError:
+	print "%s already exists!"%folder
+
+try:
+	folder = massStorage+"/wl/IG"
+	print "Creating %s"%folder
+	os.mkdir(folder)
+except OSError:
+	print "%s already exists!"%folder
+
+try:
+	folder = massStorage+"/wl/IG/%s-series"%options.get("series","series_name")
+	print "Creating %s"%folder
+	os.mkdir(folder)
+except OSError:
+	print "%s already exists!"%folder
+
+###################################################################################
 
 for type_name in mass_storage_folders:
 	
