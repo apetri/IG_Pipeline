@@ -27,32 +27,32 @@ survey_parameters=[
 ]
 
 paths=[
-("paths","snapshot_path",str,"/scratch/02918/apetri/Storage/sims/snapshots/mQ3-series","path from which Gadget-2 snapshots are read in"),
-("paths","plane_output_path",str,"/scratch/02918/apetri/Storage/wl/IG/mQ3-series","path where density and potential planes are written to after TSC insertion"),
-("paths","plane_path",str,"scratch/02918/apetri/Storage/wl/IG/mQ3-series","path from which potential planes are read for WL map generation (typically same as Plane_output_path)"),
-("paths","planes_folder",str,"Planes","Name of folder where planes are stored"),
-("paths","map_output_path",str,"/scratch/02918/apetri/Storage/wl/IG/mQ3-series","path where WL maps are written to"),
-("paths","maps_folder",str,"Maps","Name of folder in which maps are put"),
-("paths","galaxy_catalogue_path",str,"/home1/02918/apetri/Surveys/CFHT/13subfields/raytrace_subfields","where galaxy catalogues specifications are (externally supplied)"),
-("paths","galaxy_catalogue_output_path",str,"/scratch/02918/apetri/Storage/wl/IG/mQ3-series/galaxy_catalogue_subfields1-13","where simulated catalogues will be saved")
+("paths","snapshot_path[2000]","char","/scratch/02918/apetri/Storage/sims/snapshots/mQ3-series","path from which Gadget-2 snapshots are read in"),
+("paths","plane_output_path[2000]","char","/scratch/02918/apetri/Storage/wl/IG/mQ3-series","path where density and potential planes are written to after TSC insertion"),
+("paths","plane_path[2000]","char","scratch/02918/apetri/Storage/wl/IG/mQ3-series","path from which potential planes are read for WL map generation (typically same as Plane_output_path)"),
+("paths","planes_folder[200]","char","Planes","Name of folder where planes are stored"),
+("paths","map_output_path[2000]","char","/scratch/02918/apetri/Storage/wl/IG/mQ3-series","path where WL maps are written to"),
+("paths","maps_folder[200]","char","Maps","Name of folder in which maps are put"),
+("paths","galaxy_catalogue_path[2000]","char","/home1/02918/apetri/Surveys/CFHT/13subfields/raytrace_subfields","where galaxy catalogues specifications are (externally supplied)"),
+("paths","galaxy_catalogue_output_path[2000]","char","/scratch/02918/apetri/Storage/wl/IG/mQ3-series/galaxy_catalogue_subfields1-13","where simulated catalogues will be saved")
 ]
 
 basenames=[
-("basenames","snapshot_name",str,"snapshot","Gadget output prefix"),
-("basenames","density_basename",str,"dens","this is prepended to the density planes filename"),
-("basenames","potential_basename",str,"pot","this is prepended to the potential planes filename"),
-("basenames","galaxy_catalogue_basename",str,"raytrace_subfield","prefix of subfield specification file (excludes subfield number)"),
-("basenames","map_basename",str,"WL-","this is prepended to all simulated map filenames"),
-("basenames","convergence_basename",str,"conv","this is prepended to convergence map filenames"),
-("basenames","shear1_basename",str,"shear1","this is prepended to shear 1 map filenames"),
-("basenames","shear2_basename",str,"shear2","this is prepended to shear 2 map filenames"),
-("basenames","omega_basename",str,"omega","this is prepended to omega map filenames"),
-("basenames","shear_modulus_basename",str,"shear_abs","this is prepended to shear_abs map filenames"),
-("basenames","shear_angle_basename",str,"shear_ang","this is prepended to shear_ang map filenames"),
-("basenames","deflection1_basename",str,"defl1","this is prepended to deflection angle 1 filenames"),
-("basenames","deflection2_basename",str,"defl2","this is prepended to deflection angle 2 filenames"),
-("basenames","deflection_total_basename",str,"defl_total","this is prepended to total deflection angle filenames"),
-("basenames","deflection_winkel_basename",str,"defl_ang","this is prepended to deflection winkel filenames")
+("basenames","snapshot_name[200]","char","snapshot","Gadget output prefix"),
+("basenames","density_basename[200]","char","dens","this is prepended to the density planes filename"),
+("basenames","potential_basename[200]","char","pot","this is prepended to the potential planes filename"),
+("basenames","galaxy_catalogue_basename[2000]","char","raytrace_subfield","prefix of subfield specification file (excludes subfield number)"),
+("basenames","map_basename[200]","char","WL-","this is prepended to all simulated map filenames"),
+("basenames","convergence_basename[200]","char","conv","this is prepended to convergence map filenames"),
+("basenames","shear1_basename[200]","char","shear1","this is prepended to shear 1 map filenames"),
+("basenames","shear2_basename[200]","char","shear2","this is prepended to shear 2 map filenames"),
+("basenames","omega_basename[200]","char","omega","this is prepended to omega map filenames"),
+("basenames","shear_modulus_basename[200]","char","shear_abs","this is prepended to shear_abs map filenames"),
+("basenames","shear_angle_basename[200]","char","shear_ang","this is prepended to shear_ang map filenames"),
+("basenames","deflection1_basename[200]","char","defl1","this is prepended to deflection angle 1 filenames"),
+("basenames","deflection2_basename[200]","char","defl2","this is prepended to deflection angle 2 filenames"),
+("basenames","deflection_total_basename[200]","char","defl_total","this is prepended to total deflection angle filenames"),
+("basenames","deflection_winkel_basename[200]","char","defl_ang","this is prepended to deflection winkel filenames")
 ]
 
 io_size=[
@@ -72,14 +72,14 @@ io_size=[
 ]
 
 randomization=[
-("randomization","snapshot_rotation_randomizer_file",str,"/home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_Snapshot_Rotations.txt","file that contains the random snapshot rotations"),
-("randomization","plane_randomizer_file_general",str,"/home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_RandomPlanes_general_minimalplane.txt","file that contains the plane randomizations between differen ics; Note: this path is needed for mode=1 (lens plane generation)"),
-("randomization","plane_randomizer_file_fiducial",str,"/home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_RandomPlanes_general_minimalplane.txt","set same as above; Note: the fiducial option may not work anymore")
+("randomization","snapshot_rotation_randomizer_file[2000]","char","/home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_Snapshot_Rotations.txt","file that contains the random snapshot rotations"),
+("randomization","plane_randomizer_file_general[2000]","char","/home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_RandomPlanes_general_minimalplane.txt","file that contains the plane randomizations between differen ics; Note: this path is needed for mode=1 (lens plane generation)"),
+("randomization","plane_randomizer_file_fiducial[2000]","char","/home1/02918/apetri/IG_Pipeline_0.1/Inspector_Gadget/IG_RandomPlanes_general_minimalplane.txt","set same as above; Note: the fiducial option may not work anymore")
 ]
 
 comments=[
-("comments","plane_comment",str,"(none)","a short comment you can add to planes FITS header"),
-("comments","WL_map_comment",str,"(none)","a short comment you can add to maps FITS header")
+("comments","plane_comment[200]","char","(none)","a short comment you can add to planes FITS header"),
+("comments","WL_map_comment[200]","char","(none)","a short comment you can add to maps FITS header")
 ]
 
 rarely_changed=[
@@ -102,7 +102,7 @@ not_changed=[
 ]
 
 not_used=[
-("nonused","parameter_path",str,".","DON'T TOUCH IT!"),
+("nonused","parameter_path[2000]","char",".","DON'T TOUCH IT!"),
 ("nonused","seed",int,1,"DON'T TOUCH IT!")
 ]
 
@@ -246,8 +246,10 @@ def print_format(ptype):
 		raise ValueError("Unknown parameter type")
 
 def declaration_match(ptype):
-	if ptype==str or ptype=="char":
+	if ptype==str:
 		return 'strdup(value)'
+	elif(ptype=="char"):
+		return 'value'
 	elif ptype==int:
 		return 'atoi(value)'
 	elif ptype==float or ptype=="float32":
@@ -286,9 +288,19 @@ int handler(void *user,const char *section,const char *name, const char *value){
 		T.write("""    fprintf(stream,"\\n[%s]\\n\\n");\n"""%options_set[0][0])
 
 		for set,name,ptype,default,help in options_set:
-			S.write(""" else if(MATCH("%s","%s")){
-				options->%s = %s;
-				}"""%(set,name,name,declaration_match(ptype)))
+			
+			if(ptype=="char"):
+				name = name.split("[")[0]
+
+				S.write(""" else if(MATCH("%s","%s")){
+					strcpy(options->%s,%s);
+					}"""%(set,name,name,declaration_match(ptype)))
+			else:
+				S.write(""" else if(MATCH("%s","%s")){
+					options->%s = %s;
+					}"""%(set,name,name,declaration_match(ptype)))
+
+
 			T.write("""    fprintf(stream,"%s = %s\\n",options->%s);\n"""%(name,print_format(ptype),name))
 
 	#Vector options
