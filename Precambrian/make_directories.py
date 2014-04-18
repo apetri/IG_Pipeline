@@ -94,6 +94,8 @@ try:
 except OSError:
 	print "%s already exists!"%folder
 
+##########Lensing specific directories#######################
+
 try:
 	folder = massStorage+"/wl/IG"
 	print "Creating %s"%folder
@@ -108,7 +110,8 @@ try:
 except OSError:
 	print "%s already exists!"%folder
 
-###################################################################################
+#############Gadget and N-GenIC directories#####################
+
 
 for type_name in mass_storage_folders:
 	
