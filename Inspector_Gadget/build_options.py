@@ -401,6 +401,10 @@ def generate_default_parameter_file(scalar_options,vector_options):
 """%(set_name))
 
 		for set,name,ptype,default,help in options_set:
+
+			if(ptype=="char"):
+				name = name.split("[")[0]
+
 			S.write("""%s = %s\n""" %(name,ini_string(default,ptype)))
 			T.write("""%s 	: 	%s\n""" %(name,help))
 
