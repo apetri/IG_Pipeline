@@ -1,4 +1,4 @@
-import sys,os
+import sys,os,stat
 import ConfigParser
 import StringIO
 
@@ -50,6 +50,8 @@ def generateCAMBSubmission(options):
 	S = StringIO.StringIO()
 	S.write("""#!/bin/bash\n\n""")
 
+	repositoryPath = options.get("user","IG_repository")
+
 	########Submission script directives########
 
 	#Job name#
@@ -62,7 +64,7 @@ def generateCAMBSubmission(options):
 """%(qsys,options.get("user","username")))
 
 	#Output and error logs#
-	logPath = "%s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_CAMB/Logs/"%(options.get("user","home"),options.get("series","series"))
+	logPath = "%s/%s/localStorage/ics/%s-series/data_CAMB/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 
 	S.write("""#%s -o %s%sCAMB.o%%j\n"""%(qsys,logPath,options.get("user","username")))
 	S.write("""#%s -e %s%sCAMB.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
@@ -91,7 +93,7 @@ def generateCAMBSubmission(options):
 
 """)
 
-	S.write("""cd %s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_CAMB/Output_Data\n\n"""%(options.get("user","home"),options.get("series","series")))
+	S.write("""cd %s/%s/localStorage/ics/%s-series/data_CAMB/Output_Data\n\n"""%(options.get("user","home"),repositoryPath,options.get("series","series")))
 
 	for i in range(nCores):
 
@@ -99,7 +101,7 @@ def generateCAMBSubmission(options):
 		parameterFile = "params_%s-%s.ini"%(options.get("series","series"),cosmology_id)
 		homePath = options.get("user","home")
 
-		S.write("""ibrun -n 1 -o %d %s/camb/%s %s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_CAMB/Parameters/%s &\n"""%(i,homePath,options.get("camb","executable"),homePath,options.get("series","series"),parameterFile))
+		S.write("""ibrun -n 1 -o %d %s/%s/camb/%s %s/%s/localStorage/ics/%s-series/data_CAMB/Parameters/%s &\n"""%(i,homePath,repositoryPath,options.get("camb","executable"),homePath,repositoryPath,options.get("series","series"),parameterFile))
 
 	S.write("""
 wait
@@ -116,6 +118,8 @@ def generateNgenICSubmission(options):
 	S = StringIO.StringIO()
 	S.write("""#!/bin/bash\n\n""")
 
+	repositoryPath = options.get("user","IG_repository")
+
 	########Submission script directives########
 
 	#Job name#
@@ -128,7 +132,7 @@ def generateNgenICSubmission(options):
 """%(qsys,options.get("user","username")))
 
 	#Output and error logs#
-	logPath = "%s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_N-GenIC/Logs/"%(options.get("user","home"),options.get("series","series"))
+	logPath = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 
 	S.write("""#%s -o %s%sN-GenIC.o%%j\n"""%(qsys,logPath,options.get("user","username")))
 	S.write("""#%s -e %s%sN-GenIC.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
@@ -155,8 +159,8 @@ def generateNgenICSubmission(options):
 
 """)
 
-	parameterDir = "%s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_N-GenIC/Parameters"%(options.get("user","home"),options.get("series","series"))
-	executable = "%s/IG_Pipeline_0.1/N-GenIC/%s"%(options.get("user","home"),options.get("ngenic","executable"))
+	parameterDir = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Parameters"%(options.get("user","home"),repositoryPath,options.get("series","series"))
+	executable = "%s/%s/N-GenIC/%s"%(options.get("user","home"),repositoryPath,options.get("ngenic","executable"))
 
 	S.write("""
 cd %s
@@ -190,6 +194,8 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 	S = StringIO.StringIO()
 	S.write("""#!/bin/bash\n\n""")
 
+	repositoryPath = options.get("user","IG_repository")
+
 	########Submission script directives########
 
 	#Job name#
@@ -202,7 +208,7 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 """%(qsys,options.get("user","username")))
 
 	#Output and error logs#
-	logPath = "%s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_Gadget/Logs/"%(options.get("user","home"),options.get("series","series"))
+	logPath = "%s/%s/localStorage/ics/%s-series/data_Gadget/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 
 	S.write("""#%s -o %s%sGadget.o%%j\n"""%(qsys,logPath,options.get("user","username")))
 	S.write("""#%s -e %s%sGadget.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
@@ -251,8 +257,8 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 
 """)
 
-	parameterDir = "%s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_Gadget/Parameters"%(options.get("user","home"),options.get("series","series"))
-	executable = "%s/IG_Pipeline_0.1/Gadget2/%s"%(options.get("user","home"),options.get("gadget","executable"))
+	parameterDir = "%s/%s/localStorage/ics/%s-series/data_Gadget/Parameters"%(options.get("user","home"),repositoryPath,options.get("series","series"))
+	executable = "%s/%s/Gadget2/%s"%(options.get("user","home"),repositoryPath,options.get("gadget","executable"))
 
 	S.write("""
 cd %s
@@ -291,3 +297,78 @@ cd %s
 ####################################################
 ###############Main execution#######################
 ####################################################
+
+if(__name__=="__main__"):
+
+	#Prompt for correct number of arguments
+	if(len(sys.argv)<2):
+		print "Usage: python %s <ini_options_file>"%sys.argv[0]
+		exit(1)
+
+	#Parse ini options file
+	options = parseOptions(sys.argv[1])
+	repositoryPath = options.get("user","IG_repository")
+
+	#Display usage instructions
+	print "\nWelcome to the sbatch submission generator! Please select an operation mode"
+	print ""
+	print "1: Generate CAMB sumbission script"
+	print "2: Generate N-GenIC submission script"
+	print "3: Generate Gadget submission script"
+	print "4: Generate 3D Power Spectrum Measurer submission script (not functional yet)"
+	print "5: Generate Inspector Gadget submission script (Planes)"
+	print "6: Generate Inspector Gadget submission script (Ray tracing)"
+
+	mode = int(raw_input("-->"))
+
+	#Directives for the different operation modes
+	if(mode==1):
+
+		#CAMB
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_CAMB/Jobs/%s_camb_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		
+		scriptFile = file(scriptFileName,"w")
+		scriptFile.write(generateCAMBSubmission(options))
+		scriptFile.close()
+
+		print "CAMB submission script generated and saved in %s!!"%scriptFileName
+		print ""
+		print "Do you want to sbatch-it now?(y/n)"
+
+		answer = raw_input("-->")
+
+		#Maybe submit the script directly?
+		if(answer=="y"):
+			os.execl("sbatch","sbatch",scriptFileName)
+		else:
+			print "Goodbye: sumbission.py exited normally"
+
+	elif(mode==2):
+
+		#N-GenIC
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/%s_ngenic_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+
+		scriptFile = file(scriptFileName,"w")
+		scriptFile.write(generateNgenICSubmission(options))
+		scriptFile.close()
+
+		print "N-GenIC submission script generated and saved in %s!!"%scriptFileName
+		print ""
+		print "Do you want to sbatch-it now?(y/n)"
+
+		answer = raw_input("-->")
+
+		#Maybe submit the script directly?
+		if(answer=="y"):
+			os.execl("sbatch","sbatch",scriptFileName)
+		else:
+			print "Goodbye: sumbission.py exited normally"
+
+	elif(mode==3):
+
+		#Gadget
+		print "Coming soon"
+
+	else:
+		print "Mode has to be between 1 and 6! Quitting..."
+		exit(1)
