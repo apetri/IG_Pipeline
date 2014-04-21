@@ -63,7 +63,9 @@ try:
 except OSError:
 	print "%s already exists!"%folder
 
+#Copy CAMB lensing template file and Gadget outputs list into the appropriate directories
 shutil.copy("%s/%s/camb/HighLExtrapTemplate_lenspotentialCls.dat"%(options.get("paths","home_path"),options.get("paths","repository_relative_path")),folder+"/HighLExtrapTemplate_lenspotentialCls.dat")
+shutil.copy("../outputs_%s-series.txt"%(options.get("series","series_name")),localStorage + "/ics/%s-series/data_Gadget/Parameters/outputs_%s-series.txt"%(options.get("series","series_name"),options.get("series","series_name")))
 
 try:
 	folder = series_folder + "/%s"%data_folders[1] + "/%s"%power_spectra
