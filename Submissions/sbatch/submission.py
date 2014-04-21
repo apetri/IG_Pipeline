@@ -227,6 +227,7 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 			dirRoots.append("%s-%db%d_%s_ic%d"%(options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),cosmo_id[i],j))
 
 	#Directory root names are available here#
+
 	#Create directories in which the Gadget snapshots will be saved#
 	for root in dirRoots:
 		dirToMake = "%s/Storage/sims/snapshots/%s-series/%s"%(options.get("user","scratch"),options.get("series","series"),root)
@@ -290,9 +291,125 @@ cd %s
 
 
 
-#######################################################
-############Inspector Gadget submission script#########
-#######################################################
+###############################################################
+############Inspector Gadget submission script: planes#########
+###############################################################
+def generatePlanesSubmission(options,models):
+
+	S = StringIO.StringIO()
+	S.write("""#!/bin/bash\n\n""")
+
+	repositoryPath = options.get("user","IG_repository")
+
+	########Submission script directives########
+
+	#Job name#
+	S.write("""
+##########################################
+#############Directives###################
+##########################################
+
+#%s -J %sIGPlanes\n
+"""%(qsys,options.get("user","username")))
+
+	#Output and error logs#
+	logPath = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
+
+	S.write("""#%s -o %s%sIGPlanes.o%%j\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -e %s%sIGPlanes.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
+
+	#Parse Inspector Gadget options file#
+	IG_options = parseOptions(options.get("raytracing","IG_parameter_file"))
+
+	#Throw error if IG parameter file is configured for the wrong mode
+	if(IG_options.getint("mode","mode") != 1):
+		raise ValueError("The parameter file you supplied is not configured in mode 1 (Plane generation)! Quitting...")
+
+	#Decide the number of snapshots to read and the seed block
+	nSnapshots = IG_options.getint("i/o_amount","global_last_snapshot") - IG_options.getint("i/o_amount","global_first_snapshot") + 1
+
+	#Check models file for cosmological models to generate the planes of
+	numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(models)
+	
+	#Maybe fix this: assign the maximum number of ics among the models
+	nICs = last_ic[0] - first_ic[0] + 1 
+
+	#Construct list with all the directory root names that refer to the simulations to run
+	dirRoots = []
+	for i in range(len(cosmo_id)):
+		for j in range(first_ic[i],last_ic[i]+1):
+			dirRoots.append("%s-%db%d_%s_ic%d"%(options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),cosmo_id[i],j))
+
+	#Directory root names are available here#
+
+	#Create directories in which the lensing Planes will be saved#
+	for root in dirRoots:
+		
+		dirToMake = "%s/Storage/wl/IG/%s-series/%s"%(options.get("user","scratch"),options.get("series","series"),root)
+		try:
+			os.mkdir(dirToMake)
+		except OSError:
+			print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
+
+		dirToMake = "%s/Storage/wl/IG/%s-series/%s/Planes"%(options.get("user","scratch"),options.get("series","series"),root)
+		try:
+			os.mkdir(dirToMake)
+		except OSError:
+			print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
+
+	#Directories created, now we can proceed with the execution part of the script
+
+	#Decide number of cores and nodes to request, based on I/O
+	nCores = nSnapshots * nICs
+
+	#Give IG a little more memory than what it needs, for safety (this line may be changed as needed)
+	nNodes = int(nCores/16.0 + 2*(nCores/236.0))
+
+	#Request resources accordingly
+	S.write("""#%s -n %d\n"""%(qsys,nCores))
+	S.write("""#%s -N %d\n"""%(qsys,nNodes))
+	S.write("""#%s -p %s\n"""%(qsys,options.get("raytracing","queue")))
+	S.write("""#%s -t %s\n\n"""%(qsys,options.get("raytracing","wall_time")))
+
+	#Email notifications
+	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
+	S.write("""#%s --mail-type=all\n"""%qsys)
+
+	########Execution directives##########
+	S.write("""
+
+###################################################
+#################Execution#########################
+###################################################
+
+""")
+
+	parameterDir = "%s/%s/localStorage/ics/%s-series/Inspector_Gadget/Parameters"%(options.get("user","home"),repositoryPath,options.get("series","series"))
+	executable = "%s/%s/Inspector_Gadget/%s"%(options.get("user","home"),repositoryPath,options.get("raytracing","executable"))
+
+	S.write("""
+cd %s
+
+"""%parameterDir)
+
+	#Run commands
+	for i in range(len(cosmo_id)):
+
+		IG_args = ""
+		for j in range(first_ic[i],last_ic[i]+1):
+			IG_args += "%s-%db%d_%s_ic%d "%(options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),cosmo_id[i],j)
+
+		S.write("""ibrun -n %d -o 0 %s %d %d %s %s\n"""%(nCores,executable,last_ic[i]-first_ic[i]+1,nSnapshots,options.get("raytracing","IG_parameter_file"),IG_args))
+
+	#Done generating script, return
+	
+	S.seek(0)
+	return S.read()
+
+
+####################################################################
+############Inspector Gadget submission script: ray tracing#########
+####################################################################
 
 ####################################################
 ###############Main execution#######################
@@ -333,7 +450,7 @@ if(__name__=="__main__"):
 
 		print "CAMB submission script generated and saved in %s!!"%scriptFileName
 		print ""
-		print "Do you want to sbatch-it now?(y/n)"
+		print "Do you want to sbatch-it now? (y/n)"
 
 		answer = raw_input("-->")
 
@@ -341,7 +458,7 @@ if(__name__=="__main__"):
 		if(answer=="y"):
 			os.execl("sbatch","sbatch",scriptFileName)
 		else:
-			print "Goodbye: sumbission.py exited normally\n"
+			print "Goodbye! sumbission.py exited normally\n"
 
 	elif(mode==2):
 
@@ -354,7 +471,7 @@ if(__name__=="__main__"):
 
 		print "N-GenIC submission script generated and saved in %s!!"%scriptFileName
 		print ""
-		print "Do you want to sbatch-it now?(y/n)"
+		print "Do you want to sbatch-it now? (y/n)"
 
 		answer = raw_input("-->")
 
@@ -362,7 +479,7 @@ if(__name__=="__main__"):
 		if(answer=="y"):
 			os.execl("sbatch","sbatch",scriptFileName)
 		else:
-			print "Goodbye: sumbission.py exited normally\n"
+			print "Goodbye! sumbission.py exited normally\n"
 
 	elif(mode==3):
 
@@ -421,10 +538,51 @@ if(__name__=="__main__"):
 
 			print "Gadget submission script generated and saved in %s\n!!"%scriptFileName
 
-		print "Goodbye: sumbission.py exited normally\n"
+		print "Goodbye! sumbission.py exited normally\n"
 
-	elif(mode==4 or mode==5 or mode==6):
+	elif(mode==4):
 
+		#3D power spectrum measurer
+		print "Coming soon"
+
+	elif(mode==5):
+
+		#IG lens planes
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGPlanes_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+
+		#Check models file for cosmological models to run
+		modelFilename = options.get("raytracing","models_file")
+		modelFile = file(modelFilename,"r")
+		models = modelFile.readlines()
+		modelFile.close()
+
+		numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(models)
+
+		#Inform user about which planes will be generated in this submission
+		print "This submission will generate the planes for these models:\n"
+		for i in range(len(cosmo_id)):
+			print "%s ICs %d to %d included"%(cosmo_id[i],first_ic[i],last_ic[i])
+
+		#Generate script
+		scriptFile = file(scriptFileName,"w")
+		scriptFile.write(generatePlanesSubmission(options,models))
+		scriptFile.close()
+
+		print "\nIG Planes submission script generated and saved in %s\n"%scriptFileName
+		print ""
+		print "Do you want to sbatch-it now? (y/n)"
+
+		answer = raw_input("-->")
+
+		#Maybe submit the script directly?
+		if(answer=="y"):
+			os.execl("sbatch","sbatch",scriptFileName)
+		else:
+			print "Goodbye! sumbission.py exited normally\n"
+
+	elif(mode==6):
+
+		#IG ray tracing
 		print "Coming soon"
 
 	else:
