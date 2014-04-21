@@ -18,6 +18,30 @@ def parseOptions(filename):
 
 	return options
 
+##################################################################
+##########Check number of simulations in input####################
+##################################################################
+def numSimulationsCheck(models):
+
+	numSims = 0
+	cosmo_id = []
+	first_ic = []
+	last_ic = []
+	
+	for model in models:
+
+		model = model.strip("\n")
+		model = model.split(" ")
+		cosmo_id.append(model[0])
+		first_ic.append(int(model[1]))
+		last_ic.append(int(model[2]))
+
+		numSims += int(model[2]) - int(model[1]) + 1
+
+	return numSims,cosmo_id,first_ic,last_ic
+
+
+
 ####################################################
 ############CAMB submission script##################
 ####################################################
@@ -161,6 +185,104 @@ cd %s
 #######################################################
 ############Gadget2 submission script##################
 #######################################################
+def generateGadgetSubmission(options,models,breakdown_parts):
+
+	S = StringIO.StringIO()
+	S.write("""#!/bin/bash\n\n""")
+
+	########Submission script directives########
+
+	#Job name#
+	S.write("""
+##########################################
+#############Directives###################
+##########################################
+
+#%s -J %sGadget\n
+"""%(qsys,options.get("user","username")))
+
+	#Output and error logs#
+	logPath = "%s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_Gadget/Logs/"%(options.get("user","home"),options.get("series","series"))
+
+	S.write("""#%s -o %s%sGadget.o%%j\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -e %s%sGadget.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
+
+	#Computing resources#
+
+	#First look at how many simulations are there to run#
+	numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(models)
+	if(breakdown_parts>numSims):
+		raise ValueError("breakdown_parts must always be less or equal to the total number of simulations!!")
+
+	#Construct list with all the directory root names that refer to the simulations to run
+	dirRoots = []
+	for i in range(len(cosmo_id)):
+		for j in range(first_ic[i],last_ic[i]+1):
+			dirRoots.append("%s-%db%d_%s_ic%d"%(options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),cosmo_id[i],j))
+
+	#Directory root names are available here#
+	#Create directories in which the Gadget snapshots will be saved#
+	for root in dirRoots:
+		dirToMake = "%s/Storage/sims/snapshots/%s-series/%s"%(options.get("user","scratch"),options.get("series","series"),root)
+		try:
+			os.mkdir(dirToMake)
+		except OSError:
+			print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
+
+	#Directories created, now we can proceed with the execution part of the script
+	simsPerPart = numSims/breakdown_parts + cmp(numSims%breakdown_parts,0)
+	nCores = options.getint("gadget","cores_per_sim") * simsPerPart
+
+	#Request appropriate number of cores
+	S.write("""#%s -n %d\n"""%(qsys,nCores))
+	S.write("""#%s -p %s\n"""%(qsys,options.get("ngenic","queue")))
+	S.write("""#%s -t %s\n\n"""%(qsys,options.get("ngenic","wall_time")))
+
+	#Email notifications
+	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
+	S.write("""#%s --mail-type=all\n"""%qsys)
+
+	########Execution directives##########
+	S.write("""
+
+###################################################
+#################Execution#########################
+###################################################
+
+""")
+
+	parameterDir = "%s/IG_Pipeline_0.1/localStorage/ics/%s-series/data_Gadget/Parameters"%(options.get("user","home"),options.get("series","series"))
+	executable = "%s/IG_Pipeline_0.1/Gadget2/%s"%(options.get("user","home"),options.get("gadget","executable"))
+
+	S.write("""
+cd %s
+
+"""%parameterDir)
+
+	#Proceed to write the execution commands (which will be executed in series)
+	for part in range(breakdown_parts):
+
+		gadget_args = []
+		arg_string = ""
+
+		for i in range(simsPerPart):
+
+			try:
+				gadget_args.append(dirRoots.pop(0)+".param ")
+			except IndexError:
+				break
+
+		for arg in gadget_args:
+			arg_string += "%s "%arg
+
+		if(arg_string!=""):
+			S.write("""ibrun -n %d -o 0 %s %d %d %s\n"""%(options.getint("gadget","cores_per_sim")*len(gadget_args),executable,len(gadget_args),options.getint("gadget","cores_per_sim"),arg_string))
+
+	#Done writing the script, go ahead and return
+	S.seek(0)
+	return S.read()
+
+
 
 #######################################################
 ############Inspector Gadget submission script#########
