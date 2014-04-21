@@ -341,7 +341,7 @@ if(__name__=="__main__"):
 		if(answer=="y"):
 			os.execl("sbatch","sbatch",scriptFileName)
 		else:
-			print "Goodbye: sumbission.py exited normally"
+			print "Goodbye: sumbission.py exited normally\n"
 
 	elif(mode==2):
 
@@ -362,13 +362,71 @@ if(__name__=="__main__"):
 		if(answer=="y"):
 			os.execl("sbatch","sbatch",scriptFileName)
 		else:
-			print "Goodbye: sumbission.py exited normally"
+			print "Goodbye: sumbission.py exited normally\n"
 
 	elif(mode==3):
 
 		#Gadget
+		
+		#First parse cosmological models to run from txt file
+		modelFilename = options.get("gadget","models_file")
+		modelFile = file(modelFilename,"r")
+		models = modelFile.readlines()
+		modelFile.close()
+
+		#Prompt user for splitting job in multiple scripts
+		print "There are %d models to run as indicated in %s"%(len(models),modelFilename)
+		print "In how many scripts do you want to split this submission?(1-%d)"%len(models)
+
+		nSplit = int(raw_input("-->"))
+		if(nSplit>len(models)):
+			"You had to type a number between 1 and %d! Quitting..."%len(models)
+			exit(1)
+
+		modelsPerPart = len(models)/nSplit + cmp(len(models)%nSplit,0)
+
+		#Generate a submission script for each part 
+		for i in range(nSplit):
+
+			modelsSub = []
+			for j in range(modelsPerPart):
+
+				try:
+					modelsSub.append(models.pop(0))
+				except IndexError:
+					break
+
+			numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(modelsSub)
+
+			#Show user which simulations will be run in this part
+			print "These simulations will be run in part %d:\n"%(i+1)
+			for j in range(len(cosmo_id)):
+				print "%s ics:%d to %d included"%(cosmo_id[j],first_ic[j],last_ic[j])
+
+			print "Part %d: there are %d simulations to run, do you want to further split the submission script?(y/n)"%(i+1,numSims)
+			answer = raw_input("-->")
+
+			if(answer=="y"):
+				print "In how many parts? (1-%d)"%numSims
+				breakdown_parts = int(raw_input("-->"))
+			else:
+				breakdown_parts = 1
+
+			#Generate the script
+			scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/%s_gadget_sbatch_%d.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"),i+1)
+
+			scriptFile = file(scriptFileName,"w")
+			scriptFile.write(generateGadgetSubmission(options,modelsSub,breakdown_parts))
+			scriptFile.close()
+
+			print "Gadget submission script generated and saved in %s\n!!"%scriptFileName
+
+		print "Goodbye: sumbission.py exited normally\n"
+
+	elif(mode==4 or mode==5 or mode==6):
+
 		print "Coming soon"
 
 	else:
-		print "Mode has to be between 1 and 6! Quitting..."
+		print "Mode has to be between 1 and 6! Quitting...\n"
 		exit(1)
