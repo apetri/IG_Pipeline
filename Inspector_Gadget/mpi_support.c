@@ -26,6 +26,8 @@
 #include "2D-plane_multi.h"
 #include "mpi_support.h"
 
+#include "ini.h"
+
 #if defined(MPI_COMPILE)
 #include <mpi.h>
 #endif
@@ -49,16 +51,62 @@ void prepare_MPI(int argc, char **argv) // Constructs parameters for MPI run (so
   MPI_Comm_rank(MPI_COMM_WORLD, &superrank);
   MPI_Comm_size(MPI_COMM_WORLD, &supersize);
 
+  if(superrank==0){
+
+    //Prompt user for correct number of arguments
+    if(argc<5){
+      fprintf(stderr,"Mode 1 usage: %s <num_ics_to_process(N)> <num_snapshots_per_ic> <ini_parameter_file> <ic_identifier_1> ... <ic_identifier_N>\n",*argv);
+      fprintf(stderr,"Mode 2 usage: %s <num_cosmologies(N)> <num_processors_per_cosmology> <ini_parameter_file> <cosmo_id_1> ... <cosmo_id_N>\n",*argv);
+      MPI_Finalize();
+      exit(1);
+    }
+
+    //Read in arguments:
+    printf("Called with number of arguments (count: 1 means no additional argument): %d\n", argc);
+    //printf("Argument content: %s\n", argv[0]);
+    //printf("Argument 1 content: %s\n", argv[1]);
+    fflush(stdout);
+
+    printf("--------------------------------------------------\n");
+    printf("Inspector Gadget, Version X-5.0\n");
+    printf("--------------------------------------------------\n");
+    fflush(stdout);
+
+    printf("Read-in completed.\n");
+    fflush(stdout);
+    // Read-in completed.
+  
+  }
+
   parameters.number_of_cosmologies=atoi(argv[1]); // How many cosmological models in parallel.
   parameters.number_of_processes=atoi(argv[2]); // On how many processors does each simulation run.
 
   FILE *input_file1;
   // input_file1 = fopen ("IG_parameters_P.txt", "r");
   input_file1 = fopen (argv[3], "r"); // Third input argument of program is parameter filename. 
-  read_analysis_parameter_file(input_file1, 1);
+  
+  //read_analysis_parameter_file(input_file1, 1);
+  
+  //<AP>
+  //Parse INI parameter file using INI parsing library
+  if(ini_parse_file(input_file1,handler,&parameters)<0){
+    fprintf(stderr,"There was a problem reading the input parameter file\n");
+    MPI_Finalize();
+    exit(1);
+  }
+  //</AP>
+
   fclose(input_file1);
-  printf("Done reading main parameter file.\n");
-  fflush(stdout);
+  
+  //<AP>
+  if(superrank==0){
+    printf("Done reading main parameter file; here are the options that you gave me:\n");
+    fflush(stdout);
+    print_options(stdout,&parameters);
+    fflush(stdout);
+  }
+
+  //</AP>
 
   int subprocess_in_cosmology;
   int number_of_subprocesses; // number of processes into which one plane or map generation is split (before Version X-4.0 there were no such subprocesses).

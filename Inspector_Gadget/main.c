@@ -95,23 +95,10 @@ int main(int argc, char **argv)
     int nx, ny, NbinsX, NbinsY, number_of_planes; // not sure these local versions are safe to use, as the global ones get updated during reading of the header of potential planes; so currently using these only where safe, in parallel to global ones.
     // Further variables to be localized: survey_angle, survey_angle_in_rad.
     
-    
-    
-	printf("--------------------------------------------------\n");
-	printf("Inspector Gadget, Version X-5.0\n");
-	printf("--------------------------------------------------\n");
-	fflush(stdout);
 
     // Start timing Inspector Gadget run:
 	// parameters.start_time=clock();
 	parameters.start_time=time(NULL);
-
-	//Read in arguments:
-	printf("Called with number of arguments (count: 1 means no additional argument): %d\n", argc);
-	//printf("Argument content: %s\n", argv[0]);
-	//printf("Argument 1 content: %s\n", argv[1]);
-	fflush(stdout);
-
 
 	// Set extension of map file type:
 #ifdef HAVE_FITS
@@ -132,10 +119,6 @@ int main(int argc, char **argv)
     fflush(stdout);
     exit(1);
 #endif
-
-        printf("Read-in completed.\n");
-	fflush(stdout);
-	// Read-in completed.
 
 	// Initial settings and hardcoded parameters:
 	parameters.byteswap=0;
@@ -361,7 +344,7 @@ int main(int argc, char **argv)
 		  for (plane_number=0; plane_number<parameters.number_of_planes; plane_number++)
 			  {
 			    match_planes(Plane, plane_number, parameters.global_last_snapshot, parameters.snapskip);
-			    Plane[plane_number].set==0; // sets flag that plane header parameters other than Plane[i].snapshot (which was set by match_planes(i)) have not been set properly yet and setup_plane() will need to be called later.
+			    Plane[plane_number].set=0; // sets flag that plane header parameters other than Plane[i].snapshot (which was set by match_planes(i)) have not been set properly yet and setup_plane() will need to be called later.
 
 			    // Set range which planes get processes by this process, based on which snapshots were uploaded for this process:
 			    if (Plane[plane_number].snapshot==parameters.last_snapshot) parameters.first_plane=plane_number;
