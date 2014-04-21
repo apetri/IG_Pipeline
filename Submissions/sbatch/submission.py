@@ -2,6 +2,8 @@ import sys,os,stat
 import ConfigParser
 import StringIO
 
+import math
+
 qsys = "SBATCH"
 
 ##################################################################
@@ -409,7 +411,112 @@ cd %s
 
 ####################################################################
 ############Inspector Gadget submission script: ray tracing#########
+############Note: this works for one cosmology at a time############
 ####################################################################
+def generateRaySubmission(options,models):
+
+	S = StringIO.StringIO()
+	S.write("""#!/bin/bash\n\n""")
+
+	repositoryPath = options.get("user","IG_repository")
+
+	########Submission script directives########
+
+	#Job name#
+	S.write("""
+##########################################
+#############Directives###################
+##########################################
+
+#%s -J %sIGRay\n
+"""%(qsys,options.get("user","username")))
+
+	#Output and error logs#
+	logPath = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
+
+	S.write("""#%s -o %s%sIGRay.o%%j\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -e %s%sIGRay.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
+
+	#Parse Inspector Gadget options file#
+	IG_options = parseOptions(options.get("raytracing","IG_parameter_file"))
+
+	#Throw error if IG parameter file is configured for the wrong mode
+	if(IG_options.getint("mode","mode") != 2):
+		raise ValueError("The parameter file you supplied is not configured in mode 2 (Ray tracing)! Quitting...")
+
+	#Check how many realizations in total we want to produce: this will be the number of cores requested
+	nRealizations = IG_options.getint("i/o_amount","last_realization") - IG_options.getint("i/o_amount","first_realization") + 1
+
+	#Run on every other processor to ensure enough memory (i.e request twice as many nodes as nRealizations/16)
+	nNodes = math.ceil(2*nRealizations/16.0)
+
+	#Request resources accordingly
+	S.write("""#%s -n %d\n"""%(qsys,nRealizations))
+	S.write("""#%s -N %d\n"""%(qsys,nNodes))
+	S.write("""#%s -p %s\n"""%(qsys,options.get("raytracing","queue")))
+	S.write("""#%s -t %s\n\n"""%(qsys,options.get("raytracing","wall_time")))
+
+	#Email notifications
+	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
+	S.write("""#%s --mail-type=all\n"""%qsys)
+
+	########Execution directives##########
+	S.write("""
+
+###################################################
+#################Execution#########################
+###################################################
+
+""")
+
+	parameterDir = "%s/%s/localStorage/ics/%s-series/Inspector_Gadget/Parameters"%(options.get("user","home"),repositoryPath,options.get("series","series"))
+	executable = "%s/%s/Inspector_Gadget/%s"%(options.get("user","home"),repositoryPath,options.get("raytracing","executable"))
+
+	S.write("""
+cd %s
+
+"""%parameterDir)
+
+	##########Look at models to run###########
+	numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(models)
+
+	##########Execution commands, might need to be modified in case of memory overflow problems#############
+	for i in range(len(cosmo_id)):
+		
+		ig_arg = "%s-%db%d_%s"%(options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),cosmo_id[i])
+
+		#First create the directory which will contain the outputs
+		if(IG_options.getint("mode","galaxy_catalogue_type")==0):
+			
+			dirToMake = "%s/Storage/wl/IG/%s-series/%s"%(options.get("user","scratch"),options.get("series","series"),ig_arg)
+			try:
+				os.mkdir(dirToMake)
+			except OSError:
+				print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
+
+		elif(IG_options.getint("mode","galaxy_catalogue_type")==1):
+
+			dirToMake = IG_options.get("paths","galaxy_catalogue_output_path")
+			try:
+				os.mkdir(dirToMake)
+			except OSError:
+				print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
+
+			dirToMake = IG_options.get("paths","galaxy_catalogue_output_path") + "/%s"%ig_arg
+			try:
+				os.mkdir(dirToMake)
+			except OSError:
+				print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
+
+
+		#Now write the appropriate execution command
+		S.write("""ibrun -n %d -o 0 %s 1 %d %s %s\n"""%(nRealizations,executable,nRealizations,options.get("raytracing","IG_parameter_file"),ig_arg))
+
+	#Done generating script, return
+
+	S.seek(0)
+	return S.read()
+
 
 ####################################################
 ###############Main execution#######################
@@ -563,6 +670,8 @@ if(__name__=="__main__"):
 		for i in range(len(cosmo_id)):
 			print "%s ICs %d to %d included"%(cosmo_id[i],first_ic[i],last_ic[i])
 
+		print ""
+
 		#Generate script
 		scriptFile = file(scriptFileName,"w")
 		scriptFile.write(generatePlanesSubmission(options,models))
@@ -583,7 +692,40 @@ if(__name__=="__main__"):
 	elif(mode==6):
 
 		#IG ray tracing
-		print "Coming soon"
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGRay_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+
+		#Check models file for cosmological models to run
+		modelFilename = options.get("raytracing","models_file")
+		modelFile = file(modelFilename,"r")
+		models = modelFile.readlines()
+		modelFile.close()
+
+		numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(models)
+
+		#Inform user about which planes will be generated in this submission
+		print "This submission will generate the maps/catalogs for these models:\n"
+		for i in range(len(cosmo_id)):
+			print "%s mixing ICs %d to %d included"%(cosmo_id[i],first_ic[i],last_ic[i])
+
+		print ""
+
+		#Generate script
+		scriptFile = file(scriptFileName,"w")
+		scriptFile.write(generateRaySubmission(options,models))
+		scriptFile.close()
+
+		print "\nIG Ray tracing submission script generated and saved in %s\n"%scriptFileName
+		print ""
+		print "Do you want to sbatch-it now? (y/n)"
+
+		answer = raw_input("-->")
+
+		#Maybe submit the script directly?
+		if(answer=="y"):
+			os.execl("sbatch","sbatch",scriptFileName)
+		else:
+			print "Goodbye! sumbission.py exited normally\n"
+
 
 	else:
 		print "Mode has to be between 1 and 6! Quitting...\n"
