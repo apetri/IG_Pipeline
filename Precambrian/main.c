@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,7 +40,7 @@ char IG_output_dir[1000], IG_planes_folder[200], IG_maps_folder[200], IG_product
 int convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_power_spectrum_filename[]);
 void write_CAMB_parameter_file(char CAMB_param_filename[], char filebase[], char power_end[], double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double As, double h, double z);
 void write_CAMB_condor_job_description(FILE* CAMB_condor_file, char CAMB_param_filename[], char filebase[]);
-void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char NGenIC_param_filename[], char filebase2[], int part, double boxsize, double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double s8, double h, double z, int seed, int power_spectrum_at_zini, double Dplus, double vel_prefac_lam);
+void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char NGenIC_param_filename[], char filebase2[], int part, double boxsize, double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double s8, double h, double z, int seed, int power_spectrum_at_zini, double Dplus, double vel_prefac_lam,int endianness);
 void write_Gadget_parameter_file(char Gadget_param_filename[], char simulation_codename[], char filebase2[], char output_list_filename[], double boxsize, double OBh2, double OM, double OL, double w0, double wa, double h, double z, double soft);
 void write_BGL_description(char NGenIC_param_filename[], char Gadget_param_filename[], char jobstamm[], int job_nr);
 void write_BGP_description(char **BGP_NGenIC_param_filename, char **BGP_Gadget_param_filename, char jobstamm[], int job_nr, int octo_counter);
@@ -129,6 +130,17 @@ sys_options *options = malloc(sizeof(sys_options));
 
 if(ini_parse(argv[1],handler,options)<0){
 	fprintf(stderr,"ini options file %s not found\n",argv[1]);
+	exit(1);
+}
+
+//Machine endianness
+int endianness;
+if(strcmp(options->machine_endianness,"little")){
+	endianness = 0;
+} else if(strcmp(options->machine_endianness,"big")){
+	endianness = 1;
+} else{
+	fprintf(stderr,"Specify little or big endian in options file!!\n");
 	exit(1);
 }
 
@@ -563,7 +575,7 @@ for (i_z=0; i_z<Nz; i_z++)
 			// write N-GenIC and Gadget-2 parameter files for all possible runs.
 			if (mode==3)
 			{
-			        write_NGenIC_parameter_file(converted_power_spectrum_filename, NGenIC_param_filename, filebase2, part, boxsize[i_boxsize], OBh2[i_OBh2], OCh2, OM[i_OM], OL[i_OL], OK, w0[i_w0], wa[i_wa], 1.0, s8[i_s8], h[i_h], z[i_z], seed[i_seed], power_spectrum_at_zini, Dplus, vel_prefac_lam); // ns must always be 1.0, because this is an _additional_ tilt N-GenIC applies. Variable A_s (primordial amplitude) now replaced by s8 (sigma_8).
+			    write_NGenIC_parameter_file(converted_power_spectrum_filename, NGenIC_param_filename, filebase2, part, boxsize[i_boxsize], OBh2[i_OBh2], OCh2, OM[i_OM], OL[i_OL], OK, w0[i_w0], wa[i_wa], 1.0, s8[i_s8], h[i_h], z[i_z], seed[i_seed], power_spectrum_at_zini, Dplus, vel_prefac_lam,endianness); // ns must always be 1.0, because this is an _additional_ tilt N-GenIC applies. Variable A_s (primordial amplitude) now replaced by s8 (sigma_8).
 				write_Gadget_parameter_file(Gadget_param_filename, simulation_codename, filebase2, output_list_filename, boxsize[i_boxsize], OBh2[i_OBh2], OM[i_OM], OL[i_OL], w0[i_w0], wa[i_wa], h[i_h], z[i_h], soft); // associated parameter file for Gadget-2 N-body run with these initial conditions (contains run parameter optimization).
 			}
 			
@@ -976,7 +988,7 @@ void write_CAMB_condor_job_description(FILE* CAMB_condor_file, char CAMB_param_f
 
 
 
-void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char NGenIC_param_filename[], char filebase2[], int part, double boxsize, double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double s8, double h, double z, int seed, int power_spectrum_at_zini, double Dplus, double vel_prefac_lam)
+void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char NGenIC_param_filename[], char filebase2[], int part, double boxsize, double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double s8, double h, double z, int seed, int power_spectrum_at_zini, double Dplus, double vel_prefac_lam,int endianness)
 {
 	FILE* param_file;
 	char filename[1000];
@@ -1022,7 +1034,8 @@ void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char 
 	fprintf(param_file, "FileBase         %s                 %% Base-filename of output files\n", filebase2); // ics_i512w10_3
 	fprintf(param_file, "OutputDir        %s/%s/%s/%s                 %%/home/volker/ics/   %% Directory for output\n\n", ics_data_dir_simcomp, series_folder, Gadget_folder, Gadget_data_folder); // /gpfs/scratch3/jank/Storage/sims/ics/i-series/
 
-	fprintf(param_file, "GlassFile        %s/dummy_glass_big_endian.dat  %% Grid-File or Glass-File \n\n", NGenIC_dir_L); // select between "grid_little_endian.dat" and "grid_bid_endian.dat", depending on endianness of machine on which N-GenIC and Gadget-2 will be run. 
+	if(endianness==1) fprintf(param_file, "GlassFile        %s/dummy_glass_big_endian.dat  %% Grid-File or Glass-File \n\n", NGenIC_dir_L); // select between "grid_little_endian.dat" and "grid_bid_endian.dat", depending on endianness of machine on which N-GenIC and Gadget-2 will be run. 
+	if(endianness==0) fprintf(param_file, "GlassFile        %s/dummy_glass_little_endian.dat  %% Grid-File or Glass-File \n\n", NGenIC_dir_L);
 
 	fprintf(param_file, "TileFac     %d                %% Number of times the glass file is\n", part/16); // above grid files consist of 16^3 particles, so they need to be repoduced (number of particles in one dim / 16)-times. If want number of particles not divisible by 16, must create new grid files.
 	fprintf(param_file, "                                  %% tiled in each dimension (must be\n");

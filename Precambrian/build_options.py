@@ -16,6 +16,7 @@ C_OPTIONS_HEADER = "options.h"
 
 submission=[
 ("submission","submission_style",int,2),
+("submission","machine_endianness",str,"little")
 ]
 
 paths=[

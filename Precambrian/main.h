@@ -31,7 +31,7 @@ extern char home_path[1000], repository_path[1000], mass_storage_path[1000];
 int convert_CAMB_power_spectrum(char power_spectrum_filename[], char converted_power_spectrum_filename[]);
 void write_CAMB_parameter_file(char CAMB_param_filename[], char filebase[], char power_end[], double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double As, double h, double z);
 void write_CAMB_condor_job_description(FILE* CAMB_condor_file, char CAMB_param_filename[], char filebase[]);
-void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char NGenIC_param_filename[], char filebase2[], int part, double boxsize, double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double s8, double h, double z, int seed, int power_spectrum_at_zini, double Dplus, double vel_prefac_lam);
+void write_NGenIC_parameter_file(char converted_power_spectrum_filename[], char NGenIC_param_filename[], char filebase2[], int part, double boxsize, double OBh2, double OCh2, double OM, double OL, double OK, double w0, double wa, double ns, double s8, double h, double z, int seed, int power_spectrum_at_zini, double Dplus, double vel_prefac_lam,int endianness);
 void write_Gadget_parameter_file(char Gadget_param_filename[], char simulation_codename[], char filebase2[], char output_list_filename[], double boxsize, double OBh2, double OM, double OL, double w0, double wa, double h, double z, double soft);
 void write_BGL_description(char NGenIC_param_filename[], char Gadget_param_filename[], char jobstamm[], int job_nr);
 void write_BGP_description(char **BGP_NGenIC_param_filename, char **BGP_Gadget_param_filename, char jobstamm[], int job_nr, int octo_counter);
