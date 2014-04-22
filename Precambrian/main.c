@@ -135,9 +135,9 @@ if(ini_parse(argv[1],handler,options)<0){
 
 //Machine endianness
 int endianness;
-if(strcmp(options->machine_endianness,"little")){
+if(strcmp(options->machine_endianness,"little")==0){
 	endianness = 0;
-} else if(strcmp(options->machine_endianness,"big")){
+} else if(strcmp(options->machine_endianness,"big")==0){
 	endianness = 1;
 } else{
 	fprintf(stderr,"Specify little or big endian in options file!!\n");
