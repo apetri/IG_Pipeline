@@ -563,7 +563,7 @@ if(__name__=="__main__"):
 
 		#Maybe submit the script directly?
 		if(answer=="y"):
-			os.execl("sbatch","sbatch",scriptFileName)
+			os.execl("/usr/bin/sbatch","sbatch",scriptFileName)
 		else:
 			print "Goodbye! sumbission.py exited normally\n"
 
@@ -584,7 +584,7 @@ if(__name__=="__main__"):
 
 		#Maybe submit the script directly?
 		if(answer=="y"):
-			os.execl("sbatch","sbatch",scriptFileName)
+			os.execl("/usr/bin/sbatch","sbatch",scriptFileName)
 		else:
 			print "Goodbye! sumbission.py exited normally\n"
 
@@ -685,7 +685,7 @@ if(__name__=="__main__"):
 
 		#Maybe submit the script directly?
 		if(answer=="y"):
-			os.execl("sbatch","sbatch",scriptFileName)
+			os.execl("/usr/bin/sbatch","sbatch",scriptFileName)
 		else:
 			print "Goodbye! sumbission.py exited normally\n"
 
@@ -722,7 +722,7 @@ if(__name__=="__main__"):
 
 		#Maybe submit the script directly?
 		if(answer=="y"):
-			os.execl("sbatch","sbatch",scriptFileName)
+			os.execl("/usr/bin/sbatch","sbatch",scriptFileName)
 		else:
 			print "Goodbye! sumbission.py exited normally\n"
 
