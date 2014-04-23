@@ -202,7 +202,7 @@ flat_universe=options->flat_universe; // Set to !=0 if want universe to be flat 
 remove=options->remove_old; // Set !=0 if want to remove old job files (old ones will be overwritten, but there may be stray superfluous ones so it's recommended even though job submission shell scripts will be updated such that they ignore the superfluous ones).
 
 /////////////////////////////////////////////////////////////////////////////
-// COSMOLOGICAL PARAMETERS: (arrays, can run various combinations)
+// COSMOLOGICAL PARAMETERS: (arrays, can run various combinations specified in a file)
 ////////////////////////////
 
 // OMEGA BARYON: Fractional baryon density * h^2:

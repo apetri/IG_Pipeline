@@ -28,6 +28,7 @@ paths=[
 series=[
 ("series","series_name",str,"mQ3"),
 ("series","num_particles_side",int,512),
+("series","models_file",str,"cosmologies.txt")
 ]
 
 settings=[
@@ -64,26 +65,13 @@ scalar_options=[
 #Format is (Category,Number_of_parameters_name,array_parameter_name,num_elements,Parameter_type,Default_values) (only int,float supported)
 
 boxes=[
-("box_number","Nboxsize","boxsize",1,float,[240.0])
-]
-
-cosmo_parameters=[
-("cosmo","Nobh2","OBh2",1,float,[0.0227]),
-("cosmo","Nom","OM",4,float,[0.23,0.26,0.29,0.32]),
-("cosmo","Nol","OL",1,float,[0.74]),
-("cosmo","Nw0","w0",4,float,[-1.0,-0.8,-0.6,-1.2]),
-("cosmo","Nwa","wa",1,float,[0.0]),
-("cosmo","Nns","ns",1,float,[0.960]),
-("cosmo","Nas","as",1,float,[2.41e-9]),
-("cosmo","Ns8","s8",4,float,[0.80,0.75,0.85,0.90]),
-("cosmo","Nh","h",1,float,[0.72]),
-("cosmo","Nz","z",1,float,[100.0]),
-("cosmo","Nseed","seed",10,int,[168757,580133,311652,325145,222701,194340,705031,674951,495306,105884])
+("box_number","Nboxsize","boxsize",1,float,[240.0]),
+("box_number","Nz","z",1,float,[100.0]),
+("box_number","Nseed","seed",10,int,[168757,580133,311652,325145,222701,194340,705031,674951,495306,105884])
 ]
 
 vector_options=[
-("Number of box sizes to be evaluated",boxes),
-("Cosmological parameters",cosmo_parameters)
+("Number of box sizes,initial redshifts,random seeds to be evaluated",boxes)
 ]
 
 ###############################################################
