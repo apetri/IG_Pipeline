@@ -1,4 +1,4 @@
-import sys,os,shutil,stat
+import sys,os,stat
 import ConfigParser
 import StringIO
 
@@ -294,16 +294,6 @@ CORES_PER_NODE=%d
 	for filename in parameter_filenames:
 		print filename
 	print ""
-
-	#Copy the outputs_xxx-series.txt into the Gadget parameters directory
-	try:
-		outputs_filename = "%s/%s/outputs_%s-series.txt"%(options.get("paths","home_path"),options.get("paths","repository_path"),series_name)
-		target_filename = "%s/%s/localStorage/ics/%s-series/data_Gadget/Parameters/outputs_%s-series.txt"%(options.get("paths","home_path"),options.get("paths","repository_path"),series_name,series_name)
-		shutil.copy(outputs_filename,target_filename)
-		print "Copied Gadget outputs file in %s"%target_filename
-	except IOError:
-		print "%s doesn not exist! Create it and rerun submission.py!!"%outputs_filename
-		exit(1)
 	
 	#Check for correct number of blocks
 	max_sims_sub_block = options.getint("topology","max_sims_sub_block")
