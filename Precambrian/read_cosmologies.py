@@ -10,5 +10,9 @@ if(len(cosmo.shape)==1):
 else:
 	N = cosmo.shape[0]
 
-file(sys.argv[2],"w").write("%d\n"%N)
-np.savetxt(sys.argv[2],cosmo,fmt="%.3e")
+cosmoFile = file(sys.argv[2],"a")
+
+cosmoFile.write("%d\n"%N)
+np.savetxt(cosmoFile,cosmo,fmt="%.3e")
+
+cosmoFile.close()

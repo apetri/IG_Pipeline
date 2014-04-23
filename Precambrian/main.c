@@ -209,12 +209,6 @@ remove=options->remove_old; // Set !=0 if want to remove old job files (old ones
 // Fork process here, child will read cosmologies file, clean it up and pipe the result to master//
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-//create named pipe
-if(mkfifo("mypipe",S_IRWXU | S_IRWXG | S_IRWXO)>0){
-	fprintf(stderr,"Couldn't create named pipe, quitting\n");
-	exit(1);
-}
-
 //fork process
 pid_t pid;
 pid = fork();
@@ -228,6 +222,12 @@ if(pid<0){
 	fprintf(stderr,"execl() failed, quitting");
 	exit(1);
 } else{
+
+	//wait for the child process to have completed reading the cosmologies file
+	if(waitpid(pid,NULL,0)!=pid){
+		fprintf(stderr,"waitpid() failed\n");
+		exit(1);
+	}
 
 	//Master reads pipe with cosmological parameters
 	FILE *cosmo_stream = fopen("mypipe","r");
@@ -294,12 +294,6 @@ if(pid<0){
 
 	fclose(cosmo_stream);
 	unlink("mypipe");
-
-	//wait the child process
-	if(waitpid(pid,NULL,0)!=pid){
-		fprintf(stderr,"waitpid() failed\n");
-		exit(1);
-	}
 
 	// Starting Redshift of N-body simulations:
 	// (Power spectrum redshift can be set via power_spectrum_at_zini flag above to initial redshift of simulation or to z=0 and normalized to sigma_8 today by modified N-GenIC, which is capable of scaling back with dark energy with w(z).)
