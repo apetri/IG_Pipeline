@@ -2,7 +2,7 @@
 
 FC = gfortran
 FFLAGS = -O2
-CC = icc
+CC = gcc
 CFLAGS = -O2 -I.
 FLIB = -lm
 
