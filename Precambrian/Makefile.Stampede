@@ -1,10 +1,10 @@
 ###System specific compilers
 
-FC = gfortran
+FC = ifort
 FFLAGS = -O2
-CC = gcc
+CC = icc
 CFLAGS = -O2 -I.
-FLIB = -lm
+FLIB = -lm -nofor-main
 
 #Need absolute path here!!!!
 PYTHON = ${TACC_PYTHON_DIR}/bin/python
