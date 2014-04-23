@@ -1,0 +1,10 @@
+###System specific compilers
+
+FC = gfortran
+FFLAGS = -O2
+CC = gcc
+CFLAGS = -O2 -I.
+FLIB = -lm
+
+#Need absolute path here!!!!
+PYTHON = /usr/bin/python

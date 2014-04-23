@@ -1,0 +1,10 @@
+###System specific compilers
+
+FC=gfortran
+FFLAGS=-O2
+CC=clang
+CFLAGS=-O2 -I.
+FLIB = -lm # gfortran does not need libg2c anymore.
+
+#Need absolute path here!!!!
+PYTHON = /usr/local/bin/python

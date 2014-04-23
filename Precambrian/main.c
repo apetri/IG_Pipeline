@@ -77,11 +77,11 @@ for (i=0; i<8; i++)
 }
 char output_list_filename[200]; // name of input file for Gadget-2 which contains the scale factor (time) values at which simulation snapshot outputs are to be generated.
 
-int Nobh2, Nom, Nol, Nw0, Nwa, Nns, Nas, Ns8, Nh, Nz, Nseed; // Number of parameter values for each of these parameters. 
+int Ncosmo, Nz, Nseed; // Number of parameter values for each of these parameters. 
 double *OBh2, *OM, *OL, *w0, *wa, *ns, *As, *s8, *h, *z; // Arrays containing the different parameter values for the cosmological parameters.
 int *seed; // Array of random number seeds for N-GenIC to realize different random initial conditions for a simulation with same power spectrum and cosmological parameters.
 double OK, OCh2, redshift, Dplus; // Derived cosmological parameters (not user seletable, as they follow from the above and are automatically computed).
-int i_OBh2, i_OM, i_OL, i_w0, i_wa, i_ns, i_As, i_s8, i_h, i_z, i_seed; // Index counting through values of parameters.
+int i_cosmo, i_z, i_seed; // Index counting through values of parameters.
 int mode, submission_style, power_spectrum_at_zini, flat_universe, remove; // Flags to select different modes and options.
 int part, Nboxsize, i_boxsize; // simulation specific parameters.
 double *boxsize; // Array containing box sizes for simulations (more than one size if want to do telescopic weak lensing study). 
@@ -119,7 +119,7 @@ if (argc < 3)
 	printf("Usage: ./Precambrian <ini_options_file> <mode>\nwhere <mode> can equal:\n\n");
 	printf("1: Generate parameter files for CAMB and Condor job description file for CAMB execution.\n");
 	printf("2: Convert CAMB matter power spectra to N-GenIC power spectra.\n");
-	printf("3: Generate N-GenIC and Gadget-2 parameter files (all combinations).\n");
+	printf("3: Generate N-GenIC and Gadget-2 parameter files (cosmologies read from external file).\n");
 	printf("4: Generate selected NYBlue job description files and submission shell scripts;\n   this option also takes into account the submission_style variable in the code.\n");
 	printf("\nAborting. Rerun Precambrian with one of the above modes as its argument.\n\n");
 	exit(1);
@@ -205,143 +205,172 @@ remove=options->remove_old; // Set !=0 if want to remove old job files (old ones
 // COSMOLOGICAL PARAMETERS: (arrays, can run various combinations specified in a file)
 ////////////////////////////
 
-// OMEGA BARYON: Fractional baryon density * h^2:
-Nobh2=options->Nobh2; // Number of different parameter values of OMEGA BARYON to be investigated; make sure number equals number of different parameter values below.
-OBh2=(double *)malloc(Nobh2*sizeof(double));
-for(i=0;i<Nobh2;i++){
-	OBh2[i]=options->OBh2[i];
-}  // OB ~ 0.042;   // OB=0.0437885802469 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Fork process here, child will read cosmologies file, clean it up and pipe the result to master//
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// OMEGA MATTER: Fractional total matter density today (CDM + baryons, has to add up to 1 with OL below for flat universe):
-Nom=options->Nom; // Number of different parameter values of OMEGA MATTER to be investigated; make sure number equals number of different parameter values below.
-OM=(double *)malloc(Nom*sizeof(double));
-for(i=0;i<Nom;i++){
-	OM[i]=options->OM[i];
+//create named pipe
+if(mkfifo("mypipe",S_IRWXU | S_IRWXG | S_IRWXO)>0){
+	fprintf(stderr,"Couldn't create named pipe, quitting\n");
+	exit(1);
 }
 
-// OMEGA DARK ENERGY: Fractional dark energy density today (has to add up to 1 with OM above for flat universe):
-Nol=options->Nol; // make sure number equals number of different parameter values below.
-OL=(double *)malloc(Nol*sizeof(double));
-for(i=0;i<Nol;i++){
-	OL[i]=options->OL[i];
-} 
-// will be reset to value to make universe flat if flat_universe flag above is set.
+//fork process
+pid_t pid;
+pid = fork();
 
-/////////////////////////////////
-// DARK ENERGY EQUATION OF STATE:
-/////////////////////////////////
-// Dark Energy Model: w(z)=w_0+(z/(z+1))*w_a.
-// Currently only w_0 works (constant w) with CAMB.
-Nw0=options->Nw0; // make sure number equals number of different parameter values below.
-w0=(double *)malloc(Nw0*sizeof(double));
-for(i=0;i<Nw0;i++){
-	w0[i]=options->w0[i];
+if(pid<0){
+	fprintf(stderr,"Can't fork!\n");
+	exit(1);
+} else if(pid==0){
+	//Child process execl's python script that reads cosmologies file and pipes it
+	execl(PYTHONEXE,"python","read_cosmologies.py",options->models_file,"mypipe",NULL);
+	fprintf(stderr,"execl() failed, quitting");
+	exit(1);
+} else{
+
+	//Master reads pipe with cosmological parameters
+	FILE *cosmo_stream = fopen("mypipe","r");
+	if(cosmo_stream==NULL){
+		fprintf(stderr,"Couldn't open named pipe, quitting\n");
+		exit(1);
+	}
+
+	//Read in the number of cosmologies
+	fscanf(cosmo_stream,"%d",&Ncosmo);
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Allocate memory for the cosmological parameters arrays(all have the same dimension)//
+	////////////////////////////////////////////////////////////////////////////////////////
+
+	// OMEGA BARYON: Fractional baryon density * h^2:
+	OBh2=(double *)malloc(Ncosmo*sizeof(double));
+
+	// OMEGA MATTER: Fractional total matter density today (CDM + baryons, has to add up to 1 with OL below for flat universe):
+	OM=(double *)malloc(Ncosmo*sizeof(double));
+
+	// OMEGA DARK ENERGY: Fractional dark energy density today (has to add up to 1 with OM above for flat universe):
+	OL=(double *)malloc(Ncosmo*sizeof(double));
+	// will be reset to value to make universe flat if flat_universe flag above is set.
+
+	/////////////////////////////////
+	// DARK ENERGY EQUATION OF STATE:
+	/////////////////////////////////
+	// Dark Energy Model: w(z)=w_0+(z/(z+1))*w_a.
+	// Currently only w_0 works (constant w) with CAMB.
+	w0=(double *)malloc(Ncosmo*sizeof(double));
+	wa=(double *)malloc(Ncosmo*sizeof(double));
+	/////////////////////////////////
+
+	// Scalar spectral index n_s:
+	ns=(double *)malloc(Ncosmo*sizeof(double));
+	/*
+	ns[1]=0.92;
+	ns[2]=1.00;
+	*/
+
+	// Primordial amplitude of density perturbations A_s (Note: depends on pivot scale, set in CAMB parameter file):
+	// (This parameter is reset by sigma_8 normalization in postprocessing.)
+	As=(double *)malloc(Ncosmo*sizeof(double));
+
+	// sigma_8:
+	s8=(double *)malloc(Ncosmo*sizeof(double));
+
+	// Hubble parameter h: H_0 = 100 * h km/s/Mpc.
+	h=(double *)malloc(Ncosmo*sizeof(double));
+
+	///////////////////////////////////////////////////////////////////////////////
+	////////////////Read cosmological parameters value from pipe///////////////////
+	///////////////////////////////////////////////////////////////////////////////
+	for(i_cosmo=0;i_cosmo<Ncosmo;i_cosmo++){
+		fscanf(cosmo_stream,"%le %le %le %le %le %le %le %le %le",&OBh2[i_cosmo],&OM[i_cosmo],&OL[i_cosmo],&w0[i_cosmo],&wa[i_cosmo],&ns[i_cosmo],&As[i_cosmo],&s8[i_cosmo],&h[i_cosmo]);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////
+	///////////////Cosmological parameters read, don't need pipe anymore, cleanup//
+	///////////////////////////////////////////////////////////////////////////////
+
+	fclose(cosmo_stream);
+	unlink("mypipe");
+
+	//wait the child process
+	if(waitpid(pid,NULL,0)!=pid){
+		fprintf(stderr,"waitpid() failed\n");
+		exit(1);
+	}
+
+	// Starting Redshift of N-body simulations:
+	// (Power spectrum redshift can be set via power_spectrum_at_zini flag above to initial redshift of simulation or to z=0 and normalized to sigma_8 today by modified N-GenIC, which is capable of scaling back with dark energy with w(z).)
+	Nz=options->Nz; // make sure number equals number of different parameter values below.
+	z=(double *)malloc(Nz*sizeof(double));
+	for(i=0;i<Nz;i++){
+		z[i]=options->z[i];
+	}
+
+	// Random number seed for N-GenIC:
+	Nseed=options->Nseed; // make sure number equals number of different parameter values below.
+	seed=(int *)malloc(Nseed*sizeof(int));
+	for(i=0;i<Nseed;i++){
+		seed[i]=options->seed[i];
+	}
+
+	/*
+	seed[5]=194340;
+	seed[6]=705031;
+	seed[7]=674951;
+	seed[8]=495306;
+	seed[9]=105884;
+	seed[10]=932155;
+	seed[11]=758004;
+	seed[12]=521745;
+	seed[13]=610028;
+	seed[14]=493763;
+	seed[15]=817290;
+	seed[16]=715483;
+	seed[17]=219569;
+	seed[18]=563201;
+	seed[19]=695264;
+	seed[20]=124485;
+	seed[21]=545083;
+	seed[22]=814251;
+	seed[23]=173353;
+	seed[24]=614519;
+	seed[25]=840351;
+	seed[26]=308614;
+	seed[27]=247316;
+	seed[28]=782067;
+	seed[29]=651665;
+	seed[30]=956032;
+	seed[31]=943607;
+	seed[32]=546898;
+	seed[33]=570575;
+	seed[34]=871385;
+	seed[35]=600617;
+	seed[36]=381579;
+	seed[37]=225985;
+	seed[38]=493429;
+	seed[39]=207875;
+	seed[40]=370995;
+	seed[41]=481012;
+	seed[42]=368944;
+	seed[43]=662792;
+	seed[44]=362064;
+	seed[45]=647263;
+	seed[46]=195591;
+	seed[47]=482732;
+	seed[48]=521713;
+	seed[49]=855138;
+	*/
 }
-
-Nwa=options->Nwa; // make sure number equals number of different parameter values below.
-wa=(double *)malloc(Nwa*sizeof(double));
-for(i=0;i<Nwa;i++){
-	wa[i]=options->wa[i];
-}
-/////////////////////////////////
-
-// Scalar spectral index n_s:
-Nns=options->Nns; // make sure number equals number of different parameter values below.
-ns=(double *)malloc(Nns*sizeof(double));
-for(i=0;i<Nns;i++){
-	ns[i]=options->ns[i];
-}
-/*
-ns[1]=0.92;
-ns[2]=1.00;
-*/
-
-// Primordial amplitude of density perturbations A_s (Note: depends on pivot scale, set in CAMB parameter file):
-// (This parameter is reset by sigma_8 normalization in postprocessing.)
-Nas=options->Nas; // make sure number equals number of different parameter values below.
-As=(double *)malloc(Nas*sizeof(double));
-for(i=0;i<Nas;i++){
-	As[i]=options->as[i];
-}
-
-// sigma_8:
-Ns8=options->Ns8; // make sure number equals number of different parameter values below.
-s8=(double *)malloc(Ns8*sizeof(double));
-for(i=0;i<Ns8;i++){
-	s8[i]=options->s8[i];  // m-series was: 0.798;     // 0.79841924
-}
-
-// Hubble parameter h: H_0 = 100 * h km/s/Mpc.
-Nh=options->Nh; // make sure number equals number of different parameter values below.
-h=(double *)malloc(Nh*sizeof(double));
-for(i=0;i<Nh;i++){
-	h[i]=options->h[i];
-}
-
-// Starting Redshift of N-body simulations:
-// (Power spectrum redshift can be set via power_spectrum_at_zini flag above to initial redshift of simulation or to z=0 and normalized to sigma_8 today by modified N-GenIC, which is capable of scaling back with dark energy with w(z).)
-Nz=options->Nz; // make sure number equals number of different parameter values below.
-z=(double *)malloc(Nz*sizeof(double));
-for(i=0;i<Nz;i++){
-	z[i]=options->z[i];
-}
-
-// Random number seed for N-GenIC:
-Nseed=options->Nseed; // make sure number equals number of different parameter values below.
-seed=(int *)malloc(Nseed*sizeof(int));
-for(i=0;i<Nseed;i++){
-	seed[i]=options->seed[i];
-}
-
-/*
-seed[5]=194340;
-seed[6]=705031;
-seed[7]=674951;
-seed[8]=495306;
-seed[9]=105884;
-seed[10]=932155;
-seed[11]=758004;
-seed[12]=521745;
-seed[13]=610028;
-seed[14]=493763;
-seed[15]=817290;
-seed[16]=715483;
-seed[17]=219569;
-seed[18]=563201;
-seed[19]=695264;
-seed[20]=124485;
-seed[21]=545083;
-seed[22]=814251;
-seed[23]=173353;
-seed[24]=614519;
-seed[25]=840351;
-seed[26]=308614;
-seed[27]=247316;
-seed[28]=782067;
-seed[29]=651665;
-seed[30]=956032;
-seed[31]=943607;
-seed[32]=546898;
-seed[33]=570575;
-seed[34]=871385;
-seed[35]=600617;
-seed[36]=381579;
-seed[37]=225985;
-seed[38]=493429;
-seed[39]=207875;
-seed[40]=370995;
-seed[41]=481012;
-seed[42]=368944;
-seed[43]=662792;
-seed[44]=362064;
-seed[45]=647263;
-seed[46]=195591;
-seed[47]=482732;
-seed[48]=521713;
-seed[49]=855138;
-*/
 
 free(options);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////Child already dead and reaped here, cosmological parameters are read and stored, can continue///////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /////////////////////////////////////////////////////////////
 // Paths, folders, and names (for description of all the variables here, see their declaration above):
@@ -472,31 +501,17 @@ if (mode==1) // open condor job description file for writing and write header
 	fprintf(CAMB_condor_file, "when_to_transfer_output = ON_EXIT\n\n");
 }
 
-for (i_OBh2=0; i_OBh2<Nobh2; i_OBh2++)
-{
-for (i_OM=0; i_OM<Nom; i_OM++)
-{
-for (i_OL=0; i_OL<Nol; i_OL++)
-{
-for (i_w0=0; i_w0<Nw0; i_w0++)
-{
-for (i_wa=0; i_wa<Nwa; i_wa++)
-{
-for (i_ns=0; i_ns<Nns; i_ns++)
-{
-for (i_As=0; i_As<Nas; i_As++)
-{
-for (i_h=0; i_h<Nh; i_h++)
+for (i_cosmo=0; i_cosmo<Ncosmo; i_cosmo++)
 {
 for (i_z=0; i_z<Nz; i_z++)
 {
 	// Calculate derived quantities:
-	if (flat_universe!=0) OL[i_OL]=1-OM[i_OM]; // override to make flat universe if flat_universe flag is set;
-	OK=1-OM[i_OM]-OL[i_OL]; // curvature
-	OCh2=OM[i_OM]*h[i_h]*h[i_h]-OBh2[i_OBh2]; // Fractional CDM density * h^2
+	if (flat_universe!=0) OL[i_cosmo]=1-OM[i_cosmo]; // override to make flat universe if flat_universe flag is set;
+	OK=1-OM[i_cosmo]-OL[i_cosmo]; // curvature
+	OCh2=OM[i_cosmo]*h[i_cosmo]*h[i_cosmo]-OBh2[i_cosmo]; // Fractional CDM density * h^2
 	Dplus=0; 
 	vel_prefac_lam=0.0; // initialization to zero.
-	sprintf(filerawbase, "Om%1.3f_Ol%1.3f_w%1.3f_ns%1.3f", OM[i_OM], OL[i_OL], w0[i_w0], ns[i_ns]); // base of filenames for a particular parameter combination (must contain distinction based on parameter varied values).
+	sprintf(filerawbase, "Om%1.3f_Ol%1.3f_w%1.3f_ns%1.3f", OM[i_cosmo], OL[i_cosmo], w0[i_cosmo], ns[i_cosmo]); // base of filenames for a particular parameter combination (must contain distinction based on parameter varied values).
 	sprintf(filebase, "%s-%s", series, filerawbase);
 	sprintf(CAMB_param_filename, "params_%s.ini", filebase); // construct name of CAMB parameter file (input file for CAMB).
 	sprintf(power_spectrum_filename, "%s_%s", filebase, power_end); // construct filename of file which will contain output power spectrum of CAMB (output of CAMB).
@@ -513,7 +528,7 @@ for (i_z=0; i_z<Nz; i_z++)
 			redshift=0;
 		}
 		else redshift=z[i_z];
-		write_CAMB_parameter_file(CAMB_param_filename, filebase, power_end, OBh2[i_OBh2], OCh2, OM[i_OM], OL[i_OL], OK, w0[i_w0], wa[i_wa], ns[i_ns], As[i_As], h[i_h], redshift);
+		write_CAMB_parameter_file(CAMB_param_filename, filebase, power_end, OBh2[i_cosmo], OCh2, OM[i_cosmo], OL[i_cosmo], OK, w0[i_cosmo], wa[i_cosmo], ns[i_cosmo], As[i_cosmo], h[i_cosmo], redshift);
 		write_CAMB_condor_job_description(CAMB_condor_file, CAMB_param_filename, filebase);
 		process_number++;
 	}
@@ -533,7 +548,7 @@ for (i_z=0; i_z<Nz; i_z++)
 		// Convert power spectrum file:
 		convert_CAMB_power_spectrum(power_spectrum_filename, converted_power_spectrum_filename);
 	}
-	else if (mode==3 || mode==4 || mode==5 || mode==6) // generate all N-GenIC and Gadget-2 parameter files, and selected Blue Gene job description files and submission shell scripts. 
+	else if (mode==3 || mode==4) // generate all N-GenIC and Gadget-2 parameter files, and selected Blue Gene job description files and submission shell scripts. 
 	{
 		
 		if (mode==3)
@@ -542,7 +557,7 @@ for (i_z=0; i_z<Nz; i_z++)
 			// Calculate Growth Factor and Velocity prefactor (depends on cosmological parameters other than sigma_8, does not depend on boxsize or random seed):
 		        Dplus=0.0;
 	         	vel_prefac_lam=0.0;
-	     		Dplus=Dplus_Interface(z[i_z], 0.0, OM[i_OM], OL[i_OL], 0.0, w0[i_w0], wa[i_wa], h[i_h]); // redshift today always set to z_today=0.0, same for Omega Cosmological constant (additional cosmological constant in addition to dark energy model).
+	     		Dplus=Dplus_Interface(z[i_z], 0.0, OM[i_cosmo], OL[i_cosmo], 0.0, w0[i_cosmo], wa[i_cosmo], h[i_cosmo]); // redshift today always set to z_today=0.0, same for Omega Cosmological constant (additional cosmological constant in addition to dark energy model).
 			// vel_prefac_lam (realized as a global variable for simplicity) is also set by this function.
 	
 			// Make a safety check, because the above is C calling FORTRAN 77:
@@ -557,8 +572,6 @@ for (i_z=0; i_z<Nz; i_z++)
             
 		}
 
-		for (i_s8=0; i_s8<Ns8; i_s8++)
-		{
 		for (i_seed=0; i_seed<Nseed; i_seed++)
 		{
 		for (i_boxsize=0; i_boxsize<Nboxsize; i_boxsize++)
@@ -567,7 +580,7 @@ for (i_z=0; i_z<Nz; i_z++)
 		  soft=7.5*512.0*boxsize[i_boxsize]/(200.0*part); // This is scaled formula from standard simulation (similar softening to Millennium simulation, Bologna simulation, etc.).
 		  
 			//printf("Seed: seed, iseed: %d %d\n", seed[i_seed], i_seed);
-			sprintf(simulation_codename, "%s-%db%d_%s_si%1.3f_ic%d", series, part, ((int) boxsize[i_boxsize]), filerawbase, s8[i_s8], i_seed+1);
+			sprintf(simulation_codename, "%s-%db%d_%s_si%1.3f_ic%d", series, part, ((int) boxsize[i_boxsize]), filerawbase, s8[i_cosmo], i_seed+1);
 			sprintf(filebase2, "%s_%s", ics_front, simulation_codename);
 			sprintf(NGenIC_param_filename, "%s.param", filebase2); // This file contains the power spectrum in final format and will be input file for N-GenIC. MPS stands for (total) Matter Power Spectrum 
 			sprintf(Gadget_param_filename, "%s.param", simulation_codename);
@@ -575,14 +588,14 @@ for (i_z=0; i_z<Nz; i_z++)
 			// write N-GenIC and Gadget-2 parameter files for all possible runs.
 			if (mode==3)
 			{
-			    write_NGenIC_parameter_file(converted_power_spectrum_filename, NGenIC_param_filename, filebase2, part, boxsize[i_boxsize], OBh2[i_OBh2], OCh2, OM[i_OM], OL[i_OL], OK, w0[i_w0], wa[i_wa], 1.0, s8[i_s8], h[i_h], z[i_z], seed[i_seed], power_spectrum_at_zini, Dplus, vel_prefac_lam,endianness); // ns must always be 1.0, because this is an _additional_ tilt N-GenIC applies. Variable A_s (primordial amplitude) now replaced by s8 (sigma_8).
-				write_Gadget_parameter_file(Gadget_param_filename, simulation_codename, filebase2, output_list_filename, boxsize[i_boxsize], OBh2[i_OBh2], OM[i_OM], OL[i_OL], w0[i_w0], wa[i_wa], h[i_h], z[i_h], soft); // associated parameter file for Gadget-2 N-body run with these initial conditions (contains run parameter optimization).
+			    write_NGenIC_parameter_file(converted_power_spectrum_filename, NGenIC_param_filename, filebase2, part, boxsize[i_boxsize], OBh2[i_cosmo], OCh2, OM[i_cosmo], OL[i_cosmo], OK, w0[i_cosmo], wa[i_cosmo], 1.0, s8[i_cosmo], h[i_cosmo], z[i_z], seed[i_seed], power_spectrum_at_zini, Dplus, vel_prefac_lam,endianness); // ns must always be 1.0, because this is an _additional_ tilt N-GenIC applies. Variable A_s (primordial amplitude) now replaced by s8 (sigma_8).
+				write_Gadget_parameter_file(Gadget_param_filename, simulation_codename, filebase2, output_list_filename, boxsize[i_boxsize], OBh2[i_cosmo], OM[i_cosmo], OL[i_cosmo], w0[i_cosmo], wa[i_cosmo], h[i_cosmo], z[i_z], soft); // associated parameter file for Gadget-2 N-body run with these initial conditions (contains run parameter optimization).
 			}
 			
 			// Create job description files for Blue Gene/L if this job is to be run for the selected submission_style:
 			if (mode==4)
 			{
-				if (submission_style==1 || (submission_style==2 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)<=1) || (submission_style==3 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==0) || (submission_style==4 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)>1) || (submission_style==5 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==1) || (submission_style==6 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)!=0))
+				if (submission_style==1 || (submission_style==2 && (i_cosmo!=0)<=1) || (submission_style==3 && (i_cosmo!=0)==0) || (submission_style==4 && (i_cosmo!=0)>1) || (submission_style==5 && (i_cosmo!=0)==1) || (submission_style==6 && (i_cosmo!=0)!=0))
 				{
 					jobs++;
 					write_BGL_description(NGenIC_param_filename, Gadget_param_filename, jobstammL, jobs);
@@ -597,35 +610,34 @@ for (i_z=0; i_z<Nz; i_z++)
 					}
 
 					// Add directory to directory creation script:
-					write_directory_script(directory_script_file, simulation_codename);
+					//write_directory_script(directory_script_file, simulation_codename);
 
 				}
 			}
 
-			if (mode==5)
-			  {
+			//if (mode==5)
+			  //{
 
-			    if (submission_style==1 || (submission_style==2 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)<=1) || (submission_style==3 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==0) || (submission_style==4 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)>1) || (submission_style==5 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==1) || (submission_style==6 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)!=0))
-			      {
+			    //if (submission_style==1 || (submission_style==2 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)<=1) || (submission_style==3 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==0) || (submission_style==4 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)>1) || (submission_style==5 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==1) || (submission_style==6 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)!=0))
+			      //{
 				// Add directory to IG directory creation script:
-				write_IG_directory_script(IG_directory_script_file, simulation_codename);
-			      }
-			  }
+				//write_IG_directory_script(IG_directory_script_file, simulation_codename);
+			      //}
+			  //}
 
 				
 		} // end loop over i_boxsize.
 		} // end loop over i_seed.
 
-		if (mode==6)
-		  {
+		//if (mode==6)
+		  //{
 		    // Add cosmology to simple list file:
-		    if (submission_style==1 || (submission_style==2 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)<=1) || (submission_style==3 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==0) || (submission_style==4 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)>1) || (submission_style==5 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==1) || (submission_style==6 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)!=0))
-		      {
-			write_simple_list(simple_list_file, simulation_codename);
-		      }
-		  }
+		    //if (submission_style==1 || (submission_style==2 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)<=1) || (submission_style==3 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==0) || (submission_style==4 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)>1) || (submission_style==5 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)==1) || (submission_style==6 && (i_OBh2!=0)+(i_OM!=0)+(i_OL!=0)+(i_w0!=0)+(i_wa!=0)+(i_ns!=0)+(i_s8!=0)!=0))
+		      //{
+			//write_simple_list(simple_list_file, simulation_codename);
+		      //}
+		 // }
 
-		} // end loop over i_s8.
 	}
 	else
 	{
@@ -638,14 +650,7 @@ for (i_z=0; i_z<Nz; i_z++)
 	// fflush(stdout);
 
 } // end loop over i_z.
-} // end loop over i_h.
-} // end loop over i_As.
-} // end loop over i_ns.
-} // end loop over i_wa.
-} // end loop over i_w0.
-} // end loop over i_OL.
-} // end loop over i_OM.
-} // end loop over i_OBh2.
+} // end loop over i_cosmo.
 	
 	
 	if (mode == 1) fclose(CAMB_condor_file);
