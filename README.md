@@ -89,15 +89,26 @@ Go in the Gadget2/Power\_Spectrum\_3D directory and run
 
 this will compile and link an executable called "3D\_Power\_Spectrum\_Calculator": this is the tool you will use to measure the 3D power spectrum of a Gadget snapshot. The "make" command, will also produce a "default\_options.ini" file, that serves as blueprint for the options file you will have to pass to "3D\_Power\_Spectrum\_Calculator"; let's call "power\_spectrum.ini" this options file. Adjust it to the settings corresponding to your simulation batch (the options should be self explanatory) and run it
 
-    mpiexec -n <number_of_tasks> ./3D_Power_Spectrum_Calculator   power_spectrum.ini
-
-This will work on your laptop, but not on BGQ: here we need to submit the job via a submission script like for the other steps.
-
-__coming soon...__  
+    mpiexec -n <number_of_tasks> ./3D_Power_Spectrum_Calculator   power_spectrum.ini 
 
 2) Generation of lens planes
 ----------------------------
 
+Before we can generate shear and convergence maps by ray tracing through the Gadget boxes we generated in the previous steps, we need to make 2D projections of the 3D boxes. This is because the ray tracing will procede in discrete steps, in which a light ray traverses subsequent density planes, from Earth to the particular galaxy and gets deflected at each step. The deflection of the light ray once it traverses a plane is proportional to the gravitational potential at that particular plane; the computation of the gravitational potential planes (lens planes) is the main goal of step 2: the code will slice each Gadget snapshot in 9 slices (3 for each direction), and compute the gravitational potential solving the Poission equation with FFTs.
+What you have to do is go in the Inspector_Gadget directory and build the executable running
+
+    make
+
+**Important**
+
+In this part, you should build Inspector_Gadget __without__ the openMP flags! The behaviour is not tested yet with openMP on!! Go to the Inspector_Gadget directory for further instructions on how to tune the parameter files for the execution. In order to generate the submission scripts, look in the appropriate subdirectory of Submissions: like before this step will be taken care for you.   
+
 3) Ray tracing: creating the shear maps
 ---------------------------------------
+
+Once we generated and saved the lens planes, we can proceed to the final step of the pipeline, the actual ray tracing: this operation will be performed by the same Inspector_Gadget executable as before (which will operate in a different mode); you need to remake it
+
+    make
+
+with the openMP flags on this time! Once you run this executable, this will ray trace through the potential planes produced in step 2 and produce the simulated 2D maps or galaxy catalogs that you need for your project.  
 
