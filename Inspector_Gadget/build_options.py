@@ -406,7 +406,7 @@ def generate_default_parameter_file(scalar_options,vector_options):
 				name = name.split("[")[0]
 
 			S.write("""%s = %s\n""" %(name,ini_string(default,ptype)))
-			T.write("""%s 	: 	%s\n""" %(name,help))
+			T.write("""%s 	: 	%s\n\n""" %(name,help))
 
 		S.write("""\n""")
 		T.write("""\n\n""")
