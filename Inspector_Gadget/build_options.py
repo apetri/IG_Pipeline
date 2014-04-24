@@ -7,7 +7,7 @@ import StringIO
 ############################################
 
 DEFAULT_OPTIONS_FILENAME = "default_parameters.ini"
-HELP_FILENAME = "parameters_explanations.txt"
+HELP_FILENAME = "README.md"
 C_HANDLER_SOURCE = "analysis_parameters.c"
 C_OPTIONS_HEADER = "analysis_parameters.h"
 
@@ -381,7 +381,7 @@ def generate_default_parameter_file(scalar_options,vector_options):
 	T=StringIO.StringIO()
 
 	S.write("""# Default options ini file generated from build_options.py #\n""")
-	T.write("""IG Parameters guide\n\n\n""")
+	T.write("""Inspector Gadget Parameters guide\n===================\n\n\n""")
 
 #scalar options
 	for set_name,options_set in scalar_options:
