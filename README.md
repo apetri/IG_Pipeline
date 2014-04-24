@@ -101,7 +101,18 @@ What you have to do is go in the Inspector_Gadget directory and build the execut
 
 **Important**
 
-In this part, you should build Inspector_Gadget __without__ the openMP flags! The behaviour is not tested yet with openMP on!! Go to the Inspector_Gadget directory for further instructions on how to tune the parameter files for the execution. In order to generate the submission scripts, look in the appropriate subdirectory of Submissions: like before this step will be taken care for you.   
+In this part, you should build Inspector_Gadget __without__ the openMP flags! The behaviour is not tested yet with openMP on!! Go to the Inspector_Gadget directory for further instructions on how to tune the parameter files for the execution. In order to generate the submission scripts, look in the appropriate subdirectory of Submissions: like before this step will be taken care for you. For reference, the way you run Inspector_Gadget in planes generation mode is the following
+
+    mpirun -n <number_of_processors> ./Inspector_Gadget <arguments>
+
+where the arguments refer to the following
+
+    argv[1]: Number of simulations to process (simulations with different initial conditions are considered different)
+    argv[2]: Number of processors per simulation (the argv[1]*argv[2]=<number_of _processors> is enforced)
+    argv[3]: IG ini parameter file (see the Inspector_Gadget directory for a complete explanation of parameters)
+    argv[4...4+argv[1]-1]: Cosmology identifiers (example Om0.260_Ol0.740_w-1.000_ns0.960_si0.800_ic1)
+
+The code will run in this mode if the "mode" options in argv[3] is set to 1.    
 
 3) Ray tracing: creating the shear maps
 ---------------------------------------
@@ -110,5 +121,16 @@ Once we generated and saved the lens planes, we can proceed to the final step of
 
     make
 
-with the openMP flags on this time! Once you run this executable, this will ray trace through the potential planes produced in step 2 and produce the simulated 2D maps or galaxy catalogs that you need for your project.  
+with the openMP flags on this time! For reference, the way you run Inspector_Gadget in planes generation mode is the following
+
+    mpirun -n <number_of_processors> ./Inspector_Gadget <arguments>
+
+where the arguments refer to the following
+
+    argv[1]: Number of different cosmological models to process (Warning: tested with 1 only, more cosmologies at once coming soon...)
+    argv[2]: Number of processors per simulation (the argv[1]*argv[2]=<number_of _processors> is enforced)
+    argv[3]: IG ini parameter file (see the Inspector_Gadget directory for a complete explanation of parameters)
+    argv[4...4+argv[1]-1]: Cosmology identifiers (example Om0.260_Ol0.740_w-1.000_ns0.960_si0.800)
+
+The code will run in this mode if the "mode" options in argv[3] is set to 2. Once you run this executable, and it completes, this will ray trace through the potential planes produced in step 2 and produce the simulated 2D maps or galaxy catalogs that you need for your project.  
 
