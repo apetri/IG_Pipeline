@@ -4,8 +4,10 @@ import StringIO
 
 import math
 
-qsys = "SBATCH"
-starter = "ibrun"
+qsys = "PBS"
+starter = "mpirun"
+ppn = 16
+additional = "-W group_list=yetiastro"
 
 ##################################################################
 ##########Parser for options contained in INI file################
@@ -63,14 +65,17 @@ def generateCAMBSubmission(options):
 #############Directives###################
 ##########################################
 
-#%s -J %sCAMB\n
+#%s -N %sCAMB\n
 """%(qsys,options.get("user","username")))
+
+	S.write("""
+#%s %s\n"""%(qsys,additional))
 
 	#Output and error logs#
 	logPath = "%s/%s/localStorage/ics/%s-series/data_CAMB/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 
-	S.write("""#%s -o %s%sCAMB.o%%j\n"""%(qsys,logPath,options.get("user","username")))
-	S.write("""#%s -e %s%sCAMB.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -o %s%s\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -e %s%s\n\n"""%(qsys,logPath,options.get("user","username")))
 
 	#Computing resources#
 	cosmofile = file(options.get("camb","models_file"),"r")
@@ -78,14 +83,15 @@ def generateCAMBSubmission(options):
 	cosmofile.close()
 
 	nCores = len(cosmologies)
+	nNodes = nCores/ppn + cmp(nCores%ppn,0)
 
-	S.write("""#%s -n %d\n"""%(qsys,nCores))
-	S.write("""#%s -p %s\n"""%(qsys,options.get("camb","queue")))
-	S.write("""#%s -t %s\n\n"""%(qsys,options.get("camb","wall_time")))
+	S.write("""#%s -l nodes=%d:ppn=%d\n"""%(qsys,nNodes,ppn))
+	S.write("""#%s -q %s\n"""%(qsys,options.get("camb","queue")))
+	S.write("""#%s -l walltime=%s\n\n"""%(qsys,options.get("camb","wall_time")))
 
 	#Email notifications
-	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
-	S.write("""#%s --mail-type=all\n"""%qsys)
+	S.write("""#%s -M %s\n"""%(qsys,options.get("user","email")))
+	S.write("""#%s -m abe\n"""%qsys)
 
 	########Execution directives##########
 	S.write("""
@@ -98,17 +104,17 @@ def generateCAMBSubmission(options):
 
 	S.write("""cd %s/%s/localStorage/ics/%s-series/data_CAMB/Output_Data\n\n"""%(options.get("user","home"),repositoryPath,options.get("series","series")))
 
+	cambArgs = ""
+	
 	for i in range(nCores):
 
 		cosmology_id = cosmologies[i].strip("\n")
 		parameterFile = "params_%s-%s.ini"%(options.get("series","series"),cosmology_id)
 		homePath = options.get("user","home")
+		cambArgs += "%s/%s/localStorage/ics/%s-series/data_CAMB/Parameters/%s "%(homePath,repositoryPath,options.get("series","series"),parameterFile) 
 
-		S.write("""%s -n 1 -o %d %s/%s/camb/%s %s/%s/localStorage/ics/%s-series/data_CAMB/Parameters/%s &\n"""%(starter,i,homePath,repositoryPath,options.get("camb","executable"),homePath,repositoryPath,options.get("series","series"),parameterFile))
-
-	S.write("""
-wait
-""")
+	
+	S.write("""%s -np %d %s/%s/camb/%s %s\n"""%(starter,nCores,homePath,repositoryPath,options.get("camb","executable"),cambArgs))
 
 	S.seek(0)
 	return S.read()
@@ -131,27 +137,33 @@ def generateNgenICSubmission(options):
 #############Directives###################
 ##########################################
 
-#%s -J %sN-GenIC\n
+#%s -N %sN-GenIC\n
 """%(qsys,options.get("user","username")))
+
+	S.write("""
+#%s %s\n"""%(qsys,additional))
 
 	#Output and error logs#
 	logPath = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 
-	S.write("""#%s -o %s%sN-GenIC.o%%j\n"""%(qsys,logPath,options.get("user","username")))
-	S.write("""#%s -e %s%sN-GenIC.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -o %s%s\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -e %s%s\n\n"""%(qsys,logPath,options.get("user","username")))
 
 	#Computing resources#
 	cosmofile = file(options.get("ngenic","models_file"),"r")
 	cosmologies = cosmofile.readlines()
 	cosmofile.close()
 
-	S.write("""#%s -n %d\n"""%(qsys,options.getint("ngenic","cores")))
-	S.write("""#%s -p %s\n"""%(qsys,options.get("ngenic","queue")))
-	S.write("""#%s -t %s\n\n"""%(qsys,options.get("ngenic","wall_time")))
+	nCores = options.getint("ngenic","cores")
+	nNodes = nCores/ppn + cmp(nCores%ppn,0)
+
+	S.write("""#%s -l nodes=%d:ppn=%d\n"""%(qsys,nNodes,ppn))
+	S.write("""#%s -q %s\n"""%(qsys,options.get("ngenic","queue")))
+	S.write("""#%s -l walltime=%s\n\n"""%(qsys,options.get("ngenic","wall_time")))
 
 	#Email notifications
-	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
-	S.write("""#%s --mail-type=all\n"""%qsys)
+	S.write("""#%s -M %s\n"""%(qsys,options.get("user","email")))
+	S.write("""#%s -m abe\n"""%qsys)
 
 	########Execution directives##########
 	S.write("""
@@ -182,8 +194,8 @@ cd %s
 
 			ngenic_args += "ics_%s-%db%d_%s_ic%d.param "%(options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),cosmology_id,i)
 
-		S.write("""%s -n %d -o 0 %s %s
-"""%(starter,options.getint("ngenic","cores"),executable,ngenic_args))
+		S.write("""%s -np %d %s %s
+"""%(starter,nCores,executable,ngenic_args))
 
 	S.seek(0)
 	return S.read()
@@ -207,14 +219,17 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 #############Directives###################
 ##########################################
 
-#%s -J %sGadget\n
+#%s -N %sGadget\n
 """%(qsys,options.get("user","username")))
+
+	S.write("""
+#%s %s\n"""%(qsys,additional))
 
 	#Output and error logs#
 	logPath = "%s/%s/localStorage/ics/%s-series/data_Gadget/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 
-	S.write("""#%s -o %s%sGadget.o%%j\n"""%(qsys,logPath,options.get("user","username")))
-	S.write("""#%s -e %s%sGadget.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -o %s%s\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -e %s%s\n\n"""%(qsys,logPath,options.get("user","username")))
 
 	#Computing resources#
 
@@ -243,14 +258,16 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 	simsPerPart = numSims/breakdown_parts + cmp(numSims%breakdown_parts,0)
 	nCores = options.getint("gadget","cores_per_sim") * simsPerPart
 
+	nNodes = nCores/ppn + cmp(nCores%ppn,0)
+
 	#Request appropriate number of cores
-	S.write("""#%s -n %d\n"""%(qsys,nCores))
-	S.write("""#%s -p %s\n"""%(qsys,options.get("ngenic","queue")))
-	S.write("""#%s -t %s\n\n"""%(qsys,options.get("ngenic","wall_time")))
+	S.write("""#%s -l nodes=%d:ppn=%d\n"""%(qsys,nNodes,ppn))
+	S.write("""#%s -q %s\n"""%(qsys,options.get("ngenic","queue")))
+	S.write("""#%s -l walltime=%s\n\n"""%(qsys,options.get("ngenic","wall_time")))
 
 	#Email notifications
-	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
-	S.write("""#%s --mail-type=all\n"""%qsys)
+	S.write("""#%s -M %s\n"""%(qsys,options.get("user","email")))
+	S.write("""#%s -m abe\n"""%qsys)
 
 	########Execution directives##########
 	S.write("""
@@ -286,7 +303,7 @@ cd %s
 			arg_string += "%s "%arg
 
 		if(arg_string!=""):
-			S.write("""%s -n %d -o 0 %s %d %d %s\n"""%(starter,options.getint("gadget","cores_per_sim")*len(gadget_args),executable,len(gadget_args),options.getint("gadget","cores_per_sim"),arg_string))
+			S.write("""%s -np %d %s %d %d %s\n"""%(starter,options.getint("gadget","cores_per_sim")*len(gadget_args),executable,len(gadget_args),options.getint("gadget","cores_per_sim"),arg_string))
 
 	#Done writing the script, go ahead and return
 	S.seek(0)
@@ -312,14 +329,17 @@ def generatePlanesSubmission(options,models):
 #############Directives###################
 ##########################################
 
-#%s -J %sIGPlanes\n
+#%s -N %sIGPlanes\n
 """%(qsys,options.get("user","username")))
+
+	S.write("""
+#%s %s\n"""%(qsys,additional))
 
 	#Output and error logs#
 	logPath = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 
-	S.write("""#%s -o %s%sIGPlanes.o%%j\n"""%(qsys,logPath,options.get("user","username")))
-	S.write("""#%s -e %s%sIGPlanes.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -o %s%s\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -e %s%s\n\n"""%(qsys,logPath,options.get("user","username")))
 
 	#Parse Inspector Gadget options file#
 	IG_options = parseOptions(options.get("raytracing","IG_parameter_file"))
@@ -369,14 +389,13 @@ def generatePlanesSubmission(options,models):
 	nNodes = int(nCores/16.0 + 2*(nCores/236.0))
 
 	#Request resources accordingly
-	S.write("""#%s -n %d\n"""%(qsys,nCores))
-	S.write("""#%s -N %d\n"""%(qsys,nNodes))
-	S.write("""#%s -p %s\n"""%(qsys,options.get("raytracing","queue")))
-	S.write("""#%s -t %s\n\n"""%(qsys,options.get("raytracing","wall_time")))
+	S.write("""#%s -l nodes=%d:ppn=%d\n"""%(qsys,nNodes,ppn))
+	S.write("""#%s -q %s\n"""%(qsys,options.get("raytracing","queue")))
+	S.write("""#%s -l walltime=%s\n\n"""%(qsys,options.get("raytracing","wall_time")))
 
 	#Email notifications
-	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
-	S.write("""#%s --mail-type=all\n"""%qsys)
+	S.write("""#%s -M %s\n"""%(qsys,options.get("user","email")))
+	S.write("""#%s -m abe\n"""%qsys)
 
 	########Execution directives##########
 	S.write("""
@@ -402,7 +421,7 @@ cd %s
 		for j in range(first_ic[i],last_ic[i]+1):
 			IG_args += "%s-%db%d_%s_ic%d "%(options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),cosmo_id[i],j)
 
-		S.write("""%s -n %d -o 0 %s %d %d %s %s\n"""%(starter,nCores,executable,last_ic[i]-first_ic[i]+1,nSnapshots,options.get("raytracing","IG_parameter_file"),IG_args))
+		S.write("""%s -np %d %s %d %d %s %s\n"""%(starter,nCores,executable,last_ic[i]-first_ic[i]+1,nSnapshots,options.get("raytracing","IG_parameter_file"),IG_args))
 
 	#Done generating script, return
 	
@@ -429,14 +448,17 @@ def generateRaySubmission(options,models):
 #############Directives###################
 ##########################################
 
-#%s -J %sIGRay\n
+#%s -N %sIGRay\n
 """%(qsys,options.get("user","username")))
+
+	S.write("""
+#%s %s\n"""%(qsys,additional))
 
 	#Output and error logs#
 	logPath = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Logs/"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 
-	S.write("""#%s -o %s%sIGRay.o%%j\n"""%(qsys,logPath,options.get("user","username")))
-	S.write("""#%s -e %s%sIGRay.e%%j\n\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -o %s%s\n"""%(qsys,logPath,options.get("user","username")))
+	S.write("""#%s -e %s%s\n\n"""%(qsys,logPath,options.get("user","username")))
 
 	#Parse Inspector Gadget options file#
 	IG_options = parseOptions(options.get("raytracing","IG_parameter_file"))
@@ -452,14 +474,13 @@ def generateRaySubmission(options,models):
 	nNodes = math.ceil(2*nRealizations/16.0)
 
 	#Request resources accordingly
-	S.write("""#%s -n %d\n"""%(qsys,nRealizations))
-	S.write("""#%s -N %d\n"""%(qsys,nNodes))
-	S.write("""#%s -p %s\n"""%(qsys,options.get("raytracing","queue")))
-	S.write("""#%s -t %s\n\n"""%(qsys,options.get("raytracing","wall_time")))
+	S.write("""#%s -l nodes=%d:ppn=%d\n"""%(qsys,nNodes,ppn))
+	S.write("""#%s -q %s\n"""%(qsys,options.get("raytracing","queue")))
+	S.write("""#%s -l walltime=%s\n\n"""%(qsys,options.get("raytracing","wall_time")))
 
 	#Email notifications
-	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
-	S.write("""#%s --mail-type=all\n"""%qsys)
+	S.write("""#%s -M %s\n"""%(qsys,options.get("user","email")))
+	S.write("""#%s -m abe\n"""%qsys)
 
 	########Execution directives##########
 	S.write("""
@@ -511,7 +532,7 @@ cd %s
 
 
 		#Now write the appropriate execution command
-		S.write("""%s -n %d -o 0 %s 1 %d %s %s\n"""%(starter,nRealizations,executable,nRealizations,options.get("raytracing","IG_parameter_file"),ig_arg))
+		S.write("""%s -np %d %s 1 %d %s %s\n"""%(starter,nRealizations,executable,nRealizations,options.get("raytracing","IG_parameter_file"),ig_arg))
 
 	#Done generating script, return
 
@@ -535,7 +556,7 @@ if(__name__=="__main__"):
 	repositoryPath = options.get("user","IG_repository")
 
 	#Display usage instructions
-	print "\nWelcome to the sbatch submission generator! Please select an operation mode"
+	print "\nWelcome to the PBS submission generator! Please select an operation mode"
 	print ""
 	print "1: Generate CAMB sumbission script"
 	print "2: Generate N-GenIC submission script"
@@ -550,7 +571,7 @@ if(__name__=="__main__"):
 	if(mode==1):
 
 		#CAMB
-		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_CAMB/Jobs/%s_camb_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_CAMB/Jobs/%s_camb_PBS.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
 		
 		scriptFile = file(scriptFileName,"w")
 		scriptFile.write(generateCAMBSubmission(options))
@@ -558,20 +579,20 @@ if(__name__=="__main__"):
 
 		print "CAMB submission script generated and saved in %s!!"%scriptFileName
 		print ""
-		print "Do you want to sbatch-it now? (y/n)"
+		print "Do you want to qsub-it now? (y/n)"
 
 		answer = raw_input("-->")
 
 		#Maybe submit the script directly?
 		if(answer=="y"):
-			os.execl("/usr/bin/sbatch","sbatch",scriptFileName)
+			os.execl("/usr/bin/qsub","qsub",scriptFileName)
 		else:
 			print "Goodbye! sumbission.py exited normally\n"
 
 	elif(mode==2):
 
 		#N-GenIC
-		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/%s_ngenic_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/%s_ngenic_PBS.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
 
 		scriptFile = file(scriptFileName,"w")
 		scriptFile.write(generateNgenICSubmission(options))
@@ -579,13 +600,13 @@ if(__name__=="__main__"):
 
 		print "N-GenIC submission script generated and saved in %s!!"%scriptFileName
 		print ""
-		print "Do you want to sbatch-it now? (y/n)"
+		print "Do you want to qsub-it now? (y/n)"
 
 		answer = raw_input("-->")
 
 		#Maybe submit the script directly?
 		if(answer=="y"):
-			os.execl("/usr/bin/sbatch","sbatch",scriptFileName)
+			os.execl("/usr/bin/qsub","qsub",scriptFileName)
 		else:
 			print "Goodbye! sumbission.py exited normally\n"
 
@@ -638,7 +659,7 @@ if(__name__=="__main__"):
 				breakdown_parts = 1
 
 			#Generate the script
-			scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/%s_gadget_sbatch_%d.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"),i+1)
+			scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/%s_gadget_PBS_%d.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"),i+1)
 
 			scriptFile = file(scriptFileName,"w")
 			scriptFile.write(generateGadgetSubmission(options,modelsSub,breakdown_parts))
@@ -656,7 +677,7 @@ if(__name__=="__main__"):
 	elif(mode==5):
 
 		#IG lens planes
-		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGPlanes_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGPlanes_PBS.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
 
 		#Check models file for cosmological models to run
 		modelFilename = options.get("raytracing","models_file")
@@ -680,20 +701,20 @@ if(__name__=="__main__"):
 
 		print "\nIG Planes submission script generated and saved in %s\n"%scriptFileName
 		print ""
-		print "Do you want to sbatch-it now? (y/n)"
+		print "Do you want to qsub-it now? (y/n)"
 
 		answer = raw_input("-->")
 
 		#Maybe submit the script directly?
 		if(answer=="y"):
-			os.execl("/usr/bin/sbatch","sbatch",scriptFileName)
+			os.execl("/usr/bin/qsub","qsub",scriptFileName)
 		else:
 			print "Goodbye! sumbission.py exited normally\n"
 
 	elif(mode==6):
 
 		#IG ray tracing
-		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGRay_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGRay_PBS.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
 
 		#Check models file for cosmological models to run
 		modelFilename = options.get("raytracing","models_file")
@@ -717,13 +738,13 @@ if(__name__=="__main__"):
 
 		print "\nIG Ray tracing submission script generated and saved in %s\n"%scriptFileName
 		print ""
-		print "Do you want to sbatch-it now? (y/n)"
+		print "Do you want to qsub-it now? (y/n)"
 
 		answer = raw_input("-->")
 
 		#Maybe submit the script directly?
 		if(answer=="y"):
-			os.execl("/usr/bin/sbatch","sbatch",scriptFileName)
+			os.execl("/usr/bin/qsub","qsub",scriptFileName)
 		else:
 			print "Goodbye! sumbission.py exited normally\n"
 

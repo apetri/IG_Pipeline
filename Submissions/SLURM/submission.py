@@ -535,7 +535,7 @@ if(__name__=="__main__"):
 	repositoryPath = options.get("user","IG_repository")
 
 	#Display usage instructions
-	print "\nWelcome to the sbatch submission generator! Please select an operation mode"
+	print "\nWelcome to the SLURM submission generator! Please select an operation mode"
 	print ""
 	print "1: Generate CAMB sumbission script"
 	print "2: Generate N-GenIC submission script"
@@ -550,7 +550,7 @@ if(__name__=="__main__"):
 	if(mode==1):
 
 		#CAMB
-		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_CAMB/Jobs/%s_camb_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_CAMB/Jobs/%s_camb_SLURM.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
 		
 		scriptFile = file(scriptFileName,"w")
 		scriptFile.write(generateCAMBSubmission(options))
@@ -571,7 +571,7 @@ if(__name__=="__main__"):
 	elif(mode==2):
 
 		#N-GenIC
-		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/%s_ngenic_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_N-GenIC/Jobs/%s_ngenic_SLURM.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
 
 		scriptFile = file(scriptFileName,"w")
 		scriptFile.write(generateNgenICSubmission(options))
@@ -638,7 +638,7 @@ if(__name__=="__main__"):
 				breakdown_parts = 1
 
 			#Generate the script
-			scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/%s_gadget_sbatch_%d.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"),i+1)
+			scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Gadget/Jobs/%s_gadget_SLURM_%d.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"),i+1)
 
 			scriptFile = file(scriptFileName,"w")
 			scriptFile.write(generateGadgetSubmission(options,modelsSub,breakdown_parts))
@@ -656,7 +656,7 @@ if(__name__=="__main__"):
 	elif(mode==5):
 
 		#IG lens planes
-		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGPlanes_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGPlanes_SLURM.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
 
 		#Check models file for cosmological models to run
 		modelFilename = options.get("raytracing","models_file")
@@ -693,7 +693,7 @@ if(__name__=="__main__"):
 	elif(mode==6):
 
 		#IG ray tracing
-		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGRay_sbatch.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
+		scriptFileName = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Jobs/%s_IGRay_SLURM.sh"%(options.get("user","home"),repositoryPath,options.get("series","series"),options.get("user","username"))
 
 		#Check models file for cosmological models to run
 		modelFilename = options.get("raytracing","models_file")
