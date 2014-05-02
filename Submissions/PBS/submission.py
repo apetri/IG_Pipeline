@@ -314,7 +314,7 @@ cd %s
 ###############################################################
 ############Inspector Gadget submission script: planes#########
 ###############################################################
-def generatePlanesSubmission(options,models):
+def generatePlanesSubmission(options,models,blockSize):
 
 	S = StringIO.StringIO()
 	S.write("""#!/bin/bash\n\n""")
@@ -352,10 +352,7 @@ def generatePlanesSubmission(options,models):
 	nSnapshots = IG_options.getint("i/o_amount","global_last_snapshot") - IG_options.getint("i/o_amount","global_first_snapshot") + 1
 
 	#Check models file for cosmological models to generate the planes of
-	numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(models)
-	
-	#Maybe fix this: assign the maximum number of ics among the models
-	nICs = last_ic[0] - first_ic[0] + 1 
+	numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(models) 
 
 	#Construct list with all the directory root names that refer to the simulations to run
 	dirRoots = []
@@ -383,7 +380,7 @@ def generatePlanesSubmission(options,models):
 	#Directories created, now we can proceed with the execution part of the script
 
 	#Decide number of cores and nodes to request, based on I/O
-	nCores = nSnapshots * nICs
+	nCores = nSnapshots * blockSize
 
 	#Give IG a little more memory than what it needs, for safety (this line may be changed as needed)
 	nNodes = int(nCores/16.0 + 2*(nCores/236.0))
@@ -415,13 +412,29 @@ cd %s
 """%parameterDir)
 
 	#Run commands
-	for i in range(len(cosmo_id)):
+
+#Run commands
+	while(True):
 
 		IG_args = ""
-		for j in range(first_ic[i],last_ic[i]+1):
-			IG_args += "%s-%db%d_%s_ic%d "%(options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),cosmo_id[i],j)
+		j = 0
+		broken = False
 
-		S.write("""%s -np %d %s %d %d %s %s\n"""%(starter,nCores,executable,last_ic[i]-first_ic[i]+1,nSnapshots,options.get("raytracing","IG_parameter_file"),IG_args))
+		for i in range(blockSize):
+
+			try:
+				root = dirRoots.pop(0)
+				IG_args += "%s "%root
+				j += 1
+			except IndexError:
+				broken = True
+				break
+
+		if j>0:
+			S.write("""%s -np %d %s %d %d %s %s\n"""%(starter,j*nSnapshots,executable,j,nSnapshots,options.get("raytracing","IG_parameter_file"),IG_args))
+
+		if broken:
+			break
 
 	#Done generating script, return
 	
@@ -688,15 +701,20 @@ if(__name__=="__main__"):
 		numSims,cosmo_id,first_ic,last_ic = numSimulationsCheck(models)
 
 		#Inform user about which planes will be generated in this submission
+		print "This submission will process %d independent simulations"%numSims
 		print "This submission will generate the planes for these models:\n"
 		for i in range(len(cosmo_id)):
 			print "%s ICs %d to %d included"%(cosmo_id[i],first_ic[i],last_ic[i])
 
 		print ""
 
+		print "How many simulations do you want to process in parallel?"
+		print "Note on memory scaling: to process 59 snapshots, 512x512x512 particles,5 simulations in parallel you need 20 nodes with 32GB of RAM each"
+		blockSize = int(raw_input("-->"))
+
 		#Generate script
 		scriptFile = file(scriptFileName,"w")
-		scriptFile.write(generatePlanesSubmission(options,models))
+		scriptFile.write(generatePlanesSubmission(options,models,blockSize))
 		scriptFile.close()
 
 		print "\nIG Planes submission script generated and saved in %s\n"%scriptFileName
