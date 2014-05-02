@@ -67,7 +67,8 @@ scalar_options=[
 boxes=[
 ("box_number","Nboxsize","boxsize",1,float,[240.0]),
 ("box_number","Nz","z",1,float,[100.0]),
-("box_number","Nseed","seed",10,int,[168757,580133,311652,325145,222701,194340,705031,674951,495306,105884])
+#("box_number","Nseed","seed",10,int,[168757,580133,311652,325145,222701,194340,705031,674951,495306,105884])
+("box_number","Nseed","seed",1,int,[168757])
 ]
 
 vector_options=[
