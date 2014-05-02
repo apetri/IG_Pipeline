@@ -35,6 +35,8 @@
     MatterPowerFileNames(max_transfer_redshifts), outroot, version_check
     real(dl) output_factor, nmassive
 
+    integer,parameter :: ERROR_UNIT = 0
+
 #ifdef WRITE_FITS
     character(LEN=Ini_max_string_len) FITSfilename
 #endif
@@ -66,7 +68,10 @@
 	!</Andrea Petri>
 
     call Ini_Open(InputFile, 1, bad, .false.)
-    if (bad) stop 'Error opening parameter file'
+    if (bad) then 
+        write (ERROR_UNIT,'(A)') InputFile
+        stop 'Error opening parameter file'
+    end if
 
     Ini_fail_on_not_found = .false.
 
