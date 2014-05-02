@@ -48,14 +48,14 @@ gadgetFile = file(gadgetFileName,"w")
 for Id in cambIds:
 	#Throw user a warning if the Precambrian didn't generate this parameter file for some reason
 	cambParamFile = "%s/%s/localStorage/ics/%s-series/data_CAMB/Parameters/params_%s-%s.ini"%(options.get("user","home"),options.get("user","IG_Repository"),options.get("series","series"),options.get("series","series"),Id)
-	if(len(glob.glob(cambParamFile))==0) print "WARNING! The CAMB parameter file associated with %s does not exist!\n"%Id
+	if(len(glob.glob(cambParamFile))==0): print "WARNING! The CAMB parameter file associated with %s does not exist!\n"%Id
 	
 	cambFile.write("%s\n"%Id)
 
 for Id in gadgetIds:
 	#Throw user a warning if the Precambrian didn't generate this parameter file for some reason
 	gadgetParamFile = "%s/%s/localStorage/ics/%s-series/data_Gadget/Parameters/%s-%db%d_%s"%(options.get("user","home"),options.get("user","IG_Repository"),options.get("series","series"),options.get("series","series"),options.getint("series","particles_side"),options.getint("series","box_size_mpc"),Id)
-	if(len(glob.glob(gadgetParamFile+"*"))==0) print "WARNING! The CAMB parameter file associated with %s does not exist!\n"%Id
+	if(len(glob.glob(gadgetParamFile+"*"))==0): print "WARNING! The Gadget parameter file associated with %s does not exist!\n"%Id
 
 	gadgetFile.write("%s %d %d\n"%(Id,firstIC,lastIC))
 
