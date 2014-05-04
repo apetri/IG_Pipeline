@@ -506,6 +506,12 @@ cd %s
 			except OSError:
 				print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
 
+			dirToMake = "%s/Storage/wl/IG/%s-series/%s/Maps"%(options.get("user","scratch"),options.get("series","series"),ig_arg)
+			try:
+				os.mkdir(dirToMake)
+			except OSError:
+				print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
+
 		elif(IG_options.getint("mode","galaxy_catalogue_type")==1):
 
 			dirToMake = IG_options.get("paths","galaxy_catalogue_output_path")
