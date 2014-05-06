@@ -245,8 +245,8 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 
 	#Request appropriate number of cores
 	S.write("""#%s -n %d\n"""%(qsys,nCores))
-	S.write("""#%s -p %s\n"""%(qsys,options.get("ngenic","queue")))
-	S.write("""#%s -t %s\n\n"""%(qsys,options.get("ngenic","wall_time")))
+	S.write("""#%s -p %s\n"""%(qsys,options.get("gadget","queue")))
+	S.write("""#%s -t %s\n\n"""%(qsys,options.get("gadget","wall_time")))
 
 	#Email notifications
 	S.write("""#%s --mail-user=%s\n"""%(qsys,options.get("user","email")))
