@@ -17,7 +17,7 @@ except ImportError:
 def headerUpdate(filename,keyword,filenameKey,hdu=0,separator="_"):
 
 	#Open FITS file
-	hdulist = fits.open(filename)
+	hdulist = fits.open(filename,mode="update")
 
 	#Find the filenameKey string in the FITS file
 	spl = filename.split(separator)
@@ -33,4 +33,5 @@ def headerUpdate(filename,keyword,filenameKey,hdu=0,separator="_"):
 
 	#Update the header and close hdu
 	hdulist[hdu].header[keyword] = value
+	hdulist.flush()
 	hdulist.close()
