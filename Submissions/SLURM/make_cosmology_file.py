@@ -40,6 +40,9 @@ else:
 
 cambIds = list(set(cambIds))
 
+cambIds.sort()
+gadgetIds.sort()
+
 #Write the files
 
 cambFile = file(cambFileName,"w")
