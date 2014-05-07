@@ -1,6 +1,15 @@
 import sys,glob,ConfigParser
 import numpy as np
 
+###Useful if you want to sort the Gadget cosmology IDs by increasing sigma8###
+
+def lastkey(name):
+	parts = name.split("_")
+	N = len(parts)
+	return parts[N-1]
+
+##############################################################################
+
 if(len(sys.argv)<3):
 	print "Usage: python %s <precambrian_cosmologies_file> <ini_options_file>"%sys.argv[0]
 	exit(1)
@@ -41,7 +50,7 @@ else:
 cambIds = list(set(cambIds))
 
 cambIds.sort()
-gadgetIds.sort()
+gadgetIds.sort(key=lastkey)
 
 #Write the files
 
