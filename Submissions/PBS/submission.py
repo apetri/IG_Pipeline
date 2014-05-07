@@ -287,6 +287,7 @@ cd %s
 """%parameterDir)
 
 	#Proceed to write the execution commands (which will be executed in series)
+	j = 1
 	for part in range(breakdown_parts):
 
 		gadget_args = []
@@ -304,6 +305,8 @@ cd %s
 
 		if(arg_string!=""):
 			S.write("""%s -np %d %s %d %d %s\n"""%(starter,options.getint("gadget","cores_per_sim")*len(gadget_args),executable,len(gadget_args),options.getint("gadget","cores_per_sim"),arg_string))
+			S.write("""echo "Part %d of %d completed $(date)" >> %s%sGadgetParts.%%j\n\n"""%(j,breakdown_parts,logPath,options.get("user","username")))
+			j += 1
 
 	#Done writing the script, go ahead and return
 	S.seek(0)
