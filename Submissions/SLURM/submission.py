@@ -396,6 +396,8 @@ cd %s
 """%parameterDir)
 
 	#Run commands
+	k = 0
+
 	while(True):
 
 		IG_args = ""
@@ -413,7 +415,10 @@ cd %s
 				break
 
 		if j>0:
-			S.write("""%s -n %d -o 0 %s %d %d %s %s\n"""%(starter,j*nSnapshots,executable,j,nSnapshots,options.get("raytracing","IG_parameter_file"),IG_args))
+			k += 1
+			S.write("""%s -n %d -o 0 %s %d %d %s %s\n\n"""%(starter,j*nSnapshots,executable,j,nSnapshots,options.get("raytracing","IG_parameter_file"),IG_args))
+			S.write("""echo "Part %d completed $(date)" >> %s%sIGPlanesParts.$SLURM_JOB_ID\n\n"""%(k,logPath,options.get("user","username")))
+
 
 		if broken:
 			break
