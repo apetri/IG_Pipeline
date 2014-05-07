@@ -288,7 +288,7 @@ cd %s
 
 		if(arg_string!=""):
 			S.write("""%s -n %d -o 0 %s %d %d %s\n\n"""%(starter,options.getint("gadget","cores_per_sim")*len(gadget_args),executable,len(gadget_args),options.getint("gadget","cores_per_sim"),arg_string))
-			S.write("""echo "Part %d of %d completed $(date)" >> %s%sGadgetParts.%%j\n\n"""%(j,breakdown_parts,logPath,options.get("user","username")))
+			S.write("""echo "Part %d of %d completed $(date)" >> %s%sGadgetParts.$SLURM_JOB_ID\n\n"""%(j,breakdown_parts,logPath,options.get("user","username")))
 			j += 1
 
 	#Done writing the script, go ahead and return
