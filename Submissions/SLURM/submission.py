@@ -387,7 +387,7 @@ def generatePlanesSubmission(options,models,blockSize):
 
 """)
 
-	parameterDir = "%s/%s/localStorage/ics/%s-series/Inspector_Gadget/Parameters"%(options.get("user","home"),repositoryPath,options.get("series","series"))
+	parameterDir = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Parameters"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 	executable = "%s/%s/Inspector_Gadget/%s"%(options.get("user","home"),repositoryPath,options.get("raytracing","executable"))
 
 	S.write("""
@@ -489,7 +489,7 @@ def generateRaySubmission(options,models):
 
 """)
 
-	parameterDir = "%s/%s/localStorage/ics/%s-series/Inspector_Gadget/Parameters"%(options.get("user","home"),repositoryPath,options.get("series","series"))
+	parameterDir = "%s/%s/localStorage/ics/%s-series/data_Inspector_Gadget/Parameters"%(options.get("user","home"),repositoryPath,options.get("series","series"))
 	executable = "%s/%s/Inspector_Gadget/%s"%(options.get("user","home"),repositoryPath,options.get("raytracing","executable"))
 
 	S.write("""
