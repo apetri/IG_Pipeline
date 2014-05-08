@@ -269,6 +269,8 @@ cd %s
 
 """%parameterDir)
 
+	S.write("""echo "Started $(date)" >> %s%sGadgetParts.$SLURM_JOB_ID\n\n"""%(logPath,options.get("user","username")))
+
 	#Proceed to write the execution commands (which will be executed in series)
 	j = 1
 	for part in range(breakdown_parts):
