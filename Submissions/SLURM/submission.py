@@ -560,7 +560,7 @@ else
 	echo "Model %s failed $(date)" >> %s%sIGRayParts.$SLURM_JOB_ID
 fi
 
-"""%(cosmo_id[i],logpath,options.get("user","username"),cosmo_id[i],logpath,options.get("user","username")))
+"""%(cosmo_id[i],logPath,options.get("user","username"),cosmo_id[i],logPath,options.get("user","username")))
 
 	#Done generating script, return
 
