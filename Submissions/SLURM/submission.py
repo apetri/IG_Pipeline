@@ -290,7 +290,15 @@ cd %s
 
 		if(arg_string!=""):
 			S.write("""%s -n %d -o 0 %s %d %d %s\n\n"""%(starter,options.getint("gadget","cores_per_sim")*len(gadget_args),executable,len(gadget_args),options.getint("gadget","cores_per_sim"),arg_string))
-			S.write("""echo "Part %d of %d completed $(date)" >> %s%sGadgetParts.$SLURM_JOB_ID\n\n"""%(j,breakdown_parts,logPath,options.get("user","username")))
+			S.write("""if [ $? -eq 0 ] 
+then
+	echo "Part %d of %d succesfully completed $(date)" >> %s%sGadgetParts.$SLURM_JOB_ID
+else
+	echo "Part %d of %d failed $(date)" >> %s%sGadgetParts.$SLURM_JOB_ID
+fi
+
+"""%(j,breakdown_parts,logPath,options.get("user","username")),j,breakdown_parts,logPath,options.get("user","username"))
+			
 			j += 1
 
 	#Done writing the script, go ahead and return
@@ -419,8 +427,14 @@ cd %s
 		if j>0:
 			k += 1
 			S.write("""%s -n %d -o 0 %s %d %d %s %s\n\n"""%(starter,j*nSnapshots,executable,j,nSnapshots,options.get("raytracing","IG_parameter_file"),IG_args))
-			S.write("""echo "Part %d completed $(date)" >> %s%sIGPlanesParts.$SLURM_JOB_ID\n\n"""%(k,logPath,options.get("user","username")))
+			S.write("""if [ $? -eq 0 ]
+then
+	echo "Part %d completed $(date)" >> %s%sIGPlanesParts.$SLURM_JOB_ID
+else
+	echo "Part %d failed $(date)" >> %s%sIGPlanesParts.$SLURM_JOB_ID
+fi
 
+"""%(k,logPath,options.get("user","username")),k,logPath,options.get("user","username"))
 
 		if broken:
 			break
@@ -538,7 +552,15 @@ cd %s
 
 
 		#Now write the appropriate execution command
-		S.write("""%s -n %d -o 0 %s 1 %d %s %s\n"""%(starter,nRealizations,executable,nRealizations,options.get("raytracing","IG_parameter_file"),ig_arg))
+		S.write("""%s -n %d -o 0 %s 1 %d %s %s\n\n"""%(starter,nRealizations,executable,nRealizations,options.get("raytracing","IG_parameter_file"),ig_arg))
+		S.write("""if [ $? -eq 0 ]
+then
+	echo "Model %s succesfully completed $(date)" >> %s%sIGRayParts.$SLURM_JOB_ID
+else
+	echo "Model %s failed $(date)" >> %s%sIGRayParts.$SLURM_JOB_ID
+fi
+
+"""%(cosmo_id[i],logpath,options.get("user","username"),cosmo_id[i],logpath,options.get("user","username")))
 
 	#Done generating script, return
 
