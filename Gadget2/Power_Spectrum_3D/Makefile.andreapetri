@@ -4,7 +4,7 @@ GCCC = gcc-4.8
 
 FFTW3_INCL = 
 CFITSIO_INCL = 
-MPICH_INCL = -I/usr/local/Cellar/open-mpi/1.7.4/include
+MPICH_INCL = 
 
 # CFLAGS = -O0 -g -I. $(FFTW3_INCL) $(CFITSIO_INCL) #$(GSL_INCL) #-Vaxlib -W0 -WB -fpp -xN -vec_report0 -DMPI
 # CFLAGS = -O3 -I. -m32 -Wall $(FFTW3_INCL) $(MPICH_INCL) #$(CFITSIO_INCL) #$(GSL_INCL) #-Vaxlib -W0 -WB -fpp -xN -vec_report0 -DMPI
@@ -17,6 +17,6 @@ GCCFLAGS = $(CFLAGS)
 
 FFTW3LIB =  -lfftw3_mpi -lfftw3 -lm
 CFITSIOLIB =  -lcfitsio
-MPICHLIB = -L/usr/local/opt/libevent/lib -L/usr/local/Cellar/open-mpi/1.7.4/lib -lmpi
+MPICHLIB = -L/usr/local/opt/libevent/lib -lmpi
 
 PYTHON = python
