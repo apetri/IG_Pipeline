@@ -1,4 +1,4 @@
-Inspector Gadget Pipeline (Version 0.1)
+Inspector Gadget Pipeline (Version 0.2)
 ===============
 
 This is a pipeline for Weak Gravitational Lensing simulations: given a set of cosmological parameters, it produces multiple realizations of convergence and shear maps that can then be used for further statistical analysis. The IG pipeline consists of three steps:
