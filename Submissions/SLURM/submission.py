@@ -55,6 +55,16 @@ def generateCAMBSubmission(options):
 
 	repositoryPath = options.get("user","IG_repository")
 
+	########Computing allocation ID for SU charges#########
+	S.write("""
+################################
+######Allocation ID#############
+################################
+
+#%s -A %s
+
+"""%(qsys,options.get("user","allocation_id")))
+
 	########Submission script directives########
 
 	#Job name#
@@ -122,6 +132,16 @@ def generateNgenICSubmission(options):
 	S.write("""#!/bin/bash\n\n""")
 
 	repositoryPath = options.get("user","IG_repository")
+
+	########Computing allocation ID for SU charges#########
+	S.write("""
+################################
+######Allocation ID#############
+################################
+
+#%s -A %s
+
+"""%(qsys,options.get("user","allocation_id")))
 
 	########Submission script directives########
 
@@ -198,6 +218,16 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 	S.write("""#!/bin/bash\n\n""")
 
 	repositoryPath = options.get("user","IG_repository")
+
+	########Computing allocation ID for SU charges#########
+	S.write("""
+################################
+######Allocation ID#############
+################################
+
+#%s -A %s
+
+"""%(qsys,options.get("user","allocation_id")))
 
 	########Submission script directives########
 
@@ -316,6 +346,16 @@ def generatePlanesSubmission(options,models,blockSize):
 	S.write("""#!/bin/bash\n\n""")
 
 	repositoryPath = options.get("user","IG_repository")
+
+	########Computing allocation ID for SU charges#########
+	S.write("""
+################################
+######Allocation ID#############
+################################
+
+#%s -A %s
+
+"""%(qsys,options.get("user","allocation_id")))
 
 	########Submission script directives########
 
@@ -455,6 +495,16 @@ def generateRaySubmission(options,models):
 	S.write("""#!/bin/bash\n\n""")
 
 	repositoryPath = options.get("user","IG_repository")
+
+	########Computing allocation ID for SU charges#########
+	S.write("""
+################################
+######Allocation ID#############
+################################
+
+#%s -A %s
+
+"""%(qsys,options.get("user","allocation_id")))
 
 	########Submission script directives########
 
