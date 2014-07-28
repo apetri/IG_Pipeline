@@ -327,7 +327,7 @@ else
 	echo "Part %d of %d failed $(date)" >> %s%sGadgetParts.$SLURM_JOB_ID
 fi
 
-"""%(j,breakdown_parts,logPath,options.get("user","username")),j,breakdown_parts,logPath,options.get("user","username"))
+"""%(j,breakdown_parts,logPath,options.get("user","username"),j,breakdown_parts,logPath,options.get("user","username")))
 			
 			j += 1
 
