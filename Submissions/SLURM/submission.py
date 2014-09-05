@@ -478,7 +478,7 @@ else
 	echo "Part %d failed $(date)" >> %s%sIGPlanesParts.$SLURM_JOB_ID
 fi
 
-"""%(k,logPath,options.get("user","username")),k,logPath,options.get("user","username"))
+"""%(k,logPath,options.get("user","username"),k,logPath,options.get("user","username")))
 
 		if broken:
 			break
