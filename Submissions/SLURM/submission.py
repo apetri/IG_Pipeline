@@ -61,6 +61,7 @@ def generateCAMBSubmission(options):
 ######Allocation ID#############
 ################################
 
+umask 027
 #%s -A %s
 
 """%(qsys,options.get("user","allocation_id")))
@@ -139,6 +140,7 @@ def generateNgenICSubmission(options):
 ######Allocation ID#############
 ################################
 
+umask 027
 #%s -A %s
 
 """%(qsys,options.get("user","allocation_id")))
@@ -225,6 +227,7 @@ def generateGadgetSubmission(options,models,breakdown_parts):
 ######Allocation ID#############
 ################################
 
+umask 027
 #%s -A %s
 
 """%(qsys,options.get("user","allocation_id")))
@@ -353,6 +356,7 @@ def generatePlanesSubmission(options,models,blockSize):
 ######Allocation ID#############
 ################################
 
+umask 027
 #%s -A %s
 
 """%(qsys,options.get("user","allocation_id")))
@@ -502,6 +506,7 @@ def generateRaySubmission(options,models):
 ######Allocation ID#############
 ################################
 
+umask 027
 #%s -A %s
 
 """%(qsys,options.get("user","allocation_id")))
