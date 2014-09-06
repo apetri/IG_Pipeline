@@ -1,0 +1,5 @@
+# IC number    | Plane realization number | 		mirrot 		   | 		shiftx 		| 		 shifty 	  | times number of snapshots (60) = 300
+	1-N(5,50) 		  		1-9					>=4: swap axes 		 Large random number  Large random number	
+										 	>=2: mirror x axis        used to compute	    used to compute
+										 	>=1: mirror y axis		   fractional x            fractional y
+										 								  shift                   shift
