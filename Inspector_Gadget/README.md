@@ -137,7 +137,7 @@ fiducial 	: 	For Mode=2:  Submitted cosmologies beyond this number treated as no
 ##########Randomization of planes##############
 ##########################
 
-snapshot\_rotation\_randomizer\_file 	: 	file that contains the random snapshot rotations
+snapshot\_rotation\_randomizer\_file 	: 	file that contains the random snapshot rotations (run the make_plane_randomizer.py script to generate your own)
 
 plane\_randomizer\_file\_general 	: 	file that contains the plane randomizations between differen ics; Note: this path is needed for mode=1 (lens plane generation)
 
