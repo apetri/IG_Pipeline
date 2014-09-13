@@ -552,8 +552,12 @@ void compute_plane (struct plane_2D *Plane, int plane_number, int nx, int ny, in
 	fftw_free(Phi_array);
 	fftw_cleanup();
 	
-	free_Matrix0(density_array, seed_block);
 
+	//<AP> Failsafe to prevent stack corruption from crashing the execution
+	seed_block = parameters.seed_block;
+	//</AP>
+
+	free_Matrix0(density_array, seed_block);
 
 	printf("Process %d (superrank) %d (local process number): Done writing images.\n", superrank, parameters.process_number);
         timing();
