@@ -25,8 +25,8 @@ except:
 #Open the snapshot
 snap = Gadget2Snapshot.open(os.path.join(snapshot_path,snapshot_file),pool=pool)
 
-if pool.is_master():
-	print("Reading snapshot from {0}".format(snap.header["files"][0]))
+
+print("Rank {0} reading snapshot from {1}".format(pool.rank,snap.header["files"][0]))
 
 #Get the positions of the particles
 snap.getPositions()
@@ -48,9 +48,12 @@ for cut,pos in enumerate(cut_points):
 		if pool.is_master():
 			
 			#Save the result
-			plane_file = os.path.join(save_path,"plane{0}_normal{1}.npy".format(cut,normal))
+			plane_file = os.path.join(save_path,"potential_plane{0}_normal{1}.npy".format(cut,normal))
 			print("Saving plane to {0}".format(plane_file))
 			np.save(plane_file,plane)
+
+		#Safety barrier sync
+		pool.comm.Barrier()
 
 
 #Close the snapshot
