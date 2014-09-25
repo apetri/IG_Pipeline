@@ -4,6 +4,7 @@
 
 import os
 from lenstools.simulations import Gadget2Snapshot
+from lenstools.convergence import Spin0
 import numpy as np
 
 ########################################################################
@@ -33,9 +34,13 @@ for cut,pos in enumerate(cut_points):
 		print("Cutting plane at {0} with normal {1}, of size {2} x {2}".format(pos,normal,snap.lensMaxSize()))
 
 		#Do the cutting
-		plane,resolution = snap.cutLens(center=pos,thickness=thickness,left_corner=np.array([0.0,0.0,0.0])*snap.Mpc_over_h,plane_size=snap.lensMaxSize(),plane_resolution=4096,thickness_resolution=1,smooth=2,kind="potential")
+		plane,resolution = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=snap.lensMaxSize(),plane_resolution=4096,thickness_resolution=1,smooth=2,kind="potential")
 
 		#Save the result
-		plane_file = os.path.join(save_path,"plane{0}.npy".format(3*cut+normal))
+		plane_file = os.path.join(save_path,"plane{0}_normal{1}.npy".format(cut,normal))
 		print("Saving plane to {0}".format(plane_file))
-		np.save(os.path.join(save_path,"plane{0}.npy".format(3*cut+normal)),plane)
+		np.save(plane_file,plane)
+
+
+#Close the snapshot
+snap.close()
