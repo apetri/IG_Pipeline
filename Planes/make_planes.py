@@ -3,7 +3,7 @@
 #######################################################################
 
 import os
-from lenstools.simulations import Gadget2Snapshot
+from lenstools.simulations import Gadget2Snapshot,PotentialPlane
 from lenstools.utils import MPIWhirlPool
 import numpy as np
 
@@ -25,8 +25,8 @@ except:
 #Open the snapshot
 snap = Gadget2Snapshot.open(os.path.join(snapshot_path,snapshot_file),pool=pool)
 
-
-print("Rank {0} reading snapshot from {1}".format(pool.rank,snap.header["files"][0]))
+if pool is not None:
+	print("Rank {0} reading snapshot from {1}".format(pool.rank,snap.header["files"][0]))
 
 #Get the positions of the particles
 snap.getPositions()
@@ -39,21 +39,27 @@ thickness = 10.0*snap.Mpc_over_h
 for cut,pos in enumerate(cut_points):
 	for normal in range(3):
 
-		if pool.is_master():
+		if pool is not None and pool.is_master():
 			print("Cutting plane at {0} with normal {1}, of size {2} x {2}".format(pos,normal,snap.lensMaxSize()))
 
 		#Do the cutting
-		plane,resolution = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=snap.lensMaxSize(),plane_resolution=4096,thickness_resolution=1,smooth=2,kind="potential")
+		plane,resolution = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=snap.lensMaxSize(),plane_resolution=512,thickness_resolution=1,smooth=2,kind="potential")
 
-		if pool.is_master():
+		if pool is None or pool.is_master():
 			
-			#Save the result
-			plane_file = os.path.join(save_path,"potential_plane{0}_normal{1}.npy".format(cut,normal))
-			print("Saving plane to {0}".format(plane_file))
-			np.save(plane_file,plane)
+			#Wrap the plane in a PotentialPlane object
+			potential_plane = PotentialPlane(plane,angle=snap.lensMaxSize(),redshift=snap.header["redshift"],cosmology=snap.cosmology)
 
-		#Safety barrier sync
-		pool.comm.Barrier()
+			#Save the result
+			plane_file = os.path.join(save_path,"potential_plane{0}_normal{1}.fits".format(cut,normal))
+			print("Saving plane to {0}".format(plane_file))
+			potential_plane.save(plane_file)
+			
+			
+		if pool is not None:
+			
+			#Safety barrier sync
+			pool.comm.Barrier()
 
 
 #Close the snapshot
