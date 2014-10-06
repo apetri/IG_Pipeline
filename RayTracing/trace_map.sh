@@ -14,9 +14,9 @@
 #SBATCH --mail-type=all
 
 #Enable MIC offload
-export MKL_MIC_ENABLE=1
-export OFFLOAD_REPORT=2
-export OMP_NUM_THREADS=16
-export MIC_OMP_NUM_THREADS=240
+#export MKL_MIC_ENABLE=1
+#export OFFLOAD_REPORT=2
+#export OMP_NUM_THREADS=16
+#export MIC_OMP_NUM_THREADS=240
 
 ibrun -n 1 -o 0 python trace_map.py

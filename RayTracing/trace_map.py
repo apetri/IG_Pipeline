@@ -2,35 +2,56 @@ from lenstools.simulations.raytracing import RayTracer,PotentialPlane,Deflection
 import numpy as np
 from astropy.units import deg,rad
 
+import os
 import logging
 import time
 
 logging.basicConfig(level=logging.DEBUG)
 
 #TODO These are hardcoded, parse from options file in the future
-plane_path = "/work/02918/apetri/Planes4096"
+plane_path = "/scratch/02918/apetri/Planes4096"
 save_path = "/work/02918/apetri/Maps"
 
 #Instantiate the RayTracer
-tracer = RayTracer()
+tracer = RayTracer(lens_mesh_size=4096)
 
 start = time.time()
 last_timestamp = start
 
-#Add the lenses to the system
-for i in range(11,57):
+#Add the lenses to the system (and perform FFT)
+for i in range(11,20):
+	
 	tracer.addLens(PotentialPlane.load(os.path.join(plane_path,"snap{0}_potentialPlane0_normal0.fits".format(i))))
+	
+	#Perform FFT and log timestamp
+	now = time.time()
+	last_timestamp = now
+	
+	tracer.lens[-1].toFourier()
+
+	now = time.time()
+	logging.debug("FFT of lensing potential completed in {0:.3f}s".format(now-last_timestamp))
+	last_timestamp = now
+	
 
 now = time.time()
-logging.info("Plane loading completed in {0:.3f}s".format(now-last_timestamp))
+logging.info("Plane loading and FFT completed in {0:.3f}s".format(now-start))
 last_timestamp = now
+
+for i in range(tracer.Nlenses):
+	logging.debug("Lens {0} pixels on a side {1} space {2}".format(i,tracer.lens[i].data.shape[0],tracer.lens[i].space))
 
 #Rearrange the lenses according to redshift and roll them randomly along the axes
 tracer.reorderLenses()
+
+now = time.time()
+logging.info("Reordering completed in {0:.3f}s".format(now-last_timestamp))
+last_timestamp = now
+
 tracer.randomRoll()
 
 now = time.time()
-logging.info("Reordering and rolling completed in {0:.3f}s".format(now-last_timestamp))
+logging.info("Rolling completed in {0:.3f}s".format(now-last_timestamp))
 last_timestamp = now
 
 #Start a bucket of light rays from these positions
