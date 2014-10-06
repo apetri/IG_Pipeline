@@ -15,6 +15,7 @@
 
 #Enable MIC offload
 export MKL_MIC_ENABLE=1
+export OFFLOAD_REPORT=2
 export OMP_NUM_THREADS=16
 export MIC_OMP_NUM_THREADS=240
 
