@@ -22,17 +22,6 @@ last_timestamp = start
 for i in range(11,57):
 	
 	tracer.addLens(PotentialPlane.load(os.path.join(plane_path,"snap{0}_potentialPlane0_normal0.fits".format(i))))
-	
-	#Perform FFT and log timestamp
-	now = time.time()
-	last_timestamp = now
-	
-	tracer.lens[-1].toFourier()
-
-	now = time.time()
-	logging.debug("FFT of lensing potential completed in {0:.3f}s".format(now-last_timestamp))
-	last_timestamp = now
-	
 
 now = time.time()
 logging.info("Plane loading and FFT completed in {0:.3f}s".format(now-start))
