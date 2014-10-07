@@ -19,7 +19,7 @@ start = time.time()
 last_timestamp = start
 
 #Add the lenses to the system (and perform FFT)
-for i in range(11,20):
+for i in range(11,57):
 	
 	tracer.addLens(PotentialPlane.load(os.path.join(plane_path,"snap{0}_potentialPlane0_normal0.fits".format(i))))
 	
