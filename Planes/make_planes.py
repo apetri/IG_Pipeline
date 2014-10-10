@@ -51,12 +51,12 @@ for cut,pos in enumerate(cut_points):
 			print("Cutting plane at {0} with normal {1}, of size {2} x {2}".format(pos,normal,2.9*deg))
 
 		#Do the cutting
-		plane,resolution = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=2.9*deg,plane_resolution=512,thickness_resolution=1,smooth=2,kind="potential")
+		plane,resolution,NumPart = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=2.9*deg,plane_resolution=512,thickness_resolution=1,smooth=2,kind="potential")
 
 		if pool is None or pool.is_master():
 			
 			#Wrap the plane in a PotentialPlane object
-			potential_plane = PotentialPlane(plane,angle=2.9*deg,redshift=snap.header["redshift"],cosmology=snap.cosmology)
+			potential_plane = PotentialPlane(plane,angle=2.9*deg,redshift=snap.header["redshift"],cosmology=snap.cosmology,num_particles=NumPart)
 
 			#Save the result
 			plane_file = os.path.join(save_path,"snap{0}_potentialPlane{1}_normal{2}.fits".format(comm.rank//16,cut,normal))
