@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 #TODO These are hardcoded, parse from options file in the future
 plane_path = "/scratch/02918/apetri/Planes4096"
 save_path = "/work/02918/apetri/Maps"
+np.random.seed(0)
 
 #Instantiate the RayTracer
 tracer = RayTracer(lens_mesh_size=4096)
@@ -21,7 +22,9 @@ last_timestamp = start
 #Add the lenses to the system (and perform FFT)
 for i in range(11,57):
 	
-	tracer.addLens(PotentialPlane.load(os.path.join(plane_path,"snap{0}_potentialPlane0_normal0.fits".format(i))))
+	plane_name = os.path.join(plane_path,"snap{0}_potentialPlane{1}_normal{2}.fits".format(i,np.random.randint(0,3),np.random.randint(0,3)))
+	logging.info("Reading plane from {0}...".format(plane_name))
+	tracer.addLens(PotentialPlane.load(plane_name))
 
 now = time.time()
 logging.info("Plane loading and FFT completed in {0:.3f}s".format(now-start))
