@@ -16,7 +16,8 @@ from mpi4py import MPI
 #TODO options are hardcoded for now
 snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/cfhtcov-series/cfhtcov-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.800_ic1"
 snapshot_file = "snapshot_"
-save_path = "/work/02918/apetri/Planes"
+save_path = "/scratch/02918/apetri/Planes4096"
+plane_resolution = 4096
 
 #########################################################################
 
@@ -40,18 +41,18 @@ if pool is not None:
 snap.getPositions()
 
 #Decide where to cut the lenses
-cut_points = np.array([70.0,140.0,210.0]) * snap.Mpc_over_h
-thickness = 10.0*snap.Mpc_over_h
+cut_points = np.array([40.0,120.0,200.0]) * snap.Mpc_over_h
+thickness = 80.0*snap.Mpc_over_h
 
 #Cut the lenses
 for cut,pos in enumerate(cut_points):
 	for normal in range(3):
 
 		if pool is not None and pool.is_master():
-			print("Cutting plane at {0} with normal {1}, of size {2} x {2}".format(pos,normal,2.9*deg))
+			print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}".format(pos,normal,thickness,2.9*deg))
 
 		#Do the cutting
-		plane,resolution,NumPart = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=2.9*deg,plane_resolution=512,thickness_resolution=1,smooth=2,kind="potential")
+		plane,resolution,NumPart = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=2.9*deg,plane_resolution=plane_resolution,thickness_resolution=1,smooth=2,kind="potential")
 
 		if pool is None or pool.is_master():
 			
