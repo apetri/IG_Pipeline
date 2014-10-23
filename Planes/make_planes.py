@@ -18,9 +18,9 @@ snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/dev-series/dev-512
 snapshot_file = "snapshot_"
 save_path = "/scratch/02918/apetri/Planes4096"
 plane_resolution = 4096
-plane_size = 2.9*deg
-first_snapshot = 0
-last_snapshot = 57
+plane_size = 3.5*deg
+first_snapshot = 11
+last_snapshot = 58
 
 #########################################################################
 
@@ -36,7 +36,7 @@ except:
 for n in range(first_snapshot,last_snapshot+1):
 
 	#Open the snapshot
-	snap = Gadget2Snapshot.open(os.path.join(snapshot_path,snapshot_file+"{0:03d}".format(n),pool=pool))
+	snap = Gadget2Snapshot.open(os.path.join(snapshot_path,snapshot_file+"{0:03d}".format(n)),pool=pool)
 
 	if pool is not None:
 		print("Rank {0} reading snapshot from {1}".format(comm.rank,snap.header["files"][0]))
