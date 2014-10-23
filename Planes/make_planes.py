@@ -18,7 +18,9 @@ snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/dev-series/dev-512
 snapshot_file = "snapshot_"
 save_path = "/scratch/02918/apetri/Planes4096"
 plane_resolution = 4096
-num_snapshots = 1
+plane_size = 2.9*deg
+first_snapshot = 0
+last_snapshot = 57
 
 #########################################################################
 
@@ -31,7 +33,7 @@ try:
 except:
 	pool = None
 
-for n in range(num_snapshots):
+for n in range(first_snapshot,last_snapshot+1):
 
 	#Open the snapshot
 	snap = Gadget2Snapshot.open(os.path.join(snapshot_path,snapshot_file+"{0:03d}".format(n),pool=pool))
@@ -51,15 +53,15 @@ for n in range(num_snapshots):
 		for normal in range(3):
 
 			if pool is not None and pool.is_master():
-				print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}".format(pos,normal,thickness,2.9*deg))
+				print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}".format(pos,normal,thickness,plane_size))
 
 			#Do the cutting
-			plane,resolution,NumPart = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=2.9*deg,plane_resolution=plane_resolution,thickness_resolution=1,smooth=2,kind="potential")
+			plane,resolution,NumPart = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=plane_size,plane_resolution=plane_resolution,thickness_resolution=1,smooth=2,kind="potential")
 
 			if pool is None or pool.is_master():
 			
 				#Wrap the plane in a PotentialPlane object
-				potential_plane = PotentialPlane(plane,angle=2.9*deg,redshift=snap.header["redshift"],cosmology=snap.cosmology,num_particles=NumPart)
+				potential_plane = PotentialPlane(plane,angle=plane_size,redshift=snap.header["redshift"],cosmology=snap.cosmology,num_particles=NumPart)
 
 				#Save the result
 				plane_file = os.path.join(save_path,"snap{0}_potentialPlane{1}_normal{2}.fits".format(n,cut,normal))
