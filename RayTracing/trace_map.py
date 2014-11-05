@@ -9,12 +9,12 @@ import time
 logging.basicConfig(level=logging.DEBUG)
 
 #TODO These are hardcoded, parse from options file in the future
-plane_path = "/scratch/02918/apetri/Planes4096"
+plane_path = "/scratch/02918/apetri/Planes512"
 save_path = "/work/02918/apetri/Maps"
 np.random.seed(0)
 
 #Instantiate the RayTracer
-tracer = RayTracer(lens_mesh_size=4096)
+tracer = RayTracer(lens_mesh_size=512)
 
 start = time.time()
 last_timestamp = start
@@ -47,7 +47,7 @@ logging.info("Rolling completed in {0:.3f}s".format(now-last_timestamp))
 last_timestamp = now
 
 #Start a bucket of light rays from these positions
-b = np.linspace(0.0,2.9,512)
+b = np.linspace(0.0,tracer.lens[0].side_angle.value,512)
 xx,yy = np.meshgrid(b,b)
 pos = np.array([xx,yy]) * deg
 

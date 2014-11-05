@@ -16,8 +16,8 @@ from mpi4py import MPI
 #TODO options are hardcoded for now
 snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/dev-series/dev-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.800_ic1"
 snapshot_file = "snapshot_"
-save_path = "/scratch/02918/apetri/Planes4096"
-plane_resolution = 4096
+save_path = "/scratch/02918/apetri/Planes512"
+plane_resolution = 512
 plane_size = 3.5*deg
 first_snapshot = 11
 last_snapshot = 58
