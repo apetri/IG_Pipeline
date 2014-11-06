@@ -7,17 +7,24 @@ import os
 from lenstools.simulations import Gadget2Snapshot,PotentialPlane
 from lenstools.utils import MPIWhirlPool
 import numpy as np
-from astropy.units import deg
+from astropy.units import deg,rad,Mpc
 
 from mpi4py import MPI
+
+########################################################################
+
+#Upsample the resolution
+def closest2(x):
+	return int(2**(np.ceil(np.log2(x))))
+
 
 ########################################################################
 
 #TODO options are hardcoded for now
 snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/dev-series/dev-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.800_ic1"
 snapshot_file = "snapshot_"
-save_path = "/scratch/02918/apetri/Planes512"
-plane_resolution = 512
+save_path = "/scratch/02918/apetri/PlanesAdaptive"
+plane_spatial_resolution = 0.05*Mpc 
 plane_size = 3.5*deg
 first_snapshot = 11
 last_snapshot = 58
@@ -48,15 +55,21 @@ for n in range(first_snapshot,last_snapshot+1):
 	cut_points = np.array([40.0,120.0,200.0]) * snap.Mpc_over_h
 	thickness = 80.0*snap.Mpc_over_h
 
+	#Resolution parameters
+	angular_resolution = (plane_spatial_resolution / snap.cosmology.comoving_distance(snap.header["redshift"])).decompose().value * rad
+	num_pixels = (plane_size / angular_resolution).decompose().value
+	num_pixels_2 = closest2(num_pixels)
+	smoothing = num_pixels_2 / num_pixels 
+
 	#Cut the lenses
 	for cut,pos in enumerate(cut_points):
 		for normal in range(3):
 
 			if pool is not None and pool.is_master():
-				print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}".format(pos,normal,thickness,plane_size))
+				print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}, with {4}x{4} pixels, smoothed {5} pixels".format(pos,normal,thickness,plane_size,num_pixels_2,smooth))
 
 			#Do the cutting
-			plane,resolution,NumPart = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=plane_size,plane_resolution=plane_resolution,thickness_resolution=1,smooth=2,kind="potential")
+			plane,resolution,NumPart = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=plane_size,plane_resolution=num_pixels_2,thickness_resolution=1,smooth=smooth,kind="potential")
 
 			if pool is None or pool.is_master():
 			
