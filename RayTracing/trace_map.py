@@ -1,3 +1,4 @@
+from lenstools import ConvergenceMap,ShearMap
 from lenstools.simulations.raytracing import RayTracer,PotentialPlane,DeflectionPlane
 import numpy as np
 from astropy.units import deg,rad
@@ -9,12 +10,13 @@ import time
 logging.basicConfig(level=logging.DEBUG)
 
 #TODO These are hardcoded, parse from options file in the future
-plane_path = "/scratch/02918/apetri/Planes512"
+plane_path = "/scratch/02918/apetri/Planes4096"
 save_path = "/work/02918/apetri/Maps"
+resolution = 2048
 np.random.seed(0)
 
 #Instantiate the RayTracer
-tracer = RayTracer(lens_mesh_size=512)
+tracer = RayTracer()
 
 start = time.time()
 last_timestamp = start
@@ -47,7 +49,7 @@ logging.info("Rolling completed in {0:.3f}s".format(now-last_timestamp))
 last_timestamp = now
 
 #Start a bucket of light rays from these positions
-b = np.linspace(0.0,tracer.lens[0].side_angle.value,512)
+b = np.linspace(0.0,tracer.lens[0].side_angle.value,resolution)
 xx,yy = np.meshgrid(b,b)
 pos = np.array([xx,yy]) * deg
 
@@ -71,6 +73,6 @@ logging.info("Weak lensing calculations completed in {0:.3f}s".format(now-last_t
 logging.info("Total runtime {0:.3f}s".format(now-start))
 
 #Save the result
-np.save(os.path.join(save_path,"conv.npy"),conv.data)
-np.save(os.path.join(save_path,"shear.npy"),shear.data)
+conv.save(os.path.join(save_path,"conv.fits"))
+shear.save(os.path.join(save_path,"shear.fits"))
 np.save(os.path.join(save_path,"omega.npy"),omega.data)
