@@ -7,13 +7,13 @@
 EXEC   = Gadget2
 HAVE_OMP = no
 
-CC       =  gcc-4.8   
-OPTIMIZE =  -O3 -fopenmp -Wall -I/usr/local/Cellar/open-mpi/1.7.3/include
+CC       =  gcc-4.9   
+OPTIMIZE =  -O3 -fopenmp -Wall -I/usr/local/include
 GSL_INCL=  -I/usr/local/include # GSL library is not needed for this version.
 GSL_LIBS =  -L/usr/local/lib # GSL library is not needed for this version.
 FFTW_INCL = -I../../fftw-2.1.5/include
 FFTW_LIBS = -L../../fftw-2.1.5/lib
-MPICHLIB =  -lmpi # Explicit path to MPI installation apparently not needed if path to mpicc is given properly in the PATH variable.
+MPICHLIB =  -L/usr/local/lib -lmpi # Explicit path to MPI installation apparently not needed if path to mpicc is given properly in the PATH variable.
 HDF5INCL =
 HDF5LIB =
 
@@ -48,13 +48,13 @@ OPT   +=  -DWALLCLOCK
 #OPT   +=  -DPMGRID=1024
 #OPT   +=  -DPMGRID=896
 #OPT   +=  -DPMGRID=830
-OPT   +=  -DPMGRID=700  # Standard for Blue Gene/P and /L (?)
+#OPT   +=  -DPMGRID=700  # Standard for Blue Gene/P and /L (?)
 #OPT   +=  -DPMGRID=700
 #OPT   +=  -DPMGRID=512
 #OPT   +=  -DPMGRID=300
 #OPT   +=  -DPMGRID=256
 #OPT   +=  -DPMGRID=128
-#OPT   +=  -DPMGRID=32
+OPT   +=  -DPMGRID=32
 #OPT   +=  -DPLACEHIGHRESREGION=3
 #OPT   +=  -DENLARGEREGION=1.2
 #OPT   +=  -DASMTH=1.25
