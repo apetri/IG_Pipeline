@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 def measure_power(positions,tracer,k,pos,ell):
 	
 	redshift=tracer.redshift[k+1]
-	dfl = DeflectionPlane(positions.value-fin.value,angle=tracer.lens[0].side_angle,redshift=redshift,cosmology=tracer.lens[0].cosmology,unit=pos.unit)
+	dfl = DeflectionPlane(positions.value-pos.value,angle=tracer.lens[0].side_angle,redshift=redshift,cosmology=tracer.lens[0].cosmology,unit=pos.unit)
 	conv = dfl.convergence()
 	l,Pl = conv.powerSpectrum(ell)
 	np.save("/work/02918/apetri/Maps/"+"power_z{0}.npy".format(int(redshift*100)),np.array([l,Pl]))
