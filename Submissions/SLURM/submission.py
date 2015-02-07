@@ -585,7 +585,7 @@ cd %s
 			except OSError:
 				print "%s already exists, or you don't have write privileges on %s"%(dirToMake,options.get("user","scratch"))
 
-			dirToMake = "%s/Storage/wl/IG/%s-series/%s/Maps"%(options.get("user","scratch"),options.get("series","series"),ig_arg)
+			dirToMake = "%s/Storage/wl/IG/%s-series/%s/%s"%(options.get("user","scratch"),options.get("series","series"),ig_arg,IG_options.get("paths","maps_folder"))
 			try:
 				os.mkdir(dirToMake)
 			except OSError:
