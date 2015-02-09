@@ -18,7 +18,7 @@ snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/cmb512-series/cmb5
 snapshot_file = "snapshot_"
 save_path = "/scratch/02918/apetri/PlanesAdaptive"
 plane_resolution = 2048
-neighbors = 64
+neighbors = 4
 first_snapshot = 46
 last_snapshot = 46
 
@@ -44,14 +44,11 @@ for n in range(first_snapshot,last_snapshot+1):
 	#Get the positions of the particles
 	snap.getPositions()
 
-	if pool is not None and pool.is_master():
-		print("Smoothing on {0:.2f} pixel".format(smooth))
-
 	#Cut the lenses
 	for normal in [2]:
 
 		if pool is not None and pool.is_master():
-			print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}".format(pos,normal,thickness,plane_size))
+			print("Cutting plane with normal {0}, of size {1} x {1}".format(normal,snap.header["box_size"]))
 
 		#Do the cutting
 		plane,resolution = snap.cutPlaneAdaptive(normal=normal,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_resolution=plane_resolution,neighbors=neighbors,projectAll=True,kind="density")
@@ -62,7 +59,7 @@ for n in range(first_snapshot,last_snapshot+1):
 			potential_plane = PotentialPlane(plane,angle=snap.header["box_size"],redshift=snap.header["redshift"],cosmology=snap.cosmology,num_particles=snap.header["num_particles_total"])
 
 			#Save the result
-			plane_file = os.path.join(save_path,"snap{0}_potentialPlane{1}_normal{2}_neighbors{3}.fits".format(n,cut,normal,neighbors))
+			plane_file = os.path.join(save_path,"snap{0}_potentialPlane{1}_normal{2}_neighbors{3}.fits".format(n,0,normal,neighbors))
 			print("Saving plane to {0}".format(plane_file))
 			potential_plane.save(plane_file)
 			
