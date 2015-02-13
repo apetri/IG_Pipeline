@@ -31,7 +31,7 @@ start = time.time()
 last_timestamp = start
 
 #Add the lenses to the system (and perform FFT)
-for i in range(11,57):
+for i in range(1,59):
 	
 	plane_name = os.path.join(plane_path,"snap{0}_potentialPlane{1}_normal{2}.fits".format(i,np.random.randint(0,3),np.random.randint(0,3)))
 	logging.info("Reading plane from {0}...".format(plane_name))
@@ -58,19 +58,19 @@ logging.info("Rolling completed in {0:.3f}s".format(now-last_timestamp))
 last_timestamp = now
 
 #Start a bucket of light rays from these positions
-b = np.linspace(0.0,tracer.lens[0].side_angle.value,resolution)
+b = np.linspace(0.0,1.6,resolution)
 xx,yy = np.meshgrid(b,b)
 pos = np.array([xx,yy]) * deg
 
 #Trace the ray deflections (and measure the power spectrum on the way)
-fin = tracer.shoot(pos,z=2.0,callback=measure_power,pos=pos,ell=np.arange(300.0,50000.0,300.0))
+fin = tracer.shoot(pos,z=26.0,callback=measure_power,pos=pos,ell=np.arange(300.0,50000.0,300.0))
 
 now = time.time()
 logging.info("Ray tracing completed in {0:.3f}s".format(now-last_timestamp))
 last_timestamp = now
 
 #Build the deflection plane
-dfl = DeflectionPlane(fin.value-pos.value,angle=tracer.lens[0].side_angle,redshift=tracer.redshift[-1],cosmology=tracer.lens[0].cosmology,unit=pos.unit)
+dfl = DeflectionPlane(fin.value-pos.value,angle=1.6*deg,redshift=26.0,cosmology=tracer.lens[0].cosmology,unit=pos.unit)
 
 #Compute shear and convergence
 conv = dfl.convergence()

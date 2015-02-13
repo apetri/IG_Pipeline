@@ -14,13 +14,11 @@ from mpi4py import MPI
 ########################################################################
 
 #TODO options are hardcoded for now
-snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/dev-series/dev-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.800_ic1"
+snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/cmb512-series/cmb512-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.800_ic1"
 snapshot_file = "snapshot_"
 save_path = "/scratch/02918/apetri/Planes4096"
 plane_resolution = 4096
-plane_spatial_resolution = 0.08*Mpc
-plane_size = 3.5*deg
-first_snapshot = 11
+first_snapshot = 1
 last_snapshot = 58
 
 #########################################################################
@@ -49,28 +47,20 @@ for n in range(first_snapshot,last_snapshot+1):
 	cut_points = np.array([40.0,120.0,200.0]) * snap.Mpc_over_h
 	thickness = 80.0*snap.Mpc_over_h
 
-	#Resolution parameters
-	plane_angular_resolution = (plane_spatial_resolution/snap.cosmology.comoving_distance(snap.header["redshift"])).decompose().value * rad
-	resolution_in_pixels = (plane_angular_resolution*plane_resolution / plane_size).decompose().value
-	
-	smooth=resolution_in_pixels
-	if pool is not None and pool.is_master():
-		print("Smoothing on {0:.2f} pixel".format(smooth))
-
 	#Cut the lenses
 	for cut,pos in enumerate(cut_points):
 		for normal in range(3):
 
 			if pool is not None and pool.is_master():
-				print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}".format(pos,normal,thickness,plane_size))
+				print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}".format(pos,normal,thickness,snap.header["box_size"]))
 
 			#Do the cutting
-			plane,resolution,NumPart = snap.cutLens(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_size=plane_size,plane_resolution=plane_resolution,thickness_resolution=1,smooth=smooth,kind="potential")
+			plane,resolution,NumPart = snap.cutPlaneGaussianGrid(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_resolution=plane_resolution,thickness_resolution=1,smooth=2,kind="potential")
 
 			if pool is None or pool.is_master():
 			
 				#Wrap the plane in a PotentialPlane object
-				potential_plane = PotentialPlane(plane,angle=plane_size,redshift=snap.header["redshift"],cosmology=snap.cosmology,num_particles=NumPart)
+				potential_plane = PotentialPlane(plane.value,angle=snap.header["box_size"],redshift=snap.header["redshift"],cosmology=snap.cosmology,num_particles=NumPart,unit=plane.unit)
 
 				#Save the result
 				plane_file = os.path.join(save_path,"snap{0}_potentialPlane{1}_normal{2}.fits".format(n,cut,normal))
