@@ -9,10 +9,10 @@ import time
 
 logging.basicConfig(level=logging.DEBUG)
 
-def measure_power(positions,tracer,k,pos,ell):
+def measure_power(positions,tracer,k,pos,ell,map_angle):
 	
 	redshift=tracer.redshift[k+1]
-	dfl = DeflectionPlane(positions.value-pos.value,angle=tracer.lens[0].side_angle,redshift=redshift,cosmology=tracer.lens[0].cosmology,unit=pos.unit)
+	dfl = DeflectionPlane(positions.value-pos.value,angle=map_angle,redshift=redshift,cosmology=tracer.lens[0].cosmology,unit=pos.unit)
 	conv = dfl.convergence()
 	l,Pl = conv.powerSpectrum(ell)
 	np.save("/work/02918/apetri/Maps/"+"power_z{0}.npy".format(int(redshift*100)),np.array([l,Pl]))
@@ -21,6 +21,8 @@ def measure_power(positions,tracer,k,pos,ell):
 #TODO These are hardcoded, parse from options file in the future
 plane_path = "/scratch/02918/apetri/Planes4096"
 save_path = "/work/02918/apetri/Maps"
+map_angle = 1.6*deg
+redshift = 26.0
 resolution = 2048
 np.random.seed(0)
 
@@ -58,19 +60,19 @@ logging.info("Rolling completed in {0:.3f}s".format(now-last_timestamp))
 last_timestamp = now
 
 #Start a bucket of light rays from these positions
-b = np.linspace(0.0,1.6,resolution)
+b = np.linspace(0.0,map_angle.to(deg).value,resolution)
 xx,yy = np.meshgrid(b,b)
 pos = np.array([xx,yy]) * deg
 
 #Trace the ray deflections (and measure the power spectrum on the way)
-fin = tracer.shoot(pos,z=26.0,callback=measure_power,pos=pos,ell=np.arange(300.0,50000.0,300.0))
+fin = tracer.shoot(pos,z=redshift,callback=measure_power,pos=pos,ell=np.arange(300.0,50000.0,300.0),map_angle=map_angle)
 
 now = time.time()
 logging.info("Ray tracing completed in {0:.3f}s".format(now-last_timestamp))
 last_timestamp = now
 
 #Build the deflection plane
-dfl = DeflectionPlane(fin.value-pos.value,angle=1.6*deg,redshift=26.0,cosmology=tracer.lens[0].cosmology,unit=pos.unit)
+dfl = DeflectionPlane(fin.value-pos.value,angle=map_angle,redshift=redshift,cosmology=tracer.lens[0].cosmology,unit=pos.unit)
 
 #Compute shear and convergence
 conv = dfl.convergence()
