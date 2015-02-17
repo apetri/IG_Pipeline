@@ -57,11 +57,12 @@ xx,yy = np.meshgrid(b,b)
 pos = np.array([xx,yy]) * deg
 
 #Trace the ray deflections (and measure the power spectrum on the way)
-conv = ConvergenceMap(data=tracer.convergenceDirect(pos,z=redshift),angle=map_angle)
+conv = tracer.convergenceDirect(pos,z=redshift)
 
 now = time.time()
 logging.info("Ray tracing completed in {0:.3f}s".format(now-last_timestamp))
 last_timestamp = now
 
 #Save the result
+conv = ConvergenceMap(data=conv,angle=map_angle)
 conv.save(os.path.join(save_path,"conv_direct.fits"))
