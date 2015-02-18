@@ -2,7 +2,7 @@
 
 #SBATCH -A TG-AST140041
 
-#SBATCH -J RayTraceMap
+#SBATCH -J Ray
 #SBATCH -o raymap.out
 #SBATCH -e raymap.err
 
@@ -19,4 +19,4 @@
 #export OMP_NUM_THREADS=16
 #export MIC_OMP_NUM_THREADS=240
 
-ibrun -n 1 -o 0 /opt/apps/intel14/mvapich2_2_0/python/2.7.6/lib/python2.7/site-packages/mpi4py/bin/python-mpi trace_map.py
+ibrun -n 1 -o 0 /opt/apps/intel14/mvapich2_2_0/python/2.7.6/lib/python2.7/site-packages/mpi4py/bin/python-mpi raymap.py

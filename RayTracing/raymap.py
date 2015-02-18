@@ -86,4 +86,3 @@ logging.info("Total runtime {0:.3f}s".format(now-start))
 #Save the result
 conv.save(os.path.join(save_path,"conv.fits"))
 shear.save(os.path.join(save_path,"shear.fits"))
-np.save(os.path.join(save_path,"omega.npy"),omega.data)
