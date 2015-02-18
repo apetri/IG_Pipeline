@@ -19,8 +19,8 @@ snapshot_file = "snapshot_"
 save_path = "/scratch/02918/apetri/PlanesAdaptive"
 plane_resolution = 2048
 neighbors = 64
-first_snapshot = 46
-last_snapshot = 46
+first_snapshot = 0
+last_snapshot = 59
 
 #########################################################################
 
@@ -45,7 +45,7 @@ for n in range(first_snapshot,last_snapshot+1):
 	snap.getPositions()
 
 	#Cut the lenses
-	for normal in [2]:
+	for normal in range(2):
 
 		if pool is not None and pool.is_master():
 			print("Cutting plane with normal {0}, of size {1} x {1}".format(normal,snap.header["box_size"]))

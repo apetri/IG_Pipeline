@@ -2,9 +2,9 @@
 
 #SBATCH -A TG-AST140041
 
-#SBATCH -J PlanesAdaptive
-#SBATCH -o planesAdaptive.out
-#SBATCH -e planesAdaptive.err
+#SBATCH -J Planes4096
+#SBATCH -o planes4096.out
+#SBATCH -e planes4096.err
 
 #SBATCH -n 16
 #SBATCH -p development

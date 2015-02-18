@@ -18,8 +18,8 @@ snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/cmb512-series/cmb5
 snapshot_file = "snapshot_"
 save_path = "/scratch/02918/apetri/Planes4096"
 plane_resolution = 4096
-first_snapshot = 1
-last_snapshot = 58
+first_snapshot = 0
+last_snapshot = 59
 
 #########################################################################
 
@@ -55,7 +55,7 @@ for n in range(first_snapshot,last_snapshot+1):
 				print("Cutting plane at {0} with normal {1},thickness {2}, of size {3} x {3}".format(pos,normal,thickness,snap.header["box_size"]))
 
 			#Do the cutting
-			plane,resolution,NumPart = snap.cutPlaneGaussianGrid(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_resolution=plane_resolution,thickness_resolution=1,smooth=2,kind="potential")
+			plane,resolution,NumPart = snap.cutPlaneGaussianGrid(normal=normal,center=pos,thickness=thickness,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_resolution=plane_resolution,thickness_resolution=1,smooth=1,kind="potential")
 
 			if pool is None or pool.is_master():
 			
