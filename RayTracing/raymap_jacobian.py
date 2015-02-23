@@ -23,7 +23,7 @@ plane_path = "/scratch/02918/apetri/Planes4096"
 save_path = "/work/02918/apetri/Maps"
 map_angle = 1.6*deg
 redshift = 26.0
-resolution = 2048
+resolution = 1024
 np.random.seed(0)
 
 #Instantiate the RayTracer

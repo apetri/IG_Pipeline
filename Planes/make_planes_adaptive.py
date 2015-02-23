@@ -45,13 +45,13 @@ for n in range(first_snapshot,last_snapshot+1):
 	snap.getPositions()
 
 	#Cut the lenses
-	for normal in range(2):
+	for normal in range(3):
 
 		if pool is not None and pool.is_master():
 			print("Cutting plane with normal {0}, of size {1} x {1}".format(normal,snap.header["box_size"]))
 
 		#Do the cutting
-		plane,resolution,numPart = snap.cutPlaneAdaptive(normal=normal,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_resolution=plane_resolution,neighbors=neighbors,projectAll=True,kind="density")
+		plane,resolution,numPart = snap.cutPlaneAdaptive(normal=normal,left_corner=np.zeros(3)*snap.Mpc_over_h,plane_resolution=plane_resolution,neighbors=neighbors,projectAll=True,kind="potential")
 
 		if pool is None or pool.is_master():
 			

@@ -8,7 +8,7 @@
 
 #SBATCH -n 16
 #SBATCH -p normal
-#SBATCH -t 12:00:00
+#SBATCH -t 15:00:00
 
 #SBATCH --mail-user=apetri@phys.columbia.edu
 #SBATCH --mail-type=all
