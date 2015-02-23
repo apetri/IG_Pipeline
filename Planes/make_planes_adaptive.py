@@ -56,7 +56,7 @@ for n in range(first_snapshot,last_snapshot+1):
 		if pool is None or pool.is_master():
 			
 			#Wrap the plane in a PotentialPlane object
-			potential_plane = PotentialPlane(plane,angle=snap.header["box_size"],redshift=snap.header["redshift"],cosmology=snap.cosmology,num_particles=numPart)
+			potential_plane = PotentialPlane(plane.value,angle=snap.header["box_size"],redshift=snap.header["redshift"],cosmology=snap.cosmology,num_particles=numPart,unit=plane.unit)
 
 			#Save the result
 			plane_file = os.path.join(save_path,"snap{0}_potentialPlane{1}_normal{2}_neighbors{3}.fits".format(n,0,normal,neighbors))
