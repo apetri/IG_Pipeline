@@ -16,8 +16,8 @@ from mpi4py import MPI
 #TODO options are hardcoded for now
 snapshot_path = "/scratch/02918/apetri/Storage/sims/snapshots/cmb512-series/cmb512-512b240_Om0.260_Ol0.740_w-1.000_ns0.960_si0.800_ic1"
 snapshot_file = "snapshot_"
-save_path = "/scratch/02918/apetri/Planes4096"
-plane_resolution = 4096
+save_path = "/scratch/02918/apetri/Planes2048"
+plane_resolution = 2048
 first_snapshot = 0
 last_snapshot = 59
 
@@ -44,8 +44,8 @@ for n in range(first_snapshot,last_snapshot+1):
 	snap.getPositions()
 
 	#Decide where to cut the lenses
-	cut_points = np.array([40.0,120.0,200.0]) * snap.Mpc_over_h
-	thickness = 80.0*snap.Mpc_over_h
+	cut_points = np.array([120.0]) * snap.Mpc_over_h
+	thickness = 120.0*snap.Mpc_over_h
 
 	#Cut the lenses
 	for cut,pos in enumerate(cut_points):
