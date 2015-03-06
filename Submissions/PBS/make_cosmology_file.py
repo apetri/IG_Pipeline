@@ -1,1 +1,0 @@
-../SLURM/make_cosmology_file.py
