@@ -43,7 +43,7 @@
  *         in the file. Might be NULL in the case of errors.
  */
 extern io_parameter_t
-io_parameter_get(char *fname);
+io_parameter_get(char *envname,char *fname,char *cosmo_id,char *geometry_id,char *ic_id);
 
 /**
  * \brief Disposes a parameter object.

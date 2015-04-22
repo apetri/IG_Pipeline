@@ -19,7 +19,7 @@
  * \brief Helper function for reading the parameters.
  */
 static void
-local_startrunParams(char *paramfile);
+local_startrunParams(char *envfile,char *paramfile,char *cosmo_id,char *geometry_id,char *ic_id);
 
 /**
  * \brief Helper function for setting up the logging.
@@ -60,7 +60,7 @@ local_startrunRetset(double *timecounter,
 extern void startrun(char *envfile,char *paramfile,char *cosmo_id,char *geometry_id,char *ic_id,double *timecounter, double *timestep, int32_t *no_first_timestep)
 {
 	/* Read the parameters */
-	local_startrunParams(paramfile);
+	local_startrunParams(envfile,paramfile,cosmo_id,geometry_id,ic_id);
 
 
   /* Now set up the logging */
@@ -133,9 +133,9 @@ stoprun(void)
 }
 
 static void
-local_startrunParams(char *paramfile)
+local_startrunParams(char *envfile,char *paramfile,char *cosmo_id,char *geometry_id,char *ic_id)
 {
-	global_io.params = io_parameter_get(paramfile);
+	global_io.params = io_parameter_get(envfile,paramfile,cosmo_id,geometry_id,ic_id);
 	if (global_io.params == NULL) {
 		common_terminate(EXIT_FAILURE);
 	}

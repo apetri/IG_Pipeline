@@ -19,6 +19,7 @@
 
 /*--- Local variables ---------------------------------------------------*/
 static const char *local_secName = "AHF";
+static const char *env_secName = "EnvironmentSettings";
 
 
 /*--- Prototypes of local functions -------------------------------------*/
@@ -35,12 +36,15 @@ static void
 local_readRequired(io_parameter_t params, parse_ini_t ini);
 
 static void
+local_readEnvironment(io_parameter_t params, parse_ini_t ini);
+
+static void
 local_printStruct(FILE *f, const io_parameter_t params);
 
 
 /*--- Implementations of exported functions -----------------------------*/
 extern io_parameter_t
-io_parameter_get(char *fname)
+io_parameter_get(char *envname,char *fname,char *cosmo_id,char *geometry_id,char *ic_id)
 {
 	parse_ini_t ini;
 	io_parameter_t params = NULL;
@@ -50,8 +54,13 @@ io_parameter_get(char *fname)
 		local_initStruct(params);
 		local_readRequired(params, ini);
 		parse_ini_close(&ini);
-		local_printStruct(stderr, params);
 	}
+
+  if ((ini = local_getIni(envname)) != NULL){
+    local_readEnvironment(params,ini);
+    local_printStruct(stderr, params);
+    parse_ini_close(&ini);
+  }
 
 	return params;
 }
@@ -67,6 +76,9 @@ io_parameter_del(io_parameter_t *params)
 
 	free((*params)->icfile_name);
 	free((*params)->outfile_prefix);
+
+  free((*params)->home_path);
+  free((*params)->storage_path);
 
 #ifdef DARK_ENERGY
 	free((*params)->defile_name);
@@ -117,6 +129,9 @@ inline static void
 local_initStruct(io_parameter_t params)
 {
 	assert(params != NULL);
+
+  params->home_path      = NULL;
+  params->storage_path   = NULL;
 
 	params->icfile_name    = NULL;
 	params->ic_filetype    = IO_FILE_AMIGA;
@@ -394,6 +409,23 @@ local_readRequired(io_parameter_t params, parse_ini_t ini)
   
 } /* local_readRequired */
 
+
+static void
+local_readEnvironment(io_parameter_t params,parse_ini_t ini){
+
+  assert(params != NULL);
+  assert(ini != NULL);
+
+  /*Get the home path*/
+  getFromIni(&(params->home_path), parse_ini_get_string, ini, "home",env_secName);
+
+  /*Get the storage path*/
+  getFromIni(&(params->storage_path),parse_ini_get_string,ini,"storage",env_secName);
+
+} /*local_readEnvironment*/
+
+
+
 static void
 local_printStruct(FILE *f, const io_parameter_t params)
 {
@@ -410,6 +442,9 @@ local_printStruct(FILE *f, const io_parameter_t params)
     fprintf(f, "ic_filename       = %s\n", params->icfile_name);
     fprintf(f, "ic_filetype       = %i\n", (int)(params->ic_filetype));
     fprintf(f, "outfile_prefix    = %s\n", params->outfile_prefix);
+    fprintf(f, "home_path         = %s\n", params->home_path);
+    fprintf(f, "storage_path      = %s\n", params->storage_path);
+
 //    fprintf(f, "LgridDomain       = %i\n", params->NGRID_DOM);
 //    fprintf(f, "LgridMax          = %i\n", params->NGRID_MAX);
 //    fprintf(f, "NminPerHalo       = %i\n", params->AHF_MINPART);

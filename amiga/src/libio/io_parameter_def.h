@@ -23,6 +23,12 @@
  * The header structure itself
  */
 struct io_parameter_struct {
+
+	/*Convenient path parameters*/
+
+	char *home_path;
+	char *storage_path;
+
 	/* Required parameter */
 	char           *icfile_name;
 	io_file_type_t ic_filetype;
