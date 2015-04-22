@@ -1,19 +1,3 @@
-#******************************************************************#
-# Sample Makefile.config.  Be sure to edit this to your likings    #
-# and copy it to Makefile.config.                                  #
-#******************************************************************#
-
-#------------------------------------------------------------------#
-# Select the target system                                         #
-# (define your own, if needed!)                                    #
-#------------------------------------------------------------------#
-#SYSTEM =	"Standard SQL"
-#SYSTEM =	"Standard OpenMP"
-SYSTEM =	"Standard MPI"
-#SYSTEM =	"Standard MPI+OpenMP"
-#SYSTEM =	"SuperMUC"
-#SYSTEM =	"Debug"
-
 #------------------------------------------------------------------#
 # DEFINEFLAGS                                                      #
 #------------------------------------------------------------------#
@@ -95,76 +79,11 @@ SYSTEM =	"Standard MPI"
 #------------------------------------------------------------------#
 # Set environment for the system                                   #
 #------------------------------------------------------------------#
-ifeq ($(SYSTEM), "Standard SQL")
-	CC         	=	gcc -std=c99 -fopenmp
-	FC 	      	=	gfortran
-	OPTIMIZE	=	-O2
-	CCFLAGS		=
-	LNFLAGS		=	-lsqlite3
-	DEFINEFLAGS	+=	-DWITH_OPENMP -DAHF_SQL
-	MAKE		=	make
-endif
 
-ifeq ($(SYSTEM), "Standard OpenMP")
-	CC         	=	gcc -std=c99 -fopenmp -g
-	FC 	      	=	gfortran
-	OPTIMIZE	=	-O2
-	CCFLAGS		=	
-	LNFLAGS		=
-	DEFINEFLAGS	+=	-DWITH_OPENMP 
-	DEFINEFLAGS	+=	-DGENERATE_TREE_LOG 
-	DEFINEFLAGS	+=	-DPATCH_THREADS_LOG
-	MAKE		=	make
-endif
-
-ifeq ($(SYSTEM), "Standard Serial")
-        CC              =       gcc -std=c99 -g
-        FC              =       gfortran
-        OPTIMIZE        =       -O2
-        CCFLAGS         =
-        LNFLAGS         =
-        DEFINEFLAGS     +=      
-        MAKE            =       make
-endif
-
-ifeq ($(SYSTEM), "Standard MPI")
-	CC         	=	mpicc -std=c99 -Wall -W
-	FC         	=	mpif90
-	OPTIMIZE	=	-O2
-	CCFLAGS		=
-	LNFLAGS		=
-	DEFINEFLAGS	+=	-DWITH_MPI
-	MAKE		=	make
-endif
-
-ifeq ($(SYSTEM), "Standard MPI+OpenMP")
-	CC         	=	mpicc -std=c99 -Wall -W -fopenmp
-	FC         	=	g77
-	OPTIMIZE	=	-O2
-	CCFLAGS		=
-	LNFLAGS		=
-	DEFINEFLAGS	+=	-DWITH_MPI -DWITH_OPENMP
-	MAKE		=	make
-endif
-
-ifeq ($(SYSTEM), "SuperMUC")
-  CC        =       mpicc -compiler gcc -m64 -mcmodel=large -std=c99 -Wall -W -fopenmp
-	FC       	=	g77
-	OPTIMIZE	=	-O2 
-	CCFLAGS		=
-	LNFLAGS		=
-	DEFINEFLAGS	+=	-DWITH_MPI -DWITH_OPENMP
-	MAKE		=	make
-endif
-
-ifeq ($(SYSTEM), "Debug")
-	CC         	=	gcc -std=c99 -g
-	FC 	      	=	g95
-	OPTIMIZE	=	-O0 
-	CCFLAGS		=	-g 
-#Compile and link with -pg flag for Gprof
-#	CCFLAGS		+=	-pg
-#	LNFLAGS		=	-pg
-	DEFINEFLAGS	+=	
-	MAKE		=	make
-endif
+CC         	=	mpicc -std=c99 -Wall -W
+FC         	=	mpif90
+OPTIMIZE	=	-O2
+CCFLAGS		=
+LNFLAGS		=
+DEFINEFLAGS	+=	-DWITH_MPI
+MAKE		=	make
