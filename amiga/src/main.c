@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
 
@@ -58,7 +59,10 @@ int main(int argc, char **argv)
   double  timestep;          /* timestep size                       */
   double  timecounter_final; /* for all sorts of tests...           */
   
-  char     AMIGA_input[MAXSTRING];
+  char AMIGA_input[MAXSTRING],ENV_input[MAXSTRING],ID_input[MAXSTRING];
+  char *cosmo_id,*geometry_id,*ic_id;
+  char *sep="|";
+
   
 #ifdef WITH_MPI
   uint64_t newparts;
@@ -73,7 +77,7 @@ int main(int argc, char **argv)
    *===========================================================*/
   if(argc<2)
    {
-    fprintf(stderr,"usage:    %s AMIGA.input\n", argv[0]);
+    fprintf(stderr,"usage:    %s -e environment.ini -c code_options.ini \"cosmo_id|geometry_id|icN\"\n", argv[0]);
     fprintf(stderr,"       or %s --parameterfile\n", argv[0]);
     exit(1);
    }
@@ -90,13 +94,24 @@ int main(int argc, char **argv)
     write_parameterfile();
     exit(0);
    }
-  else
+  
+  
+   if(argc<6 || strcmp(argv[1],"-e") || strcmp(argv[3],"-c"))
    {
-    strcpy(AMIGA_input, argv[1]);
+    fprintf(stderr,"usage:    %s -e environment.ini -c code_options.ini \"cosmo_id|geometry_id|icN\"\n", argv[0]);
+    exit(1);
    }
-  
-  
-  
+
+
+  //command line argument parsing
+  strcpy(ENV_input, argv[2]);
+  strcpy(AMIGA_input, argv[4]);
+  strcpy(ID_input,argv[5]);
+
+  //separate ID using the | token
+  cosmo_id = strtok(ID_input,sep);
+  geometry_id = strtok(NULL,sep);
+  ic_id = strtok(NULL,sep);
   
   /* check for some DEFINEFLAGS mistakes */
 #if (defined NCPUREADING_EQ_NFILES && defined BCASTHEADER)
@@ -129,7 +144,7 @@ int main(int argc, char **argv)
   timing.io       -= time(NULL);
   
   timing.startrun -= time(NULL);
-	startrun((argc > 1) ? argv[1] : NULL, &timecounter, &timestep, &no_first_timestep);
+	startrun(ENV_input,AMIGA_input,cosmo_id,geometry_id,ic_id,&timecounter, &timestep, &no_first_timestep);
   timing.startrun += time(NULL);
   
   

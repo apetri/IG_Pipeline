@@ -19,7 +19,11 @@
  * \return Nothing.
  */
 extern void
-startrun(char *paramfile,
+startrun(char *envfile,
+		 char *paramfile,
+		 char *cosmo_id,
+		 char *geometry_id,
+		 char *ic_id,
          double *timecounter,
          double *timestep,
          int32_t *no_first_timestep);

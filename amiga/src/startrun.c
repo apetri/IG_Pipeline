@@ -57,7 +57,7 @@ local_startrunRetset(double *timecounter,
 /*====================================================================================================
  * startrun()
  *====================================================================================================*/
-extern void startrun(char *paramfile, double *timecounter, double *timestep, int32_t *no_first_timestep)
+extern void startrun(char *envfile,char *paramfile,char *cosmo_id,char *geometry_id,char *ic_id,double *timecounter, double *timestep, int32_t *no_first_timestep)
 {
 	/* Read the parameters */
 	local_startrunParams(paramfile);
@@ -139,6 +139,15 @@ local_startrunParams(char *paramfile)
 	if (global_io.params == NULL) {
 		common_terminate(EXIT_FAILURE);
 	}
+
+	//<AP>
+
+	//adapting these for lenstools pipeline deployment
+
+	//global_io.params->icfile_name
+	//global_io.params->outfile_prefix
+
+	//</AP>
   
 	return;
 }
