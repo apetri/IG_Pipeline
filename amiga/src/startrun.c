@@ -139,15 +139,6 @@ local_startrunParams(char *envfile,char *paramfile,char *cosmo_id,char *geometry
 	if (global_io.params == NULL) {
 		common_terminate(EXIT_FAILURE);
 	}
-
-	//<AP>
-
-	//adapting these for lenstools pipeline deployment
-
-	//global_io.params->icfile_name
-	//global_io.params->outfile_prefix
-
-	//</AP>
   
 	return;
 }

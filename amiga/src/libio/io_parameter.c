@@ -8,10 +8,13 @@
 /*--- Includes ----------------------------------------------------------*/
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #include "io_parameter.h"
+#include "io_parameter_def.h"
 #include "io_util.h"
 #include "parse_ini.h"
+#include "xstring.h"
 #ifdef WITH_MPI
 #	include "../comm.h"
 #endif
@@ -46,8 +49,10 @@ local_printStruct(FILE *f, const io_parameter_t params);
 extern io_parameter_t
 io_parameter_get(char *envname,char *fname,char *cosmo_id,char *geometry_id,char *ic_id)
 {
-	parse_ini_t ini;
+	
+  parse_ini_t ini;
 	io_parameter_t params = NULL;
+  char tmp[MAXSTRING];
 
 	if ((ini = local_getIni(fname)) != NULL) {
 		params = local_allocStruct();
@@ -58,9 +63,36 @@ io_parameter_get(char *envname,char *fname,char *cosmo_id,char *geometry_id,char
 
   if ((ini = local_getIni(envname)) != NULL){
     local_readEnvironment(params,ini);
-    local_printStruct(stderr, params);
     parse_ini_close(&ini);
   }
+
+  //<AP>
+
+  /*adapting these for lenstools pipeline deployment*/
+
+  //ic_filename
+  if(snprintf(tmp,MAXSTRING,"%s/%s/%s/%s/snapshots/%s",params->storage_path,cosmo_id,geometry_id,ic_id,params->icfile_name)>MAXSTRING){
+    fprintf(stderr,"Path names are too long!");
+    exit(1);
+  }
+
+  free(params->icfile_name);
+  params->icfile_name = NULL;
+  params->icfile_name = xstrdup(tmp);
+
+  //outfile_prefix
+  if(snprintf(tmp,MAXSTRING,"%s/%s/%s/%s/%s",params->storage_path,cosmo_id,geometry_id,ic_id,params->outfile_prefix)>MAXSTRING){
+    fprintf(stderr,"Path names are too long!");
+    exit(1);
+  }
+
+  free(params->outfile_prefix);
+  params->outfile_prefix = NULL;
+  params->outfile_prefix = xstrdup(tmp);
+
+  local_printStruct(stderr, params);
+
+  //</AP>
 
 	return params;
 }
