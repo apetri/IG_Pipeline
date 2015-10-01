@@ -1,0 +1,20 @@
+##################
+# Chose one of the two (comment out the other):
+MODE = "PREFAB_GROWTH"
+# MODE = 
+# Select empty string if want to compile N-GenIC together with Lam Hui's FORTRAN 77 growth factor code, otherwise it is assumed you will be feeding N-GenIC if parameter files which contain values for GrowthFactor and VelocityPrefactor explicitly.
+##################
+
+#######################################
+#######Compilers and libraries#########
+#######################################
+
+EXEC   = N-GenIC
+
+CC = mpicc
+OPTIMIZE = -O3 -I.
+GSL_INCL = 
+GSL_LIBS = 
+FFTW_INCL = -I/usr/local/include
+FFTW_LIBS = -L/usr/local/lib
+MPICHLIB = 
