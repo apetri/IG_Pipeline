@@ -11,7 +11,7 @@ MODE = "PREFAB_GROWTH"
 
 EXEC   = N-GenIC
 
-CC       =  gcc-4.8
+CC       =  clang
 OPTIMIZE =  -O3 -Wall -I.
 GSL_INCL= -I/usr/local/include
 GSL_LIBS = -L/usr/local/lib
