@@ -12,7 +12,7 @@ MODE = "PREFAB_GROWTH"
 EXEC   = N-GenIC
 
 CC = mpicc
-OPTIMIZE = -O3 -I.
+OPTIMIZE = -O3 -I. -Wno-error=format-security
 GSL_INCL = 
 GSL_LIBS = 
 FFTW_INCL = -I/usr/local/include
