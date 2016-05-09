@@ -70,7 +70,7 @@ double DarkEnergy (double a)
 {
 	
 	if (All.w0>-1.0001 && All.w0<-0.9999 && All.wa>-0.0001 && All.wa<0.0001) return 1.0 ; 
-	return pow(a,-3*(1+All.w0+All.wa))*exp(-3*All.wa*(1-a))
+	return pow(a,-3*(1+All.w0+All.wa))*exp(-3*All.wa*(1-a)) ; 
 	
 }
 
