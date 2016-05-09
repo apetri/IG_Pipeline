@@ -48,99 +48,8 @@ void derivs (double x, double y[], double dydx[])
 
 
 void initialize_darkenergy (void) {
-	
-	int i;
-	int neqs; // number of differential equations
-	//double ystart[neqs+1];
-	double *ystart; // initial conditions array
-	double x1, x2; // starting and end point of integration
-	double eps, h1, hmin; // Performance control parameters for numerical integrator odeint.
-	int nok, nbad; // counts number of good and bad steps (is passed on as a pointer to subroutines called by odeint, so can be modified by those correctly).
-
-	// Number of ordinary differential equations to be solved:
-	neqs=1;
-	// The Differential Equations are specified in the function derivs.
-
-	// Performance and Output Control Parameters for numerical integrator:
-	// Performance:
-	eps=pow(10,-18); // Precision, maximal allowed error
-	h1=0.01; // guess for first stepsize
-	hmin=0; // minimal stepsize (can be zero)
-	// Output (output stored in (xp, yp[])):
-	kmax=100000; // maximum number of intermediate steps stored (first one and last one are always stored, and count towards the total number of steps specified by kmax).
-	dxsav=0.0001; // steps saved only in intervals larger than this value.
-
-	// Allocate arrays for differential equation ("time" parameter if the equation is xp, the functions are enumerated by yp[1-neqs]): 
-	xp=Vector(kmax); // Initializes vector, ready for NR-C (Numerical Recipes in C) component enumeration 1 through kmax.
-	yp=Matrix(neqs,kmax); // Initializes neqs x kmax matrix with NR-C enumeration. 
-	ystart=Vector(neqs); // Initial conditions (position) for functions solving the differential equations (only one in example here).
-	// WARNING: NEVER call xp[0], yp[0][...], or ystart[0] !!! Count starts at 1. (Otherwise you will overwrite some other variables!)
-
-	// Allocate dark energy array:
-	ap=Vector(kmax);
-	DEp=Matrix(neqs,kmax);
 		
-	//Initial conditions (for first oder equation example here, only one starting value, no derivative, needed):
-	ystart[1]=0.0; // function value of first ODE at starting point is 0, because it's an integral.
-	x1=0; // starting point of integration is at redshift 0.
-	x2=100; // end point of integration at this redshift (redshift needs to be larger than begin of N-body simulation, make higher if necessary).
-	
-	// Call driver for numerical integrator with above parameters (the driver calls then further subroutines):
-	odeint(ystart, neqs, x1, x2, eps, h1, hmin, &nok, &nbad, derivs, rkqs);
-
-	//	printf("Kount: %d.\n", kount);
-
-	// Sample output to check that everything is o.k. and demonstrate how the integrator works:
-	// Output should be only correct for writeouts from i=1 to i=kmax. The rest is included just as a reference.
-	
-	// printf("ystart, nok, nbad, nrhs: %e %d %d %d\n", ystart[1], nok, nbad, nrhs);
-
-	// Before splining, replace redshift z by scale factor a (the name of the variable is xp), and integral by whole dark energy factor expression, reorder by ascending scale factor:
-	for (i=1;i<=kount;i++)
-	{
-		ap[i]=1.0/(1.0+xp[kount+1-i]);
-		DEp[1][i]=exp(3*yp[1][kount+1-i]);
-		// printf("Eq 1: i, xp, yp: %d --  %e %e\n", i, ap[i], DEp[1][i]);
-	}
-	//Now can spline this final expression as a function of scale factor:
-
-	// Now do interpolation of above tabulated solutions:
-	y2=Vector(kmax);
-	// Initialize spline (need only do once):
-	// Arguments for spline(): table of arguments of function (x), table of function values at those arguments (y(x)), number of points tabulated, first derivatives at first and last point, output: second derivatives of function at tabulated points).
-	//spline(xp, yp[1], kmax, yp[1][1], yp[1][kmax], y2);
-	spline(ap, DEp[1], kount, DEp[1][1], DEp[1][kount], y2);
-	// Finding the first derivatives at start and end point is easy, because the ODE in derivs is always given as a first order equation, so it's always just the right-hand side of the equation, evaluated at [1] and [kmax] respectively.
-
-/*
-	FILE *output_file1;
-	output_file1 = fopen ("DE_factor.txt", "w");
-	
-	for (i=1;i<=99;i++)
-	{
-		xx=i*0.01+0.01;
-		// Evaluate spline:  
-		// Arguments for splint(): table of arguments of function (x), table of function values at those arguments (y(x)), output table from function spline above (second derivatives probably), number of tabulated points, point at which splined function is to be evaluated (x), output needs to be supplied as address and is the value of the splined function at that point (y(x)).
-		splint(ap, DEp[1], y2, kount, xx, &yy);
-	
-		fprintf(output_file1, "%e %e \n", xx, yy);
-	}
-	
-	fclose(output_file1);
-*/	
-
-	
-
-	free_Vector(xp);
-	free_Matrix(yp, neqs);
-	free_Vector(ystart);
-	
-	// Do not free those until the very end of the whole Gadget run:
-	//free_Vector(y2);
-	//free_Vector(ap);
-	//free_Matrix(DEp, neqs);
-		
-    printf("Finished initializing dark energy.\n");
+    printf("Finished initializing dark energy. (DO NOTHING!)\n");
     return;
 }
 
@@ -155,13 +64,16 @@ double w(double z)
 
 }
 
+//<AP>
+
 double DarkEnergy (double a)
 {
-	double yy;
-	if (All.w0>-1.0001 && All.w0<-0.9999 && All.wa>-0.0001 && All.wa<0.0001) yy=1.0; // this is LCDM case, so set factor to 1 (integral is zero, so exponent of e is zero). Because integrand is zero, odeint above makes only very few steps and the spline exhibits slight wiggles in this case, so set to exact value 1 (this problem does not occur if the integrand is a changing function, like with other constant values of w). 
-	else splint(ap, DEp[1], y2, kount, a, &yy);
-	return yy;
+	
+	if (All.w0>-1.0001 && All.w0<-0.9999 && All.wa>-0.0001 && All.wa<0.0001) return 1.0 ; 
+	return pow(a,-3*(1+All.w0+All.wa))*exp(-3*All.wa*(1-a))
+	
 }
 
+//</AP>
 
 //#undef NRANSI
