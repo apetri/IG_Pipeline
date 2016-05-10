@@ -20,7 +20,7 @@ OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
 	 domain.o  allvars_OMP.o potential.o  \
          forcetree_OMP.o   peano.o gravtree_forcetest.o \
 	 pm_periodic_OMP.o pm_nonperiodic.o longrange.o \
-	 darkenergy.o comoving_distance.o $(GSL_OBJS)
+	 comoving_distance.o $(GSL_OBJS)
 
 else
 
@@ -32,14 +32,14 @@ OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
 	 domain.o  allvars.o potential.o  \
          forcetree.o   peano.o gravtree_forcetest.o \
 	 pm_periodic.o pm_nonperiodic.o longrange.o \
-	 darkenergy.o comoving_distance.o $(GSL_OBJS)
+	 comoving_distance.o $(GSL_OBJS)
 
 endif
 
-INCL   = allvars.h  proto.h  tags.h  darkenergy.h comoving_distance.h $(GSL_H) Makefile.$(me)
+INCL   = allvars.h  proto.h  tags.h comoving_distance.h $(GSL_H) Makefile.$(me)
 
 # CFLAGS = $(OPTIONS) $(GSL_INCL) $(FFTW_INCL) $(HDF5INCL)
-CFLAGS = $(OPTIONS) $(FFTW_INCL) $(HDF5INCL)
+CFLAGS = $(OPTIONS) $(FFTW_INCL) $(HDF5INCL) -I../DarkEnergy
 
 
 ifeq (NOTYPEPREFIX_FFTW,$(findstring NOTYPEPREFIX_FFTW,$(OPT)))    # fftw installed with type prefix?
@@ -55,19 +55,25 @@ endif
 
 # LIBS   =   $(HDF5LIB) -g  $(MPICHLIB)  $(GSL_LIBS) -lgsl -lgslcblas -lm $(FFTW_LIB) 
 # LIBS   =   $(HDF5LIB) -g  $(MPICHLIB) -lm $(FFTW_LIB)
- LIBS   =   $(HDF5LIB) $(MPICHLIB) $(FFTW_LIB) -lm
+ LIBS   =   $(HDF5LIB) $(MPICHLIB) $(FFTW_LIB) -L../DarkEnergy -ldarkenergy -lm 
 
-$(EXEC): $(OBJS) 
+$(EXEC): libdarkenergy $(OBJS)
 	$(CC) $(OBJS) $(OPTIONS) $(LIBS)   -o  $(EXEC)  
 
 #        $(CC) $(OBJS) $(LIBS)   -o  $(EXEC)
 
 
-$(OBJS): $(INCL) 
+$(OBJS): $(INCL)
 
+#Dark energy library
+DEDIR = ../DarkEnergy
+$(DEDIR)/darkenergy.o: $(DEDIR)/darkenergy.c $(DEDIR)/darkenergy.h
+
+libdarkenergy: $(DEDIR)/darkenergy.o
+	ar rc $(DEDIR)/libdarkenergy.a $(DEDIR)/darkenergy.o ; ranlib $(DEDIR)/libdarkenergy.a 
 
 clean:
-	rm -f $(OBJS) $(EXEC)
+	rm -f $(OBJS) $(EXEC) $(DEDIR)/*.o $(DEDIR)/*.a
 
 
 #-----------------------------------------------------------------------
