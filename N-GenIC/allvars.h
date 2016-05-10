@@ -1,4 +1,5 @@
 #include <drfftw_mpi.h>
+#include "darkenergy.h"
 
 // <JMK>:
 #define PREFAB_GROWTH
@@ -70,6 +71,8 @@ extern struct io_header_1
 
 }
 header, header1;
+
+extern DECosmo de_cosmo;
 
 
 extern int      Nglass;

@@ -106,7 +106,7 @@ double Dplus_Interface(double z2, double z1, double omegamI, double omegaQI, dou
   
   H0=0.1; // in units km/s/kpc*h. H0=0.1 always in the internal units of Gadget, regardless of value of h (Hubble parameter).
 
-  DE=DarkEnergy(1.0/(z2+1.0));
+  DE=DarkEnergy(1.0/(z2+1.0),&de_cosmo);
   Hz=H0*sqrt( OM*(z2+1.0)*(z2+1.0)*(z2+1.0) + OK*(z2+1.0)*(z2+1.0) + OL*DE); // need to extend for w(z) by an integrator!
   
   // printf("Hz and Dark Energy Factor: %e %e\n", Hz, DE);
@@ -116,7 +116,7 @@ double Dplus_Interface(double z2, double z1, double omegamI, double omegaQI, dou
   for (i=0; i<1000; i++)
   {
 	test_z=((double) i)/100.0;
-	testDE=DarkEnergy(1.0/(test_z+1.0));
+	testDE=DarkEnergy(1.0/(test_z+1.0),,&de_cosmo);
 	if (ThisTask==0) printf("z=%e, DE=%e\n", test_z, testDE);
   }
   

@@ -21,9 +21,9 @@ INCL   = allvars.h proto.h $(GSL_H) Makefile.$(me)
 FFILES =
 else
 OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o \
-         interface.o darkenergy.o darkenergy_support.o $(GSL_OBJS)
+         interface.o $(GSL_OBJS)
 
-INCL   = allvars.h proto.h darkenergy.h darkenergy_support.h \
+INCL   = allvars.h proto.h  \
          $(GSL_H) parameters.inc Makefile
 
 FFILES = f77main.o angdiamQp.o dverk.o growthq.o universal.o
@@ -42,16 +42,23 @@ OPTIONS =  $(OPT)
 
 FFTW_LIB =  $(FFTW_LIBS) -ldrfftw_mpi -ldfftw_mpi -ldrfftw -ldfftw
 
-LIBS   =  $(MPICHLIB)  $(FFTW_LIB)  $(GSL_LIBS) $(FLIB) -lm
+LIBS   =  $(MPICHLIB)  $(FFTW_LIB)  $(GSL_LIBS) $(FLIB) -L../DarkEnergy -ldarkenergy -lm
 
-CFLAGS =   $(OPTIONS)  $(OPTIMIZE)  $(FFTW_INCL) $(GSL_INCL)
+CFLAGS =   $(OPTIONS)  $(OPTIMIZE)  $(FFTW_INCL) $(GSL_INCL) -I../DarkEnergy
 
-$(EXEC): $(OBJS) $(FFILES)
+$(EXEC): libdarkenergy $(OBJS) $(FFILES)
 	$(CC) $(OPTIMIZE) $(FFILES) $(OBJS) $(LIBS)   -o  $(EXEC)  
 
 $(OBJS): $(INCL) 
 
+#Dark energy library
+DEDIR = ../DarkEnergy
+$(DEDIR)/darkenergy.o: $(DEDIR)/darkenergy.c $(DEDIR)/darkenergy.h
+
+libdarkenergy: $(DEDIR)/darkenergy.o
+	ar rc $(DEDIR)/libdarkenergy.a $(DEDIR)/darkenergy.o ; ranlib $(DEDIR)/libdarkenergy.a
+
 
 .PHONY : clean
 clean:
-	rm -f $(OBJS) $(EXEC)
+	rm -f $(OBJS) $(EXEC) $(DEDIR)/*.o $(DEDIR)/*.a

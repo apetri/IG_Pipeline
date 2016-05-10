@@ -1,7 +1,9 @@
 #include "allvars.h"
-
+#include "darkenergy.h"
 
 struct io_header_1 header1, header;
+DECosmo de_cosmo;
+
 
 int WhichSpectrum;
 

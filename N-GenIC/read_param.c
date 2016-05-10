@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "allvars.h"
 #include "proto.h"
 
@@ -221,6 +222,10 @@ void read_parameterfile(char *fname)
       MPI_Finalize();
       exit(0);
     }
+
+  //Dark energy parameters
+  de_cosmo.w0 = w0;
+  de_cosmo.wa = wa;
 
 
 #undef FLOAT
