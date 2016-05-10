@@ -36,7 +36,7 @@ double **DEp_c;
 double DarkEnergy (double a, DECosmo *cosmo);
 
 /*
- *
+ *	Below
  *  Created by Jan Michael Kratochvil - on 7/16/07.
  *  Copyright 2007 Jan Michael Kratochvil. All rights reserved.
  *
