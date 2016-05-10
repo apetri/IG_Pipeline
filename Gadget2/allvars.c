@@ -9,6 +9,7 @@
 // </JMK>
 #include "tags.h"
 #include "allvars.h"
+#include "darkenergy.h"
 
 // <JMK>:
 // Octopus modification of Gadget-2:
@@ -121,6 +122,8 @@ void *CommBuffer;   /*!< points to communication buffer, which is used in the do
  */
 struct global_data_all_processes
  All;
+
+DECosmo de_cosmo ;
 
 
 

@@ -11,11 +11,12 @@
 // Must be included in all .c files that are not main.c
 // Contains all references to global variables and functions which are declared in main.c
 
-extern int kmax_c, kount_c, nrhs_c;
-extern double dxsav_c, *xp_c, **yp_c;
-// extern double *y2_c;
-extern double *ap_c;
-extern double **DEp_c;
+#ifndef __COMOVING_DISTANCE_H
+#define __COMOVING_DISTANCE_H
+
+#include "darkenergy.h"
 
 void derivs_c (double x, double y[], double dydx[]);
 double calculate_comoving_distance(double time);
+
+#endif

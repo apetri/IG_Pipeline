@@ -20,7 +20,7 @@ OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
 	 domain.o  allvars_OMP.o potential.o  \
          forcetree_OMP.o   peano.o gravtree_forcetest.o \
 	 pm_periodic_OMP.o pm_nonperiodic.o longrange.o \
-	 darkenergy.o darkenergy_support.o comoving_distance.o comoving_distance_support.o $(GSL_OBJS)
+	 darkenergy.o comoving_distance.o $(GSL_OBJS)
 
 else
 
@@ -32,11 +32,11 @@ OBJS   = main.o  run.o  predict.o begrun.o endrun.o global.o  \
 	 domain.o  allvars.o potential.o  \
          forcetree.o   peano.o gravtree_forcetest.o \
 	 pm_periodic.o pm_nonperiodic.o longrange.o \
-	 darkenergy.o darkenergy_support.o comoving_distance.o comoving_distance_support.o $(GSL_OBJS)
+	 darkenergy.o comoving_distance.o $(GSL_OBJS)
 
 endif
 
-INCL   = allvars.h  proto.h  tags.h  darkenergy.h darkenergy_support.h comoving_distance.h comoving_distance_support.h $(GSL_H) Makefile.$(me)
+INCL   = allvars.h  proto.h  tags.h  darkenergy.h comoving_distance.h $(GSL_H) Makefile.$(me)
 
 # CFLAGS = $(OPTIONS) $(GSL_INCL) $(FFTW_INCL) $(HDF5INCL)
 CFLAGS = $(OPTIONS) $(FFTW_INCL) $(HDF5INCL)

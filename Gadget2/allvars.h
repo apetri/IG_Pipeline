@@ -27,6 +27,11 @@
 #define  NR_OF_OMP_THREADS 2
 //</JMK>
 
+
+//<AP>
+#include "darkenergy.h"
+//</AP>
+
 #define  GADGETVERSION   "2.0"   /*!< code version string */
 
 #define  TIMEBASE        (1<<28) /*!< The simulated timespan is mapped onto the integer interval [0,TIMESPAN],
@@ -508,6 +513,7 @@ extern struct global_data_all_processes
  All;                                          /*!< a container variable for global variables that are equal on all processors */
 
 
+extern DECosmo de_cosmo;
 
 /*! This structure holds all the information that is
  * stored for each particle of the simulation.
@@ -804,8 +810,6 @@ extern struct hydrodata_out
 #endif
 
 // <JMK>:
-#include "darkenergy.h"
-#include "darkenergy_support.h"
 
 #define DARKENERGY 1
 // Set above to zero before compilation to use original Gadget-2 without dark energy extension.

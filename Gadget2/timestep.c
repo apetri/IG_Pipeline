@@ -6,6 +6,8 @@
 #include "allvars.h"
 #include "proto.h"
 
+#include "darkenergy.h"
+
 /*! \file timestep.c 
  *  \brief routines for 'kicking' particles in momentum space and assigning new timesteps
  */
@@ -53,7 +55,7 @@ void advance_and_find_timesteps(void)
 	+ (1 - All.Omega0 - All.OmegaLambda) / (All.Time * All.Time);
 //<JMK>:
 #if DARKENERGY
-		hubble_a += All.OmegaLambda*DarkEnergy(All.Time);
+		hubble_a += All.OmegaLambda*DarkEnergy(All.Time,&de_cosmo);
 		// printf("Doing dark energy.\n");
 		fflush(stdout);
 #else	 

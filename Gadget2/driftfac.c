@@ -12,6 +12,8 @@
 #include "allvars.h"
 #include "proto.h"
 
+#include "darkenergy.h"
+
 /*! \file driftfac.c
  *  \brief compute loop-up tables for prefactors in cosmological integration
  */
@@ -199,7 +201,7 @@ double drift_integ(double a, void *param)
 
 //<JMK>:
 #if DARKENERGY
-		h += All.OmegaLambda*DarkEnergy(a);
+		h += All.OmegaLambda*DarkEnergy(a,&de_cosmo);
 #else	 
 		h += All.OmegaLambda;
 #endif
@@ -220,7 +222,7 @@ double gravkick_integ(double a, void *param)
 
 //<JMK>:
 #if DARKENERGY
-		h += All.OmegaLambda*DarkEnergy(a);
+		h += All.OmegaLambda*DarkEnergy(a,&de_cosmo);
 #else	 
 		h += All.OmegaLambda;
 #endif
@@ -242,7 +244,7 @@ double hydrokick_integ(double a, void *param)
   
 //<JMK>:
 #if DARKENERGY
-		h += All.OmegaLambda*DarkEnergy(a);
+		h += All.OmegaLambda*DarkEnergy(a,&de_cosmo);
 #else	 
 		h += All.OmegaLambda;
 #endif
@@ -261,7 +263,7 @@ double growthfactor_integ(double a, void *param)
   
 //<JMK>:
 #if DARKENERGY
-		s += All.OmegaLambda*DarkEnergy(a) * a * a * a;
+		s += All.OmegaLambda*DarkEnergy(a,&de_cosmo) * a * a * a;
 #else	 
 		s += All.OmegaLambda * a * a * a;
 #endif
