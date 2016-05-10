@@ -77,7 +77,6 @@ double Dplus_Interface(double z2, double z1, double omegamI, double omegaQI, dou
   
   w0=wQI;
   wa=wQpI;
-  initialize_darkenergy();
   
   // Beware: Lam Hui's linear growth code does not seem to work well
   // (i.e. with dverk error) if wQpI differs from 0.0 by more than 0.15 or so.
@@ -116,7 +115,7 @@ double Dplus_Interface(double z2, double z1, double omegamI, double omegaQI, dou
   for (i=0; i<1000; i++)
   {
 	test_z=((double) i)/100.0;
-	testDE=DarkEnergy(1.0/(test_z+1.0),,&de_cosmo);
+	testDE=DarkEnergy(1.0/(test_z+1.0),&de_cosmo);
 	if (ThisTask==0) printf("z=%e, DE=%e\n", test_z, testDE);
   }
   
