@@ -43,9 +43,11 @@ endif
 endif
 
 
+GSL_LIB = $(GSL_LIBS) -lgsl -lgslcblas
+
 # LIBS   =   $(HDF5LIB) -g  $(MPICHLIB)  $(GSL_LIBS) -lgsl -lgslcblas -lm $(FFTW_LIB) 
 # LIBS   =   $(HDF5LIB) -g  $(MPICHLIB) -lm $(FFTW_LIB)
- LIBS   =   $(HDF5LIB) $(MPICHLIB) $(GSL_LIBS) $(FFTW_LIB) -L../DarkEnergy -ldarkenergy -lm 
+ LIBS   =   $(HDF5LIB) $(MPICHLIB) $(GSL_LIB) $(FFTW_LIB) -L../DarkEnergy -ldarkenergy -lm 
 
 $(EXEC): libdarkenergy $(OBJS)
 	$(CC) $(OBJS) $(OPTIONS) $(LIBS)   -o  $(EXEC)  
