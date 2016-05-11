@@ -48,7 +48,7 @@ void derivs_c (double x, double y[], double dydx[])
 }
 
 
-double calculate_comoving_distance(double time) {
+double calculate_comoving_distance(double a) {
 	
 	int i;
 	int neqs; // number of differential equations
@@ -88,7 +88,7 @@ double calculate_comoving_distance(double time) {
 	//Initial conditions (for first oder equation example here, only one starting value, no derivative, needed):
 	ystart[1]=0.0; // function value of first ODE at starting point is 0, because it's an integral.
 	x1=0.0; // starting point of integration is at redshift 0.
-	x2=(1.0/time)-1.0; // end point of integration at this redshift (redshift needs to be larger than begin of N-body simulation, make higher if necessary).
+	x2=(1.0/a)-1.0; // end point of integration at this redshift (redshift needs to be larger than begin of N-body simulation, make higher if necessary).
 	
 	// Call driver for numerical integrator with above parameters (the driver calls then further subroutines):
 	odeint_c(ystart, neqs, x1, x2, eps, h1, hmin, &nok, &nbad, derivs_c, rkqs);
