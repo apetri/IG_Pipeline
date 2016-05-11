@@ -3,12 +3,10 @@
 #include <string.h>
 #include <math.h>
 #include <mpi.h>
-// <JMK>:
-// #include <gsl/gsl_math.h>
-// #include <gsl/gsl_integration.h>
-#include "gsl_extract/gsl_math.h"
-#include "gsl_extract/integration/gsl_integration.h"
-// </JMK>
+
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_integration.h>
+
 #include "allvars.h"
 #include "proto.h"
 

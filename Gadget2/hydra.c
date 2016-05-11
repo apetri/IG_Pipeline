@@ -3,10 +3,9 @@
 #include <string.h>
 #include <math.h>
 #include <mpi.h>
-// <JMK>:
-// #include <gsl/gsl_math.h>
-#include "gsl_extract/gsl_math.h"
-// </JMK>
+
+#include <gsl/gsl_math.h>
+
 #include "allvars.h"
 #include "proto.h"
 #include "darkenergy.h"

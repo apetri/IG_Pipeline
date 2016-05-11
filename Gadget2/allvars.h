@@ -17,13 +17,11 @@
 #define ALLVARS_H
 
 #include <stdio.h>
-// #include <gsl/gsl_rng.h>
+#include <gsl/gsl_rng.h>
 #include "tags.h"
 
 //<JMK>:
 #include <mpi.h>
-#include "gsl_extract/rng/gsl_rng.h"
-
 #define  NR_OF_OMP_THREADS 2
 //</JMK>
 
