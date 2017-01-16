@@ -4,27 +4,15 @@
 ##################
 
 ##################
-# Local extract from GNU Scientific Library (GSL) to be used directly in the code:
-# (Note that if you change GSL_DIR here, you will need to adjust it in the #include statements in the main code as well, but not in the GSL files, which are all locally referenced from this folder.)
-GSL_DIR = gsl_extract
-
-GSL_OBJS = $(GSL_DIR)/rng/rng.o $(GSL_DIR)/err/error.o $(GSL_DIR)/err/stream.o $(GSL_DIR)/rng/ranlxd.o $(GSL_DIR)/integration/qag.o $(GSL_DIR)/integration/qk.o $(GSL_DIR)/integration/qk15.o $(GSL_DIR)/integration/qk21.o $(GSL_DIR)/integration/qk31.o $(GSL_DIR)/integration/qk41.o $(GSL_DIR)/integration/qk51.o $(GSL_DIR)/integration/qk61.o $(GSL_DIR)/integration/workspace.o $(GSL_DIR)/sys/coerce.o $(GSL_DIR)/rng/mt.o
-
-GSL_H = $(GSL_DIR)/err/gsl_errno.h $(GSL_DIR)/gsl_inline.h $(GSL_DIR)/rng/gsl_rng.h $(GSL_DIR)/gsl_types.h $(GSL_DIR)/integration/gsl_integration.h $(GSL_DIR)/gsl_math.h $(GSL_DIR)/gsl_minmax.h $(GSL_DIR)/integration/initialise.c $(GSL_DIR)/integration/set_initial.c $(GSL_DIR)/integration/util.c $(GSL_DIR)/config.h
-##################
-
-##################
 ifeq ($(MODE), "PREFAB_GROWTH")
-OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o $(GSL_OBJS)
+OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o
 
-INCL   = allvars.h proto.h $(GSL_H) Makefile.$(me)
+INCL   = allvars.h proto.h Makefile.$(me)
 FFILES =
 else
-OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o \
-         interface.o darkenergy.o darkenergy_support.o $(GSL_OBJS)
+OBJS   = main.o power.o allvars.o save.o read_param.o  read_glass.o interface.o
 
-INCL   = allvars.h proto.h darkenergy.h darkenergy_support.h \
-         $(GSL_H) parameters.inc Makefile
+INCL   = allvars.h proto.h  parameters.inc Makefile
 
 FFILES = f77main.o angdiamQp.o dverk.o growthq.o universal.o
 endif
@@ -41,17 +29,25 @@ OPT	+=  -DNO64BITID    # switch this on if you want normal 32-bit IDs
 OPTIONS =  $(OPT)
 
 FFTW_LIB =  $(FFTW_LIBS) -ldrfftw_mpi -ldfftw_mpi -ldrfftw -ldfftw
+GSL_LIB = $(GSL_LIBS) -lgsl -lgslcblas
 
-LIBS   =  $(MPICHLIB)  $(FFTW_LIB)  $(GSL_LIBS) $(FLIB) -lm
+LIBS   =  $(MPICHLIB)  $(FFTW_LIB)  $(GSL_LIB) $(FLIB) -L../DarkEnergy -ldarkenergy -lm
 
-CFLAGS =   $(OPTIONS)  $(OPTIMIZE)  $(FFTW_INCL) $(GSL_INCL)
+CFLAGS =   $(OPTIONS)  $(OPTIMIZE)  $(FFTW_INCL) $(GSL_INCL) -I../DarkEnergy
 
-$(EXEC): $(OBJS) $(FFILES)
+$(EXEC): libdarkenergy $(OBJS) $(FFILES)
 	$(CC) $(OPTIMIZE) $(FFILES) $(OBJS) $(LIBS)   -o  $(EXEC)  
 
 $(OBJS): $(INCL) 
 
+#Dark energy library
+DEDIR = ../DarkEnergy
+$(DEDIR)/darkenergy.o: $(DEDIR)/darkenergy.c $(DEDIR)/darkenergy.h
+
+libdarkenergy: $(DEDIR)/darkenergy.o
+	ar rc $(DEDIR)/libdarkenergy.a $(DEDIR)/darkenergy.o ; ranlib $(DEDIR)/libdarkenergy.a
+
 
 .PHONY : clean
 clean:
-	rm -f $(OBJS) $(EXEC)
+	rm -f $(OBJS) $(EXEC) $(DEDIR)/*.o $(DEDIR)/*.a

@@ -1,21 +1,50 @@
-/*
- *  darkenergy_support.c
- *  Dark Energy Extension for V. Springel's Gadget-2
- *
- *  Created by Jan Michael Kratochvil - on 7/16/07.
- *  Copyright 2007 Jan Michael Kratochvil. All rights reserved.
- *
- */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
 
 #include "darkenergy.h"
-#include "darkenergy_support.h"
 
+// Global variables for integration (dark energy density)
+extern double dxsav; // distance at which steps are to be saved.
+extern double *xp; // array of "times" at which output is saved ("time" = the evolution parameter of the differential equation).
+extern double **yp; // array containing the values of the funtions at the output times given in array xp. 
+extern int kmax; // maximal number of intermediate steps saved (last step is always saved)
+extern int kount; // kounts through saved steps up to kmax
+extern int nrhs;   // counts function evaluations (increased by one each time derivs is called, which contains the ODE's) 
+
+extern double *y2;
+extern double *ap;
+extern double **DEp;
+
+
+// Global variables for integration (comoving distance)
+extern double dxsav_c; // distance at which steps are to be saved.
+extern double *xp_c; // array of "times" at which output is saved ("time" = the evolution parameter of the differential equation).
+extern double **yp_c; // array containing the values of the funtions at the output times given in array xp. 
+extern int kmax_c; // maximal number of intermediate steps saved (last step is always saved)
+extern int kount_c; // kounts through saved steps up to kmax
+extern int nrhs_c;   // counts function evaluations (increased by one each time derivs is called, which contains the ODE's) 
+
+// double *y2_c;
+extern double *ap_c;
+extern double **DEp_c;
+
+double DarkEnergy (double a, DECosmo *cosmo)
+{
+	
+	if (cosmo->w0>-1.0001 && cosmo->w0<-0.9999 && cosmo->wa>-0.0001 && cosmo->wa<0.0001) return 1.0 ; 
+	return pow(a,-3*(1+cosmo->w0+cosmo->wa))*exp(-3*cosmo->wa*(1-a)) ; 
+	
+}
+
+
+/*
+ *	Below
+ *  Created by Jan Michael Kratochvil - on 7/16/07.
+ *  Copyright 2007 Jan Michael Kratochvil. All rights reserved.
+ *
+ */
 
 ///////////////////////////////////////////
 // INTEGRATION:
@@ -33,8 +62,6 @@
 #define FMAX(A, B) (((A)>(B)) ? (A) : (B))
 #define FMIN(A, B) (((A)>(B)) ? (B) : (A))
 #define SIGN(A, B) ((((B)>=0.0) ? 1.0 : -1.0) * fabs(A))
-
-
 
 void odeint(double ystart[], int nvar, double x1, double x2, double eps, double h1,
 	double hmin, int *nok, int *nbad,
@@ -98,11 +125,69 @@ void odeint(double ystart[], int nvar, double x1, double x2, double eps, double 
 	printf("Too many steps in routine odeint");
 	exit(1);
 }
-#undef MAXSTP
-#undef TINY
-//#undef NRANSI
 
+void odeint_c(double ystart[], int nvar, double x1, double x2, double eps, double h1,
+	double hmin, int *nok, int *nbad,
+	void (*derivs)(double, double [], double []),
+	void (*rkqs)(double [], double [], int, double *, double, double, double [],
+	double *, double *, void (*)(double, double [], double [])))
+{
+	int nstp,i;
+	double xsav,x,hnext,hdid,h;
+	double *yscal,*y,*dydx;
 
+	yscal=Vector(nvar);
+	y=Vector(nvar);
+	dydx=Vector(nvar);
+
+	//double yscal[nvar+1], y[nvar+1], dydx[nvar+1];
+	//yscal=vector(1,nvar);
+	//y=vector(1,nvar);
+	//dydx=vector(1,nvar);
+	x=x1;
+	h=SIGN(h1,x2-x1);  // returns magnitude of h1 with the sign of x2-x1
+	*nok = (*nbad) = kount_c = 0;
+	for (i=1;i<=nvar;i++) y[i]=ystart[i];
+	if (kmax_c > 0) xsav=x-dxsav_c*2.0;
+	for (nstp=1;nstp<=MAXSTP;nstp++) {
+		(*derivs)(x,y,dydx);
+		for (i=1;i<=nvar;i++)
+			yscal[i]=fabs(y[i])+fabs(dydx[i]*h)+TINY;
+		if (kmax_c > 0 && kount_c < kmax_c-1 && fabs(x-xsav) > fabs(dxsav_c)) {
+			kount_c++;
+			xp_c[kount_c]=x;
+			for (i=1;i<=nvar;i++) yp_c[i][kount_c]=y[i];
+			xsav=x;
+		}
+		if ((x+h-x2)*(x+h-x1) > 0.0) h=x2-x;
+		(*rkqs)(y,dydx,nvar,&x,h,eps,yscal,&hdid,&hnext,derivs);
+		if (hdid == h) (*nok)++; else (*nbad)++;
+		if ((x-x2)*(x2-x1) >= 0.0) {
+			for (i=1;i<=nvar;i++) ystart[i]=y[i];
+			if (kmax_c) {
+				kount_c++;
+				xp_c[kount_c]=x;
+				for (i=1;i<=nvar;i++) yp_c[i][kount_c]=y[i];
+			}
+		//	free_vector(dydx,1,nvar);
+		//	free_vector(y,1,nvar);
+		//	free_vector(yscal,1,nvar);
+		free_Vector(dydx);
+		free_Vector(y);
+		free_Vector(yscal);
+
+			return;
+		}
+		if (fabs(hnext) <= hmin)
+		{
+			printf("Step size too small in odeint_c");
+			exit(1);
+		}
+		h=hnext;
+	}
+	printf("Too many steps in routine odeint_c");
+	exit(1);
+}
 
 //#include <math.h>
 //#define NRANSI
@@ -154,11 +239,6 @@ void rkqs(double y[], double dydx[], int n, double *x, double htry, double eps,
 #undef PGROW
 #undef PSHRNK
 #undef ERRCON
-//#undef NRANSI
-
-
-//#define NRANSI
-//#include "nrutil.h"
 
 void rkck(double y[], double dydx[], int n, double x, double h, double yout[],
 	double yerr[], void (*derivs)(double, double [], double []))
@@ -356,6 +436,8 @@ void free_Matrix(double** matrix, int m) // need to specify how many rows origin
 	free(matrix);
 }
 
-#undef FMAX(A, B)
-#undef FMIN(A, B)
-#undef SIGN(A, B)
+#undef FMAX
+#undef FMIN
+#undef SIGN
+#undef MAXSTP
+#undef TINY

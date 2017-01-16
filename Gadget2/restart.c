@@ -9,10 +9,8 @@
 #include <sys/types.h>
 #include <sys/file.h>
 #include <unistd.h>
-// <JMK>:
-// #include <gsl/gsl_rng.h>
-#include "gsl_extract/rng/gsl_rng.h"
-// </JMK>
+
+#include <gsl/gsl_rng.h>
 
 #include "allvars.h"
 #include "proto.h"

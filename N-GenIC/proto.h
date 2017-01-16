@@ -1,8 +1,4 @@
-
-// <JMK>
-// #include <gsl/gsl_rng.h>
-#include "gsl_extract/rng/gsl_rng.h"
-// </JMK>
+#include <gsl/gsl_rng.h>
 
 double GrowthFactor(double astart, double aend);
 void   print_spec(void);

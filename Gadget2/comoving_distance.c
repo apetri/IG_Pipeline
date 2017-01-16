@@ -15,26 +15,26 @@
 #include <assert.h>
 
 #include "allvars.h"
+
+#include "darkenergy.h"
 #include "comoving_distance.h"
-#include "comoving_distance_support.h"
-#include "darkenergy_support.h"
-
-
 
 //#include <nrutil.h>
 //#define NRANSI
 
-// Global variables for integration:
-double dxsav_c; // distance at which steps are to be saved.
-double *xp_c; // array of "times" at which output is saved ("time" = the evolution parameter of the differential equation).
-double **yp_c; // array containing the values of the funtions at the output times given in array xp. 
-int kmax_c; // maximal number of intermediate steps saved (last step is always saved)
-int kount_c; // kounts through saved steps up to kmax
-int nrhs_c;   // counts function evaluations (increased by one each time derivs is called, which contains the ODE's) 
+ 
+// Global variables for integration (comoving distance)
+extern double dxsav_c; // distance at which steps are to be saved.
+extern double *xp_c; // array of "times" at which output is saved ("time" = the evolution parameter of the differential equation).
+extern double **yp_c; // array containing the values of the funtions at the output times given in array xp. 
+extern int kmax_c; // maximal number of intermediate steps saved (last step is always saved)
+extern int kount_c; // kounts through saved steps up to kmax
+extern int nrhs_c;   // counts function evaluations (increased by one each time derivs is called, which contains the ODE's) 
 
 // double *y2_c;
-double *ap_c;
-double **DEp_c;
+extern double *ap_c;
+extern double **DEp_c;
+
 
 // This function specifies the ordinary differential equations.
 // They must by first order ODE's, higher order equations must be rewritten as a system of ordinary first order equations.
@@ -44,11 +44,11 @@ void derivs_c (double x, double y[], double dydx[])
 {
 	nrhs_c++; //counts function evaluations
 	// dydx=f(y(x),x) first order ordinary differential equation:
-	dydx[1]=1.0/(sqrt(All.Omega0*(1.0+x)*(1.0+x)*(1.0+x)+All.OmegaLambda*DarkEnergy(1.0/(1.0+x)))); // arbitrary examples of first order differential equations being solved (this line and the next two).
+	dydx[1]=1.0/(sqrt(All.Omega0*(1.0+x)*(1.0+x)*(1.0+x)+All.OmegaLambda*DarkEnergy(1.0/(1.0+x),&de_cosmo))); // arbitrary examples of first order differential equations being solved (this line and the next two).
 }
 
 
-double calculate_comoving_distance(double time) {
+double calculate_comoving_distance(double a) {
 	
 	int i;
 	int neqs; // number of differential equations
@@ -88,7 +88,7 @@ double calculate_comoving_distance(double time) {
 	//Initial conditions (for first oder equation example here, only one starting value, no derivative, needed):
 	ystart[1]=0.0; // function value of first ODE at starting point is 0, because it's an integral.
 	x1=0.0; // starting point of integration is at redshift 0.
-	x2=(1.0/time)-1.0; // end point of integration at this redshift (redshift needs to be larger than begin of N-body simulation, make higher if necessary).
+	x2=(1.0/a)-1.0; // end point of integration at this redshift (redshift needs to be larger than begin of N-body simulation, make higher if necessary).
 	
 	// Call driver for numerical integrator with above parameters (the driver calls then further subroutines):
 	odeint_c(ystart, neqs, x1, x2, eps, h1, hmin, &nok, &nbad, derivs_c, rkqs);
@@ -126,8 +126,5 @@ double calculate_comoving_distance(double time) {
 	//    printf("Finished calculating comoving distance, and dark energy parameters are: w0=%e, wa=%e.\n", All.w0, All.wa);
     return comoving_distance;
 }
-
-
-
 
 //#undef NRANSI

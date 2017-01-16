@@ -3,12 +3,12 @@
 #include <string.h>
 #include <math.h>
 #include <mpi.h>
-// <JMK>:
-// #include <gsl/gsl_math.h>
-#include "gsl_extract/gsl_math.h"
-// </JMK>
+
+#include <gsl/gsl_math.h>
+
 #include "allvars.h"
 #include "proto.h"
+#include "darkenergy.h"
 
 /*! \file hydra.c
  *  \brief Computation of SPH forces and rate of entropy generation
@@ -86,7 +86,7 @@ void hydro_force(void)
 	
 //<JMK>:
 #if DARKENERGY
-		hubble_a += All.OmegaLambda*DarkEnergy(All.Time);
+		hubble_a += All.OmegaLambda*DarkEnergy(All.Time,&de_cosmo);
 #else	 
 		hubble_a += All.OmegaLambda;
 #endif

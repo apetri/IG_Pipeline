@@ -5,10 +5,9 @@
 #include <mpi.h>
 #include <sys/types.h>
 #include <unistd.h>
-// <JMK>:
-// #include <gsl/gsl_rng.h>
-#include "gsl_extract/rng/gsl_rng.h"
-// </JMK>
+
+#include <gsl/gsl_rng.h>
+
 #include "allvars.h"
 #include "proto.h"
 
@@ -41,9 +40,6 @@ void begrun(void)
 
   allocate_commbuffers();	/* ... allocate buffer-memory for particle 
 				   exchange during force computation */
-  // <JMK>:
-  initialize_darkenergy();
-  // </JMK>
 
   set_units();
 
@@ -705,6 +701,14 @@ void read_parameter_file(char *fname)
   // MPI_Bcast(&All, sizeof(struct global_data_all_processes), MPI_BYTE, 0, MPI_COMM_WORLD);
   MPI_Bcast(&All, sizeof(struct global_data_all_processes), MPI_BYTE, 0, sim_comm);
   // </JMK>
+
+  /* Communicate the dark energy parameters */
+  // <AP>
+  de_cosmo.w0 = All.w0 ;
+  de_cosmo.wa = All.wa ;
+  MPI_Bcast(&de_cosmo, sizeof(DECosmo), MPI_BYTE, 0, sim_comm) ;
+
+  // </AP>
 
   if(All.NumFilesWrittenInParallel < 1)
     {

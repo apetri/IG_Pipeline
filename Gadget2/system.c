@@ -7,10 +7,8 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #include <signal.h>
-// <JMK>:
-// #include <gsl/gsl_rng.h>
-#include "gsl_extract/rng/gsl_rng.h"
-// </JMK>
+
+#include <gsl/gsl_rng.h>
 #include <mpi.h>
 
 #include "allvars.h"
